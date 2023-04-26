@@ -21,6 +21,14 @@ class _MyAppState extends State<MyApp> {
   final int _maxProgress = 20;
   final player = AudioPlayer();
 
+  bool showImage = false;
+
+  void _handleUserChoice(bool value) {
+    setState(() {
+      if(_level >= 100) showImage = value;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -79,7 +87,8 @@ class _MyAppState extends State<MyApp> {
 
   void _showEncryptedData() {
     final jsonData = json.encode({'level': _level, 'progress': _progress});
-    const secretKey = 'ASDFGHJKLASDFGHJ'; // You should use another key and put it in an external server or something like that.
+    const secretKey =
+        'ASDFGHJKLASDFGHJ'; // You should use another key and put it in an external server or something like that.
     final encryptedData = encryptData(jsonData, secretKey);
 
     Fluttertoast.showToast(
@@ -107,12 +116,24 @@ class _MyAppState extends State<MyApp> {
           ),
           child: Stack(
             children: [
-              Center(
-                child: Image.asset(
-                  'assets/images/lain_chikita.png',
-                  fit: BoxFit.cover,
+              GestureDetector(
+                  child: Center(
+                    child: Image.asset(
+                      'assets/images/lain_chikita.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  onTap: () {
+                    _handleUserChoice(true);
+                  }),
+              if (showImage)
+                Positioned(
+                  child: Center(
+                    child: Image.asset(
+                        'assets/images/accessories/sunglasses.png',
+                        fit: BoxFit.cover),
+                  ),
                 ),
-              ),
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
