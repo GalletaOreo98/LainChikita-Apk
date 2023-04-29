@@ -4,12 +4,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'functions/encryption_functions.dart';
+import 'global_vars.dart' as global;
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  await dotenv.load();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -20,27 +23,19 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  //User vars
-  late int _level = 0;
-  late int _progress = 0;
-  String _username = "NULLUSER";
-
   //App vars
   final int _maxProgress = 20;
   final _player = AudioPlayer(playerId: 'btnLove');
   bool showImage = false;
 
-  //final _secretKey = 'ASDFGHJKLASDFGHJ';
+  final secretKey = dotenv.env['SECRET_KEY'];
 
   void _handleUserChoice(bool value) {
     setState(() {
-      final jsonData = json.encode({'level': _level, 'progress': _progress, 'username': _username});
-      const secretKey =
-          'ASDFGHJKLASDFGHJ'; // You should use another key and put it in an external server or something like that.
-      final encryptedData = encryptData(jsonData, secretKey);
-      decryptData(encryptedData, secretKey);
-
-      if (_level >= 100) showImage = value;
+      final jsonData = json.encode({'level': global.level, 'progress': global.progress, 'username': global.username});
+      final encryptedData = encryptData(jsonData, secretKey!);
+      decryptData(encryptedData, secretKey!);
+      if (global.level >= 100) showImage = value;
     });
   }
 
@@ -57,36 +52,34 @@ class _MyAppState extends State<MyApp> {
   Future<void> _loadProgress() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _level = prefs.getInt('level') ?? 0;
-      _progress = prefs.getInt('progress') ?? 0;
-      _username = prefs.getString('username') ?? "NULLUSER";
+      global.level = prefs.getInt('level') ?? 0;
+      global.progress = prefs.getInt('progress') ?? 0;
+      global.username = prefs.getString('username') ?? "NULLUSER";
     });
   }
 
   Future<void> _saveProgress() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('level', _level);
-    await prefs.setInt('progress', _progress);
-    await prefs.setString('username', _username);
+    await prefs.setInt('level', global.level);
+    await prefs.setInt('progress', global.progress);
+    await prefs.setString('username', global.username);
   }
 
   void _incrementProgress() {
     setState(() {
       playBtnSound();
-      _progress += 1;
-      if (_progress >= _maxProgress) {
-        _progress = 0;
-        _level += 1;
+      global.progress += 1;
+      if (global.progress >= _maxProgress) {
+        global.progress = 0;
+        global.level += 1;
       }
       _saveProgress();
     });
   }
 
   void _showEncryptedData() {
-    final jsonData = json.encode({'level': _level, 'progress': _progress, 'username': _username});
-    const secretKey =
-        'ASDFGHJKLASDFGHJ'; // You should use another key and put it in an external server or something like that.
-    final encryptedData = encryptData(jsonData, secretKey);
+    final jsonData = json.encode({'level': global.level, 'progress': global.progress, 'username': global.username});
+    final encryptedData = encryptData(jsonData, secretKey!);
 
     Fluttertoast.showToast(
       msg: 'Encrypted data: $encryptedData',
@@ -113,14 +106,14 @@ class _MyAppState extends State<MyApp> {
           ),
           child: Stack(
             children: [
-              if (_username == "NULLUSER")
+              if (global.username == "NULLUSER")
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const SizedBox(height: 16),
                     Form(
                       child: TextFormField(
-                        initialValue: _username,
+                        initialValue: global.username,
                         textAlign: TextAlign.center,
                         style: const TextStyle(color: Colors.amber),
                         decoration: const InputDecoration(
@@ -129,7 +122,7 @@ class _MyAppState extends State<MyApp> {
                           floatingLabelAlignment: FloatingLabelAlignment.center,
                         ),
                         onFieldSubmitted: (value) =>
-                            setState(() => _username = value),
+                            setState(() => global.username = value),
                       ),
                     )
                   ],
@@ -141,7 +134,7 @@ class _MyAppState extends State<MyApp> {
                       children: [
                         const SizedBox(height: 16),
                         Text(
-                          _username,
+                          global.username,
                           textAlign: TextAlign.start,
                           style: const TextStyle(
                             fontSize: 20.0,
@@ -178,7 +171,7 @@ class _MyAppState extends State<MyApp> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Nivel $_level',
+                        'Nivel ${global.level}',
                         style: const TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.bold,
@@ -191,7 +184,7 @@ class _MyAppState extends State<MyApp> {
                         height: 16.0,
                         width: 250.0,
                         child: LinearProgressIndicator(
-                          value: _progress / _maxProgress,
+                          value: global.progress / _maxProgress,
                           backgroundColor: Colors.white,
                           valueColor: const AlwaysStoppedAnimation<Color>(
                             Color.fromARGB(255, 248, 187, 208),

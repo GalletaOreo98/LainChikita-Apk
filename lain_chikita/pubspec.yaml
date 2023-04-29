@@ -38,6 +38,7 @@ dependencies:
   audioplayers: ^4.0.1
   encrypt: ^5.0.1
   fluttertoast: ^8.2.1
+  flutter_dotenv: ^5.0.2
 
 dev_dependencies:
   flutter_test:
