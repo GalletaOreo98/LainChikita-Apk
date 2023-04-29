@@ -25,6 +25,12 @@ class _MyAppState extends State<MyApp> {
 
   void _handleUserChoice(bool value) {
     setState(() {
+      final jsonData = json.encode({'level': _level, 'progress': _progress});
+    const secretKey =
+        'ASDFGHJKLASDFGHJ'; // You should use another key and put it in an external server or something like that.
+    final encryptedData = encryptData(jsonData, secretKey);
+    decryptData(encryptedData, secretKey);
+      
       if(_level >= 100) showImage = value;
     });
   }
@@ -37,22 +43,26 @@ class _MyAppState extends State<MyApp> {
 
   String encryptData(String jsonData, String secretKey) {
     final key = encrypt.Key.fromUtf8(secretKey);
-    final iv = encrypt.IV.fromLength(16);
+    final iv = encrypt.IV.fromSecureRandom(16);
     final encrypter = encrypt.Encrypter(encrypt.AES(key));
-
     final encrypted = encrypter.encrypt(jsonData, iv: iv);
-    return encrypted.base64;
+    final iv2 = encrypt.IV.fromLength(16);
+    final jsonDataAndIV = json.encode({"data": encrypted.base64, "iv": iv.base64});
+    final encrypted2 = encrypter.encrypt(jsonDataAndIV, iv: iv2);
+    return encrypted2.base64; 
   }
 
   String decryptData(String encryptedData, String secretKey) {
     final key = encrypt.Key.fromUtf8(secretKey);
-    final iv = encrypt.IV.fromLength(16);
     final encrypter = encrypt.Encrypter(encrypt.AES(key));
-
+    final iv2 = encrypt.IV.fromLength(16);
     final encrypted = encrypt.Encrypted.fromBase64(encryptedData);
-    final decrypted = encrypter.decrypt(encrypted, iv: iv);
-
-    return decrypted;
+    final decrypted = encrypter.decrypt(encrypted, iv: iv2);
+    Map<String, dynamic> json = jsonDecode(decrypted);
+    final ivD = encrypt.IV.fromBase64(json.values.last);
+    final encrypted2 = encrypt.Encrypted.fromBase64(json.values.first);
+    final decrypted2 = encrypter.decrypt(encrypted2, iv: ivD);
+    return decrypted2;
   }
 
   Future<void> playBtnSound() async {
