@@ -21,7 +21,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late int _level = 0;
   late int _progress = 0;
-
+  String _username = "NULLUSER";
   final int _maxProgress = 20;
   final player = AudioPlayer();
 
@@ -29,13 +29,13 @@ class _MyAppState extends State<MyApp> {
 
   void _handleUserChoice(bool value) {
     setState(() {
-      final jsonData = json.encode({'level': _level, 'progress': _progress});
-    const secretKey =
-        'ASDFGHJKLASDFGHJ'; // You should use another key and put it in an external server or something like that.
-    final encryptedData = encryptData(jsonData, secretKey);
-    decryptData(encryptedData, secretKey);
-      
-      if(_level >= 100) showImage = value;
+      final jsonData = json.encode({'level': _level, 'progress': _progress, 'username': _username});
+      const secretKey =
+          'ASDFGHJKLASDFGHJ'; // You should use another key and put it in an external server or something like that.
+      final encryptedData = encryptData(jsonData, secretKey);
+      decryptData(encryptedData, secretKey);
+
+      if (_level >= 100) showImage = value;
     });
   }
 
@@ -51,9 +51,10 @@ class _MyAppState extends State<MyApp> {
     final encrypter = encrypt.Encrypter(encrypt.AES(key));
     final encrypted = encrypter.encrypt(jsonData, iv: iv);
     final iv2 = encrypt.IV.fromLength(16);
-    final jsonDataAndIV = json.encode({"data": encrypted.base64, "iv": iv.base64});
+    final jsonDataAndIV =
+        json.encode({"data": encrypted.base64, "iv": iv.base64});
     final encrypted2 = encrypter.encrypt(jsonDataAndIV, iv: iv2);
-    return encrypted2.base64; 
+    return encrypted2.base64;
   }
 
   String decryptData(String encryptedData, String secretKey) {
@@ -78,6 +79,7 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _level = prefs.getInt('level') ?? 0;
       _progress = prefs.getInt('progress') ?? 0;
+      _username = prefs.getString('username') ?? "NULLUSER";
     });
   }
 
@@ -85,6 +87,7 @@ class _MyAppState extends State<MyApp> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('level', _level);
     await prefs.setInt('progress', _progress);
+    await prefs.setString('username', _username);
   }
 
   void _incrementProgress() {
@@ -100,7 +103,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _showEncryptedData() {
-    final jsonData = json.encode({'level': _level, 'progress': _progress});
+    final jsonData = json.encode({'level': _level, 'progress': _progress, 'username': _username});
     const secretKey =
         'ASDFGHJKLASDFGHJ'; // You should use another key and put it in an external server or something like that.
     final encryptedData = encryptData(jsonData, secretKey);
@@ -130,6 +133,45 @@ class _MyAppState extends State<MyApp> {
           ),
           child: Stack(
             children: [
+              if (_username == "NULLUSER")
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 16),
+                    Form(
+                      child: TextFormField(
+                        initialValue: _username,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.amber),
+                        decoration: const InputDecoration(
+                          labelText: 'Nuevo nombre de usuario',
+                          labelStyle: TextStyle(color: Colors.white),
+                          floatingLabelAlignment: FloatingLabelAlignment.center,
+                        ),
+                        onFieldSubmitted: (value) =>
+                            setState(() => _username = value),
+                      ),
+                    )
+                  ],
+                )
+              else
+                Align(
+                    alignment: Alignment.topCenter,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 16),
+                        Text(
+                          _username,
+                          textAlign: TextAlign.start,
+                          style: const TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'monospace',
+                            color: Colors.amber,
+                          ),
+                        )
+                      ],
+                    )),
               GestureDetector(
                   child: Center(
                     child: Image.asset(
