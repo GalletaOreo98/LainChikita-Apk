@@ -38,7 +38,6 @@ dependencies:
   audioplayers: ^4.0.1
   encrypt: ^5.0.1
   fluttertoast: ^8.2.1
-  flutter_dotenv: ^5.0.2
 
 dev_dependencies:
   flutter_test:
@@ -65,9 +64,11 @@ flutter:
   assets:
     - assets/images/lain_chikita.png
     - assets/images/background.png
+    - assets/images/accessories/null.png
     - assets/images/accessories/sunglasses.png
+    - assets/images/accessories/sunglasses_green.png
+    - assets/images/accessories/sunglasses_red.png
     - assets/audio/btn_sound.mp3
-    - .env
   
   # To add assets to your application, add an assets section, like this:
   # assets:
