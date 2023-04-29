@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:convert';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:fluttertoast/fluttertoast.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  runApp(const MyApp());
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+}
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
