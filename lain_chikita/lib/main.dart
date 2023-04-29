@@ -10,7 +10,7 @@ import 'functions/encryption_functions.dart';
 import 'global_vars.dart' as global;
 
 Future<void> main() async {
-  await dotenv.load();
+  await dotenv.load(fileName: '.env');
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   runApp(const MyApp());
 }

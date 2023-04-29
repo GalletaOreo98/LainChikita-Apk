@@ -67,6 +67,7 @@ flutter:
     - assets/images/background.png
     - assets/images/accessories/sunglasses.png
     - assets/audio/btn_sound.mp3
+    - .env
   
   # To add assets to your application, add an assets section, like this:
   # assets:
