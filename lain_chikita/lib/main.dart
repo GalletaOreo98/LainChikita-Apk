@@ -3,8 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:convert';
-import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:fluttertoast/fluttertoast.dart';
+
+import 'functions/encryption_functions.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,13 +20,17 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  //User vars
   late int _level = 0;
   late int _progress = 0;
   String _username = "NULLUSER";
-  final int _maxProgress = 20;
-  final player = AudioPlayer();
 
+  //App vars
+  final int _maxProgress = 20;
+  final _player = AudioPlayer(playerId: 'btnLove');
   bool showImage = false;
+
+  //final _secretKey = 'ASDFGHJKLASDFGHJ';
 
   void _handleUserChoice(bool value) {
     setState(() {
@@ -45,33 +50,8 @@ class _MyAppState extends State<MyApp> {
     _loadProgress().then((value) => _showEncryptedData());
   }
 
-  String encryptData(String jsonData, String secretKey) {
-    final key = encrypt.Key.fromUtf8(secretKey);
-    final iv = encrypt.IV.fromSecureRandom(16);
-    final encrypter = encrypt.Encrypter(encrypt.AES(key));
-    final encrypted = encrypter.encrypt(jsonData, iv: iv);
-    final iv2 = encrypt.IV.fromLength(16);
-    final jsonDataAndIV =
-        json.encode({"data": encrypted.base64, "iv": iv.base64});
-    final encrypted2 = encrypter.encrypt(jsonDataAndIV, iv: iv2);
-    return encrypted2.base64;
-  }
-
-  String decryptData(String encryptedData, String secretKey) {
-    final key = encrypt.Key.fromUtf8(secretKey);
-    final encrypter = encrypt.Encrypter(encrypt.AES(key));
-    final iv2 = encrypt.IV.fromLength(16);
-    final encrypted = encrypt.Encrypted.fromBase64(encryptedData);
-    final decrypted = encrypter.decrypt(encrypted, iv: iv2);
-    Map<String, dynamic> json = jsonDecode(decrypted);
-    final ivD = encrypt.IV.fromBase64(json.values.last);
-    final encrypted2 = encrypt.Encrypted.fromBase64(json.values.first);
-    final decrypted2 = encrypter.decrypt(encrypted2, iv: ivD);
-    return decrypted2;
-  }
-
   Future<void> playBtnSound() async {
-    await player.play(AssetSource("audio/btn_sound.mp3"));
+    await _player.play(AssetSource("audio/btn_sound.mp3"));
   }
 
   Future<void> _loadProgress() async {
