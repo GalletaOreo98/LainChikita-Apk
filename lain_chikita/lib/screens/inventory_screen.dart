@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
 
+// ignore: library_prefixes
 import '../app_colors.dart' as MY_APP_COLORS;
 import '../global_vars.dart';
 
@@ -12,12 +14,19 @@ class InventoryScreen extends StatefulWidget {
 }
 
 class MyWidgetState extends State<InventoryScreen> {
+
+  final _player = AudioPlayer(playerId: 'selectAccessory');
+
   void changeAccessory(String newAccessoryName) {
     setState(() {
       accessoryName = newAccessoryName;
     });
     // Llamada a la función de callback
     widget.callback(accessoryName);
+  }
+
+  Future<void> playSelectAccessorySound() async {
+    await _player.play(AssetSource("audio/select_accessory_sound.mp3"));
   }
 
   @override
@@ -30,6 +39,7 @@ class MyWidgetState extends State<InventoryScreen> {
           return InkWell(
               onTap: () {
                 changeAccessory(inventory[index]['name']);
+                playSelectAccessorySound();
               },
               child: Container(
                 decoration: BoxDecoration(
