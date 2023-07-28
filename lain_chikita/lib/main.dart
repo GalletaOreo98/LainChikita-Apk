@@ -57,6 +57,7 @@ class _MyAppState extends State<MyApp> {
       level = prefs.getInt('level') ?? 0;
       progress = prefs.getInt('progress') ?? 0;
       username = prefs.getString('username') ?? "NULLUSER";
+      accessoryName = prefs.getString('accessoryName') ?? "null";
     });
   }
 
@@ -65,6 +66,11 @@ class _MyAppState extends State<MyApp> {
     await prefs.setInt('level', level);
     await prefs.setInt('progress', progress);
     await prefs.setString('username', username);
+  }
+
+  Future<void> _saveAccesorrySelection() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('accessoryName', accessoryName);
   }
 
   void _incrementProgress() {
@@ -98,6 +104,7 @@ class _MyAppState extends State<MyApp> {
   void _updateAccessory(String newAccessoryName) {
     setState(() {
       accessoryName = newAccessoryName;
+      _saveAccesorrySelection();
     });
   }
 

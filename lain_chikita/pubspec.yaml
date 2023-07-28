@@ -62,12 +62,17 @@ flutter:
   uses-material-design: true
 
   assets:
+    #Main Images
     - assets/images/lain_chikita.png
     - assets/images/background.png
+
+    #Accessories
     - assets/images/accessories/null.png
     - assets/images/accessories/sunglasses.png
-    - assets/images/accessories/sunglasses_green.png
-    - assets/images/accessories/sunglasses_red.png
+    - assets/images/accessories/sports_glasses.png
+    - assets/images/accessories/sunglasses_circle.png
+
+    #Audio
     - assets/audio/select_accessory_sound.mp3
     - assets/audio/btn_sound.mp3
   

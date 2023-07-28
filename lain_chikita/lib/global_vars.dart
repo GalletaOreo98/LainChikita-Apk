@@ -5,9 +5,7 @@ String username = "NULLUSER";
 String accessoryName = "null";
 
 List<Map<String, dynamic>> inventory = [
-  {'name': 'sunglasses', 'unlockedby': 'or3odev'},
-  {'name': 'sunglasses_green', 'unlockedby': 'Juan'},
-  {'name': 'sunglasses_red', 'unlockedby': 'elpepe'},
-  {'name': 'sunglasses', 'unlockedby': 'or3odev'},
-  {'name': 'sunglasses_green', 'unlockedby': 'Juan'},
+  {'name': 'sunglasses', 'unlockedby': 'Or3odev'},
+  {'name': 'sunglasses_circle', 'unlockedby': 'Navi'},
+  {'name': 'sports_glasses', 'unlockedby': 'Or3odev'},
 ];
