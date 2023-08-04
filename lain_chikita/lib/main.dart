@@ -141,7 +141,10 @@ class _MyAppState extends State<MyApp> {
                                   FloatingLabelAlignment.center,
                             ),
                             onFieldSubmitted: (value) =>
-                                setState(() => username = value),
+                                setState(() => {
+                                  username = value,
+                                  _saveProgress()
+                                }),
                           ),
                         )
                       ],
