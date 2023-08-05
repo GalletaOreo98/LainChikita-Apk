@@ -2,7 +2,9 @@
 
 A Flutter + Dart simple minigame  
 
-<img src="/demo/demo_smart_phone_view.png" width="150">
+<img src="/demo/demo_smart_phone_view.png" width="150">  
+
+[Promotional video ▶](https://www.youtube.com/watch?v=AjTnw3ZtlUE)
 
 ### Building commands  
 
