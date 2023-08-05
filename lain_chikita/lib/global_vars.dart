@@ -9,4 +9,6 @@ List<Map<String, dynamic>> inventory = [
   {'name': 'sunglasses', 'by': 'oreo_dev'},
   {'name': 'sunglasses_circle', 'by': 'Navi'},
   {'name': 'sports_glasses', 'by': 'oreo_dev'},
+  {'name': 'christmas_cane', 'by': 'oreo_dev'},
+  {'name': 'pacman_mob', 'by': 'oreo_dev'},
 ];
