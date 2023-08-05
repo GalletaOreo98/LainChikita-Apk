@@ -67,10 +67,7 @@ flutter:
     - assets/images/background.png
 
     #Accessories
-    - assets/images/accessories/null.png
-    - assets/images/accessories/sunglasses.png
-    - assets/images/accessories/sports_glasses.png
-    - assets/images/accessories/sunglasses_circle.png
+    - assets/images/accessories/
 
     #Audio
     - assets/audio/select_accessory_sound.mp3
