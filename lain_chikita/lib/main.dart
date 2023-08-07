@@ -27,19 +27,8 @@ class _MyAppState extends State<MyApp> {
   //App vars
   final int _maxProgress = 20;
   final _player = AudioPlayer(playerId: 'btnLove');
-  bool showImage = false;
 
   final secretKey = SECRET_KEY;
-
-  /* void _handleUserChoice(bool value) {
-    setState(() {
-      final jsonData = json
-          .encode({'level': level, 'progress': progress, 'username': username});
-      final encryptedData = encryptData(jsonData, secretKey);
-      decryptData(encryptedData, secretKey);
-      if (level >= 100) showImage = value;
-    });
-  } */
 
   @override
   void initState() {

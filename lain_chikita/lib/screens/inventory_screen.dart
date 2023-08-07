@@ -18,11 +18,8 @@ class MyWidgetState extends State<InventoryScreen> {
   final _player = AudioPlayer(playerId: 'selectAccessory');
 
   void changeAccessory(String newAccessoryName) {
-    setState(() {
-      accessoryName = newAccessoryName;
-    });
     // Llamada a la función de callback
-    widget.callback(accessoryName);
+    widget.callback(newAccessoryName);
   }
 
   Future<void> playSelectAccessorySound() async {
