@@ -38,6 +38,7 @@ dependencies:
   audioplayers: ^4.0.1
   encrypt: ^5.0.1
   fluttertoast: ^8.2.1
+  uuid: ^3.0.7
 
 dev_dependencies:
   flutter_test:

@@ -3,6 +3,7 @@ int level = 0;
 int progress = 0;
 String username = "NULLUSER";
 String accessoryName = "null";
+String userUuid = "null"; //Not used yet
 
 List<Map<String, dynamic>> inventory = [
   {'name': 'null', 'by': 'NULLUSER'},

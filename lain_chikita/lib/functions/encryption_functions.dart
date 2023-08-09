@@ -1,4 +1,6 @@
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:uuid/uuid.dart';
+import 'package:uuid/uuid_util.dart';
 
 String encryptData(String jsonData, String secretKey) {
   final key = encrypt.Key.fromUtf8(secretKey);
@@ -17,4 +19,10 @@ String decryptData(String encryptedData, String secretKey) {
   final encrypted = encrypt.Encrypted.fromBase16(encryptedData);
   final decrypted = encrypter.decrypt(encrypted, iv: iv);
   return decrypted;
+}
+
+String generateCryptoRngUuid(){
+  var uuid = Uuid();
+  final v4Crypto = uuid.v4(options: {'rng': UuidUtil.cryptoRNG});
+  return v4Crypto;
 }
