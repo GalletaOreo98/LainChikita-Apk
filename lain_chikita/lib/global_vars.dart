@@ -1,3 +1,4 @@
+import 'classes/data_manager.dart';
 //User vars
 int level = 0;
 int progress = 0;
@@ -13,3 +14,7 @@ List<Map<String, dynamic>> inventory = [
   {'name': 'christmas_cane', 'by': 'oreo_dev'},
   {'name': 'pacman_mob', 'by': 'oreo_dev'},
 ];
+
+//Preferencias
+String language = 'es';
+DataManager dataManager = DataManager();

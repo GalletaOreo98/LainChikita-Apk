@@ -72,6 +72,9 @@ flutter:
 
     #Audio
     - assets/audio/
+
+    #Json language files
+    - assets/language/
   
   # To add assets to your application, add an assets section, like this:
   # assets:

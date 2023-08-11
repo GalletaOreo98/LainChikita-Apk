@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'dart:ui';
+
 
 //My custom imports
 import 'functions/encryption_functions.dart';
@@ -22,6 +24,7 @@ SharedPreferences prefs = prefs;
 
 void main() async {
   prefs = await SharedPreferences.getInstance();
+  if (window.locale.languageCode != 'es') language = 'en';
   runApp(const MyApp());
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
 }
@@ -51,6 +54,7 @@ class _MyAppState extends State<MyApp> {
         userUuid = generateCryptoRngUuid();
         await prefs.setString('userUuid', userUuid);
     }
+    await dataManager.loadShowedNames(language);
     setState(() {
       level = prefs.getInt('level') ?? 0;
       progress = prefs.getInt('progress') ?? 0;
