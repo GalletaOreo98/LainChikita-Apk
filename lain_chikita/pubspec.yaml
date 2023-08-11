@@ -71,8 +71,7 @@ flutter:
     - assets/images/accessories/
 
     #Audio
-    - assets/audio/select_accessory_sound.mp3
-    - assets/audio/btn_sound.mp3
+    - assets/audio/
   
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -9,9 +9,19 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'functions/encryption_functions.dart';
 import 'global_vars.dart';
 import 'private_keys.dart';
-import 'screens/inventory_screen.dart';
 
-void main() {
+//screens
+import 'screens/inventory_screen.dart';
+import 'screens/gacha_screen.dart';
+
+//App vars
+const int _maxProgress = 20;
+final _player = AudioPlayer(playerId: 'btnLove');
+const secretKey = SECRET_KEY;
+SharedPreferences prefs = prefs;
+
+void main() async {
+  prefs = await SharedPreferences.getInstance();
   runApp(const MyApp());
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
 }
@@ -24,12 +34,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  //App vars
-  final int _maxProgress = 20;
-  final _player = AudioPlayer(playerId: 'btnLove');
-
-  final secretKey = SECRET_KEY;
-
+  
   @override
   void initState() {
     super.initState();
@@ -41,7 +46,11 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _loadProgress() async {
-    final prefs = await SharedPreferences.getInstance();
+    userUuid = prefs.getString("userUuid") ?? "";
+    if (userUuid.isEmpty){
+        userUuid = generateCryptoRngUuid();
+        await prefs.setString('userUuid', userUuid);
+    }
     setState(() {
       level = prefs.getInt('level') ?? 0;
       progress = prefs.getInt('progress') ?? 0;
@@ -51,14 +60,12 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _saveProgress() async {
-    final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('level', level);
     await prefs.setInt('progress', progress);
     await prefs.setString('username', username);
   }
 
   Future<void> _saveAccesorrySelection() async {
-    final prefs = await SharedPreferences.getInstance();
     await prefs.setString('accessoryName', accessoryName);
   }
 
@@ -214,7 +221,7 @@ class _MyAppState extends State<MyApp> {
               ),
             ),
             InventoryScreen(callback: _updateAccessory),
-            CustomScreen(color: Colors.blue),
+            GachaScreen(),
           ],
         ),
       ),
@@ -222,7 +229,7 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class CustomScreen extends StatelessWidget {
+/* class CustomScreen extends StatelessWidget {
   final Color color;
 
   const CustomScreen({required this.color});
@@ -236,4 +243,4 @@ class CustomScreen extends StatelessWidget {
       ),
     );
   }
-}
+} */
