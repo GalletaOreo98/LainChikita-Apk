@@ -5,10 +5,15 @@ int progress = 0;
 String username = "NULLUSER";
 String accessoryName = "null";
 String userUuid = "";
+//Variables sin backup
+int coins = 2;
 
 List<Map<String, dynamic>> inventory = [
   {'name': 'null', 'by': 'NULLUSER'},
   {'name': 'sunglasses', 'by': 'oreo_dev'},
+];
+
+List<Map<String, dynamic>> unlockedInventory = [
   {'name': 'sunglasses_circle', 'by': 'Navi'},
   {'name': 'sports_glasses', 'by': 'oreo_dev'},
   {'name': 'christmas_cane', 'by': 'oreo_dev'},
@@ -16,5 +21,5 @@ List<Map<String, dynamic>> inventory = [
 ];
 
 //Preferencias
-String language = 'es';
+String language = 'en';
 DataManager dataManager = DataManager();

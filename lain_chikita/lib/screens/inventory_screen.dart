@@ -14,7 +14,6 @@ class InventoryScreen extends StatefulWidget {
 }
 
 class MyWidgetState extends State<InventoryScreen> {
-
   final _player = AudioPlayer(playerId: 'selectAccessory');
 
   void changeAccessory(String newAccessoryName) {
@@ -47,7 +46,8 @@ class MyWidgetState extends State<InventoryScreen> {
                 ),
                 child: ListTile(
                   textColor: Colors.white,
-                  title: Text(dataManager.getShowedName(inventory[index]['name'])),
+                  title:
+                      Text(dataManager.getShowedName(inventory[index]['name'])),
                   subtitle: Text('by: ${inventory[index]['by']}',
                       style: const TextStyle(
                           color: MY_APP_COLORS.secondaryLightText,

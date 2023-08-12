@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+
 
 // ignore: library_prefixes
 import '../app_colors.dart' as MY_APP_COLORS;
+import '../functions/encryption_functions.dart';
+import '../functions/gacha_functions.dart';
 import '../global_vars.dart';
+import '../private_keys.dart';
+
+const secretKey = SECRET_KEY;
 
 class GachaScreen extends StatefulWidget {
-  const GachaScreen({super.key});
+  final Function callback;
+  
+  const GachaScreen({super.key, required this.callback});
 
   @override
   MyWidgetState createState() => MyWidgetState();
@@ -22,14 +32,27 @@ class MyWidgetState extends State<GachaScreen> {
     await _player.play(AssetSource("audio/select_accessory_sound.mp3"));
   }
 
-  void _copyText() {
-    Clipboard.setData(ClipboardData(text: userUuid));
+  void _copyText() async {
+    final jsonData = json
+        .encode({'username': username, 'useruuid': userUuid});
+    final encryptedData = encryptData(jsonData, secretKey);
+    Clipboard.setData(ClipboardData(text: encryptedData));
     setState(() {
       _copiedText = '¡Copiado!';
     });
   }
 
-  void setUuidToUse() {}
+  void saveInventaries() {
+    // Llamada a la función de callback
+    widget.callback();
+  }
+
+  void setUuidToUse() async{
+    buyTicket();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('coins', coins);
+    saveInventaries();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +63,24 @@ class MyWidgetState extends State<GachaScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const SizedBox(height: 16),
+                Text(
+                  'Coins: $coins',
+                  style: const TextStyle(
+                      fontSize: 15.0,
+                      fontFamily: 'monospace',
+                      color: Colors.white,
+                  )
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Skins por comprar: ${unlockedInventory.length}',
+                  style: const TextStyle(
+                      fontSize: 15.0,
+                      fontFamily: 'monospace',
+                      color: Colors.white,
+                  )
+                ),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(

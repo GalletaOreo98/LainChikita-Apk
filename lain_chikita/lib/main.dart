@@ -20,11 +20,10 @@ import 'screens/gacha_screen.dart';
 const int _maxProgress = 20;
 final _player = AudioPlayer(playerId: 'btnLove');
 const secretKey = SECRET_KEY;
-SharedPreferences prefs = prefs;
 
-void main() async {
-  prefs = await SharedPreferences.getInstance();
-  if (window.locale.languageCode != 'es') language = 'en';
+void main() {
+  //Lo pongo asi nada mas para asegurar, por si acaso... pero funciona con == 'es'
+  if (window.locale.languageCode.toLowerCase().contains('es')) language = 'es';
   runApp(const MyApp());
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
 }
@@ -49,27 +48,57 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _loadProgress() async {
+    final prefs = await SharedPreferences.getInstance();
     userUuid = prefs.getString("userUuid") ?? "";
     if (userUuid.isEmpty){
         userUuid = generateCryptoRngUuid();
         await prefs.setString('userUuid', userUuid);
     }
+    //Carga los nombres de los items del inventario segun el lenguaje del dispositivo
     await dataManager.loadShowedNames(language);
     setState(() {
       level = prefs.getInt('level') ?? 0;
       progress = prefs.getInt('progress') ?? 0;
       username = prefs.getString('username') ?? "NULLUSER";
       accessoryName = prefs.getString('accessoryName') ?? "null";
+      coins = prefs.getInt('coins') ?? 2;
+      //Inventarios
+      final jsonInventory = prefs.getString('inventory') ?? '';
+      if (jsonInventory.isNotEmpty) {
+        inventory = List<Map<String, dynamic>>.from(jsonDecode(jsonInventory));
+      }
+      final jsonUnlockedInventory = prefs.getString('unlockedInventory') ?? '';
+      if (jsonUnlockedInventory.isNotEmpty) {
+        unlockedInventory = List<Map<String, dynamic>>.from(jsonDecode(jsonUnlockedInventory));
+      }
     });
   }
 
+  //Funcion posible para optimizar dividiendola en varios tipos de save
   Future<void> _saveProgress() async {
+    final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('level', level);
     await prefs.setInt('progress', progress);
     await prefs.setString('username', username);
+    await prefs.setInt('coins', coins);
+    //Pasar inventarios a string para almacenar
+    //OJO PONER EN OTRO SAVE FUNCTION ESTA PARTE DE LOS INVENTARIOS PARA MEJORAR RENDIMIENTO
+    /* final jsonInventory = json.encode(inventory);
+    await prefs.setString('inventory', jsonInventory);
+    final jsonUnlockedInventory = json.encode(unlockedInventory);
+    await prefs.setString('unlockedInventory', jsonUnlockedInventory); */
+  }
+
+  Future<void> _saveInventaries() async{
+    final prefs = await SharedPreferences.getInstance();
+    final jsonInventory = json.encode(inventory);
+    await prefs.setString('inventory', jsonInventory);
+    final jsonUnlockedInventory = json.encode(unlockedInventory);
+    await prefs.setString('unlockedInventory', jsonUnlockedInventory);
   }
 
   Future<void> _saveAccesorrySelection() async {
+    final prefs = await SharedPreferences.getInstance();
     await prefs.setString('accessoryName', accessoryName);
   }
 
@@ -80,6 +109,9 @@ class _MyAppState extends State<MyApp> {
       if (progress >= _maxProgress) {
         progress = 0;
         level += 1;
+        if (level % 100 == 0) {
+          coins++;
+        }
       }
       _saveProgress();
     });
@@ -225,7 +257,7 @@ class _MyAppState extends State<MyApp> {
               ),
             ),
             InventoryScreen(callback: _updateAccessory),
-            GachaScreen(),
+            GachaScreen(callback: _saveInventaries),
           ],
         ),
       ),
