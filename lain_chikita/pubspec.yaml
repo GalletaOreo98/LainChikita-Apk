@@ -16,7 +16,11 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+# MY COMMENT:
+# Update version:A.B.C+X
+# A.B.C represents the versionName such as 1.0.0
+# X (the number after the +) represents the versionCode such as 1, 2, 3, etc. (Only int types)
+version: 1.4.0+1
 
 environment:
   sdk: '>=2.19.6 <3.0.0'
