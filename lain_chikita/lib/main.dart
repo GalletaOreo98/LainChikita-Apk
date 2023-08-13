@@ -58,7 +58,6 @@ class _MyAppState extends State<MyApp> {
     }
     //Carga los nombres de los items del inventario segun el lenguaje del dispositivo
     await dataManager.loadShowedNames(language);
-    await appAudioPlayer.startAppAudioPlayerService();
     setState(() {
       level = prefs.getInt('level') ?? 0;
       progress = prefs.getInt('progress') ?? 0;
@@ -111,8 +110,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _incrementProgress() {
+    playLoveBtnSound();
     setState(() {
-      playLoveBtnSound();
       progress += 1;
       if (progress >= _maxProgress) {
         progress = 0;
