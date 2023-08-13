@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:convert';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:ui';
 
 
@@ -40,7 +39,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _loadProgress().then((value) => _showEncryptedData());
+    _loadProgress();
   }
 
   Future<void> playBtnSound() async {
@@ -115,22 +114,6 @@ class _MyAppState extends State<MyApp> {
       }
       _saveProgress();
     });
-  }
-
-  void _showEncryptedData() {
-    final jsonData = json
-        .encode({'level': level, 'progress': progress, 'username': username});
-    final encryptedData = encryptData(jsonData, secretKey);
-
-    Fluttertoast.showToast(
-      msg: 'Encrypted data: $encryptedData',
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.TOP,
-      timeInSecForIosWeb: 4,
-      backgroundColor: Colors.grey[400],
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
   }
 
   void _updateAccessory(String newAccessoryName) {
