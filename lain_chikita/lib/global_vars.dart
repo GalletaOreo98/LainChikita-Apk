@@ -1,12 +1,12 @@
+import 'classes/audio_player.dart';
 import 'classes/data_manager.dart';
+
 //User vars
 int level = 0;
 int progress = 0;
 String username = "NULLUSER";
 String accessoryName = "null";
 String userUuid = "";
-//Variables sin backup
-int coins = 2;
 
 List<Map<String, dynamic>> inventory = [
   {'name': 'null', 'by': 'NULLUSER'},
@@ -20,6 +20,10 @@ List<Map<String, dynamic>> unlockedInventory = [
   {'name': 'pacman_mob', 'by': 'oreo_dev'},
 ];
 
-//Preferencias
+//Variables sin backup
+int coins = 2;
+
+//Preferencias y Configuraciones en general
 String language = 'en';
-DataManager dataManager = DataManager();
+DataManager dataManager = DataManager(); //language datamanager
+AppAudioPlayer appAudioPlayer = AppAudioPlayer();

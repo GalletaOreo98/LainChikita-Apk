@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'dart:convert';
 import 'dart:ui';
-
 
 //My custom imports
 import 'functions/encryption_functions.dart';
@@ -17,7 +15,6 @@ import 'screens/gacha_screen.dart';
 
 //App vars
 const int _maxProgress = 20;
-final _player = AudioPlayer(playerId: 'btnLove');
 const secretKey = SECRET_KEY;
 
 void main() {
@@ -35,26 +32,33 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  
+  late PageController _pageController;
+  final focusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: 0);
     _loadProgress();
   }
 
-  Future<void> playBtnSound() async {
-    await _player.play(AssetSource("audio/btn_sound.mp3"));
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
+  /// Carga progreso y configuraciones necesarias en general
   Future<void> _loadProgress() async {
     final prefs = await SharedPreferences.getInstance();
     userUuid = prefs.getString("userUuid") ?? "";
-    if (userUuid.isEmpty){
-        userUuid = generateCryptoRngUuid();
-        await prefs.setString('userUuid', userUuid);
+    if (userUuid.isEmpty) {
+      userUuid = generateCryptoRngUuid();
+      await prefs.setString('userUuid', userUuid);
     }
     //Carga los nombres de los items del inventario segun el lenguaje del dispositivo
     await dataManager.loadShowedNames(language);
+    await appAudioPlayer.startAppAudioPlayerService();
     setState(() {
       level = prefs.getInt('level') ?? 0;
       progress = prefs.getInt('progress') ?? 0;
@@ -68,7 +72,8 @@ class _MyAppState extends State<MyApp> {
       }
       final jsonUnlockedInventory = prefs.getString('unlockedInventory') ?? '';
       if (jsonUnlockedInventory.isNotEmpty) {
-        unlockedInventory = List<Map<String, dynamic>>.from(jsonDecode(jsonUnlockedInventory));
+        unlockedInventory =
+            List<Map<String, dynamic>>.from(jsonDecode(jsonUnlockedInventory));
       }
     });
   }
@@ -88,7 +93,7 @@ class _MyAppState extends State<MyApp> {
     await prefs.setString('unlockedInventory', jsonUnlockedInventory); */
   }
 
-  Future<void> _saveInventaries() async{
+  Future<void> _saveInventaries() async {
     final prefs = await SharedPreferences.getInstance();
     final jsonInventory = json.encode(inventory);
     await prefs.setString('inventory', jsonInventory);
@@ -101,9 +106,13 @@ class _MyAppState extends State<MyApp> {
     await prefs.setString('accessoryName', accessoryName);
   }
 
+  Future<void> playLoveBtnSound() async {
+    await appAudioPlayer.playSound('audio/btn_sound.mp3');
+  }
+
   void _incrementProgress() {
     setState(() {
-      playBtnSound();
+      playLoveBtnSound();
       progress += 1;
       if (progress >= _maxProgress) {
         progress = 0;
@@ -123,128 +132,144 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  void _handleKeyEvent(RawKeyEvent event) {
+    if (event.runtimeType == RawKeyDownEvent) {
+      if (event.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
+        // Cambiar a la siguiente pantalla
+        _pageController.nextPage(
+            duration: const Duration(milliseconds: 300), curve: Curves.ease);
+      } else if (event.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
+        // Cambiar a la pantalla anterior
+        _pageController.previousPage(
+            duration: const Duration(milliseconds: 300), curve: Curves.ease);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Lain Chikita',
-      home: Scaffold(
-        body: PageView(
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/background.png'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: Stack(
-                children: [
-                  if (username == "NULLUSER")
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 16),
-                        Form(
-                          child: TextFormField(
-                            initialValue: username,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(color: Colors.amber),
-                            decoration: const InputDecoration(
-                              labelText: 'Nuevo nombre de usuario',
-                              labelStyle: TextStyle(color: Colors.white),
-                              floatingLabelAlignment:
-                                  FloatingLabelAlignment.center,
-                            ),
-                            onFieldSubmitted: (value) =>
-                                setState(() => {
-                                  username = value,
-                                  _saveProgress()
-                                }),
-                          ),
-                        )
-                      ],
-                    )
-                  else
-                    Align(
-                        alignment: Alignment.topCenter,
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 16),
-                            Text(
-                              username,
-                              textAlign: TextAlign.start,
-                              style: const TextStyle(
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'monospace',
-                                color: Colors.amber,
-                              ),
-                            )
-                          ],
-                        )),
-                  Center(
-                    child: Image.asset(
-                      'assets/images/lain_chikita.png',
+        title: 'Lain Chikita',
+        home: Scaffold(
+          body: RawKeyboardListener(
+            focusNode: focusNode,
+            onKey: _handleKeyEvent,
+            child: PageView(
+              controller: _pageController,
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/background.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
-                  Positioned(
-                    child: Center(
-                      child: Image.asset(
-                          'assets/images/accessories/$accessoryName.png',
-                          fit: BoxFit.cover),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Nivel ${level}',
-                            style: const TextStyle(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'monospace',
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 8.0),
-                          SizedBox(
-                            height: 16.0,
-                            width: 250.0,
-                            child: LinearProgressIndicator(
-                              value: progress / _maxProgress,
-                              backgroundColor: Colors.white,
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                Color.fromARGB(255, 248, 187, 208),
+                  child: Stack(
+                    children: [
+                      if (username == "NULLUSER")
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(height: 16),
+                            Form(
+                              child: TextFormField(
+                                initialValue: username,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: Colors.amber),
+                                decoration: const InputDecoration(
+                                  labelText: 'Nuevo nombre de usuario',
+                                  labelStyle: TextStyle(color: Colors.white),
+                                  floatingLabelAlignment:
+                                      FloatingLabelAlignment.center,
+                                ),
+                                onFieldSubmitted: (value) => setState(
+                                    () => {username = value, _saveProgress()}),
                               ),
-                            ),
-                          ),
-                          const SizedBox(height: 8.0),
-                          FloatingActionButton(
-                            backgroundColor: Colors.pink[100],
-                            onPressed: _incrementProgress,
-                            child: const Icon(
-                              Icons.favorite,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+                            )
+                          ],
+                        )
+                      else
+                        Align(
+                            alignment: Alignment.topCenter,
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 16),
+                                Text(
+                                  username,
+                                  textAlign: TextAlign.start,
+                                  style: const TextStyle(
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'monospace',
+                                    color: Colors.amber,
+                                  ),
+                                )
+                              ],
+                            )),
+                      Center(
+                        child: Image.asset(
+                          'assets/images/lain_chikita.png',
+                          fit: BoxFit.cover,
+                        ),
                       ),
-                    ),
+                      Positioned(
+                        child: Center(
+                          child: Image.asset(
+                              'assets/images/accessories/$accessoryName.png',
+                              fit: BoxFit.cover),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Nivel ${level}',
+                                style: const TextStyle(
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'monospace',
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              SizedBox(
+                                height: 16.0,
+                                width: 250.0,
+                                child: LinearProgressIndicator(
+                                  value: progress / _maxProgress,
+                                  backgroundColor: Colors.white,
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                    Color.fromARGB(255, 248, 187, 208),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              FloatingActionButton(
+                                backgroundColor: Colors.pink[100],
+                                onPressed: _incrementProgress,
+                                child: const Icon(
+                                  Icons.favorite,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                InventoryScreen(callback: _updateAccessory),
+                GachaScreen(callback: _saveInventaries),
+              ],
             ),
-            InventoryScreen(callback: _updateAccessory),
-            GachaScreen(callback: _saveInventaries),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 }
 
