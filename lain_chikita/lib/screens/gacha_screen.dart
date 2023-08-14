@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-
 // ignore: library_prefixes
 import '../app_colors.dart' as MY_APP_COLORS;
 import '../functions/encryption_functions.dart';
@@ -16,7 +15,7 @@ const secretKey = SECRET_KEY;
 
 class GachaScreen extends StatefulWidget {
   final Function callback;
-  
+
   const GachaScreen({super.key, required this.callback});
 
   @override
@@ -33,8 +32,7 @@ class MyWidgetState extends State<GachaScreen> {
   }
 
   void _copyText() async {
-    final jsonData = json
-        .encode({'username': username, 'useruuid': userUuid});
+    final jsonData = json.encode({'username': username, 'useruuid': userUuid});
     final encryptedData = encryptData(jsonData, secretKey);
     Clipboard.setData(ClipboardData(text: encryptedData));
     setState(() {
@@ -47,7 +45,7 @@ class MyWidgetState extends State<GachaScreen> {
     widget.callback();
   }
 
-  void setUuidToUse() async{
+  void setUuidToUse() async {
     buyTicket();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('coins', coins);
@@ -64,28 +62,43 @@ class MyWidgetState extends State<GachaScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 16),
-                Text(
-                  'Coins: $coins',
-                  style: const TextStyle(
-                      fontSize: 15.0,
-                      fontFamily: 'monospace',
-                      color: Colors.white,
-                  )
-                ),
+                Table(
+                    //border: TableBorder.all(), // Borde para la tabla (opcional)
+                    children: [
+                      TableRow(
+                        children: [
+                          TableCell(
+                            child: Image.asset(
+                              'assets/images/coin.png',
+                              width: 32,
+                              height: 32,
+                              alignment: Alignment.centerRight,
+                            ),
+                          ),
+                          TableCell(
+                              verticalAlignment:
+                                  TableCellVerticalAlignment.middle,
+                              child: Text(' x: $coins',
+                                  style: const TextStyle(
+                                    fontSize: 15.0,
+                                    fontFamily: 'monospace',
+                                    color: Colors.white,
+                                  )))
+                        ],
+                      ),
+                    ]),
                 const SizedBox(height: 16),
-                Text(
-                  'Skins por comprar: ${unlockedInventory.length}',
-                  style: const TextStyle(
+                Text('Skins por comprar: ${unlockedInventory.length}',
+                    style: const TextStyle(
                       fontSize: 15.0,
                       fontFamily: 'monospace',
                       color: Colors.white,
-                  )
-                ),
+                    )),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                      Color.fromARGB(255, 255, 87, 87), // Cambia el color de fondo aquí
+                    backgroundColor: const Color.fromARGB(
+                        255, 255, 87, 87), // Cambia el color de fondo aquí
                   ),
                   onPressed: _copyText,
                   child: const Text('Copiar mi UUID'),
