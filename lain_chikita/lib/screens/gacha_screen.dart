@@ -25,31 +25,31 @@ class GachaScreen extends StatefulWidget {
 class MyWidgetState extends State<GachaScreen> {
   final _player = AudioPlayer(playerId: 'selectAccessory');
   String _copiedText = '';
-  String uuidToUse = '';
+  String _uuidToUse = '';
 
   Future<void> playSelectAccessorySound() async {
     await _player.play(AssetSource("audio/select_accessory_sound.mp3"));
   }
 
-  void _copyText() async {
+  void _copyMyData() async {
     final jsonData = json.encode({'username': username, 'useruuid': userUuid});
     final encryptedData = encryptData(jsonData, secretKey);
     Clipboard.setData(ClipboardData(text: encryptedData));
     setState(() {
-      _copiedText = '¡Copiado!';
+      _copiedText = languageDataManager.getLabel('clipboard-is-copied');
     });
   }
 
-  void saveInventaries() {
+  void _saveInventaries() {
     // Llamada a la función de callback
     widget.callback();
   }
 
-  void setUuidToUse() async {
+  void _setUuidToUse() async {
     buyTicket();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('coins', coins);
-    saveInventaries();
+    _saveInventaries();
   }
 
   @override
@@ -88,7 +88,7 @@ class MyWidgetState extends State<GachaScreen> {
                       ),
                     ]),
                 const SizedBox(height: 16),
-                Text('Skins por comprar: ${unlockedInventory.length}',
+                Text('${languageDataManager.getLabel('unlocked-skins')} x ${unlockedInventory.length}',
                     style: const TextStyle(
                       fontSize: 15.0,
                       fontFamily: 'monospace',
@@ -100,8 +100,8 @@ class MyWidgetState extends State<GachaScreen> {
                     backgroundColor: const Color.fromARGB(
                         255, 255, 87, 87), // Cambia el color de fondo aquí
                   ),
-                  onPressed: _copyText,
-                  child: const Text('Copiar mi UUID'),
+                  onPressed: _copyMyData,
+                  child: Text(languageDataManager.getLabel('copy-my-public-data')),
                 ),
                 const SizedBox(height: 1),
                 Text(
@@ -113,16 +113,16 @@ class MyWidgetState extends State<GachaScreen> {
                       fontStyle: FontStyle.italic),
                 ),
                 TextFormField(
-                  initialValue: uuidToUse,
+                  initialValue: _uuidToUse,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.amber, fontSize: 15.0),
-                  decoration: const InputDecoration(
-                    labelText: 'Pega un UUID',
-                    labelStyle: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: languageDataManager.getLabel('paste-public-data'),
+                    labelStyle: const TextStyle(color: Colors.white),
                     floatingLabelAlignment: FloatingLabelAlignment.center,
                   ),
                   onFieldSubmitted: (value) =>
-                      setState(() => {uuidToUse = value, setUuidToUse()}),
+                      setState(() => {_uuidToUse = value, _setUuidToUse()}),
                 ),
               ],
             )));

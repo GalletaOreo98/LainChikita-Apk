@@ -25,5 +25,5 @@ int coins = 2;
 
 //Preferencias y Configuraciones en general
 String language = 'en';
-DataManager dataManager = DataManager(); //language datamanager
+LanguageDataManager languageDataManager = LanguageDataManager();
 AppAudioPlayer appAudioPlayer = AppAudioPlayer();

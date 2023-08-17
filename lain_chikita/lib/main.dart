@@ -57,7 +57,8 @@ class _MyAppState extends State<MyApp> {
       await prefs.setString('userUuid', userUuid);
     }
     //Carga los nombres de los items del inventario segun el lenguaje del dispositivo
-    await dataManager.loadShowedNames(language);
+    await languageDataManager.loadAccessoryNames(language);
+    await languageDataManager.loadLabels(language);
     setState(() {
       level = prefs.getInt('level') ?? 0;
       progress = prefs.getInt('progress') ?? 0;
@@ -84,12 +85,6 @@ class _MyAppState extends State<MyApp> {
     await prefs.setInt('progress', progress);
     await prefs.setString('username', username);
     await prefs.setInt('coins', coins);
-    //Pasar inventarios a string para almacenar
-    //OJO PONER EN OTRO SAVE FUNCTION ESTA PARTE DE LOS INVENTARIOS PARA MEJORAR RENDIMIENTO
-    /* final jsonInventory = json.encode(inventory);
-    await prefs.setString('inventory', jsonInventory);
-    final jsonUnlockedInventory = json.encode(unlockedInventory);
-    await prefs.setString('unlockedInventory', jsonUnlockedInventory); */
   }
 
   Future<void> _saveInventaries() async {
@@ -105,12 +100,12 @@ class _MyAppState extends State<MyApp> {
     await prefs.setString('accessoryName', accessoryName);
   }
 
-  Future<void> playLoveBtnSound() async {
+  Future<void> _playLoveBtnSound() async {
     await appAudioPlayer.playSound('audio/btn_sound.mp3');
   }
 
   void _incrementProgress() {
-    playLoveBtnSound();
+    _playLoveBtnSound();
     setState(() {
       progress += 1;
       if (progress >= _maxProgress) {
@@ -175,9 +170,9 @@ class _MyAppState extends State<MyApp> {
                                 initialValue: username,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(color: Colors.amber),
-                                decoration: const InputDecoration(
-                                  labelText: 'Nuevo nombre de usuario',
-                                  labelStyle: TextStyle(color: Colors.white),
+                                decoration: InputDecoration(
+                                  labelText: languageDataManager.getLabel('new-user-name'),
+                                  labelStyle: const TextStyle(color: Colors.white),
                                   floatingLabelAlignment:
                                       FloatingLabelAlignment.center,
                                 ),
@@ -226,7 +221,7 @@ class _MyAppState extends State<MyApp> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Nivel ${level}',
+                                '${languageDataManager.getLabel('level')} $level',
                                 style: const TextStyle(
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.bold,

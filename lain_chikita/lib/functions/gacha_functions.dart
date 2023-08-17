@@ -11,10 +11,6 @@ int generateSecureRandom(int maxValue) {
     return secureRandom.nextInt(maxValue);
 }
 
-void addItemToInventory(dynamic item){
-  inventory.add(item);
-}
-
 bool buyTicket(){
   if (coins <= 0) return false;
   if (unlockedInventory.isEmpty) return false;
