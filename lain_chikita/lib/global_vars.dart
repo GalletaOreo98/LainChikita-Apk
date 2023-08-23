@@ -1,3 +1,4 @@
+import 'classes/app_colors.dart';
 import 'classes/audio_player.dart';
 import 'classes/data_manager.dart';
 
@@ -27,3 +28,4 @@ int coins = 2;
 String language = 'en';
 LanguageDataManager languageDataManager = LanguageDataManager();
 AppAudioPlayer appAudioPlayer = AppAudioPlayer();
+AppColors appColors = AppColors();

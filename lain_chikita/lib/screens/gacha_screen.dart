@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 // ignore: library_prefixes
-import '../app_colors.dart' as MY_APP_COLORS;
 import '../functions/encryption_functions.dart';
 import '../functions/gacha_functions.dart';
 import '../global_vars.dart';
@@ -24,11 +23,25 @@ class GachaScreen extends StatefulWidget {
 
 class MyWidgetState extends State<GachaScreen> {
   final _player = AudioPlayer(playerId: 'selectAccessory');
-  String _copiedText = '';
-  String _uuidToUse = '';
+  String _copiedText = ''; // Avisa si ya se copio el texto en la clipboard
+  String _userName = '';
+  String _uuid = '';
+  String _informativeText = '';
+  Color _informativeTextColor = appColors.informativeText;
+  void Function()? _buyTicket;
 
   Future<void> playSelectAccessorySound() async {
     await _player.play(AssetSource("audio/select_accessory_sound.mp3"));
+  }
+
+  // No hace falta optimizar pero se podria
+  void hideInformativeText(String element, int seconds) {
+    Future.delayed(Duration(seconds: seconds), () {
+      setState(() {
+        if (_copiedText == element) _copiedText = '';
+        if (_informativeText == element) _informativeText = '';
+      });
+    });
   }
 
   void _copyMyData() async {
@@ -37,6 +50,7 @@ class MyWidgetState extends State<GachaScreen> {
     Clipboard.setData(ClipboardData(text: encryptedData));
     setState(() {
       _copiedText = languageDataManager.getLabel('clipboard-is-copied');
+      hideInformativeText(_copiedText, 2);
     });
   }
 
@@ -45,17 +59,46 @@ class MyWidgetState extends State<GachaScreen> {
     widget.callback();
   }
 
-  void _setUuidToUse() async {
-    buyTicket();
+  void _readyToBuyTicket() {
+    setState(() {
+      _informativeTextColor = appColors.informativeText;
+      _informativeText = 'Ticket para: $_userName';
+    });
+    _buyTicket = () {
+      setState(() {
+        _buyTicket = null;
+        _informativeText = '¡Ticket comprado!';
+      });
+    };
+  }
+
+  void _setPublicDataToUse(String publicData) async {
+    /* buyTicket();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('coins', coins);
-    _saveInventaries();
+    _saveInventaries(); */
+    String decryptedData;
+    try {
+      decryptedData = decryptData(publicData, secretKey);
+    } catch (e) {
+      setState(() {
+        _buyTicket = null;
+        _informativeTextColor = appColors.errorText;
+        _informativeText = 'Error, datos publicos invalidos';
+      });
+      return;
+    }
+    Map<String, String> decryptedDataMap =
+        Map<String, String>.from(json.decode(decryptedData));
+    _userName = decryptedDataMap['username'] ?? '';
+    _uuid = decryptedDataMap['useruuid'] ?? '';
+    _readyToBuyTicket();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        color: MY_APP_COLORS.darkBackground,
+        color: appColors.background,
         child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -79,50 +122,68 @@ class MyWidgetState extends State<GachaScreen> {
                               verticalAlignment:
                                   TableCellVerticalAlignment.middle,
                               child: Text(' x: $coins',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 15.0,
                                     fontFamily: 'monospace',
-                                    color: Colors.white,
+                                    color: appColors.primaryText,
                                   )))
                         ],
                       ),
                     ]),
                 const SizedBox(height: 16),
-                Text('${languageDataManager.getLabel('unlocked-skins')} x ${unlockedInventory.length}',
-                    style: const TextStyle(
+                Text(
+                    '${languageDataManager.getLabel('unlocked-skins')} x ${unlockedInventory.length}',
+                    style: TextStyle(
                       fontSize: 15.0,
                       fontFamily: 'monospace',
-                      color: Colors.white,
+                      color: appColors.primaryText,
                     )),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(
-                        255, 255, 87, 87), // Cambia el color de fondo aquí
-                  ),
+                      backgroundColor: appColors.primaryBtn),
                   onPressed: _copyMyData,
-                  child: Text(languageDataManager.getLabel('copy-my-public-data')),
+                  child:
+                      Text(languageDataManager.getLabel('copy-my-public-data')),
                 ),
                 const SizedBox(height: 1),
                 Text(
                   _copiedText,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 10.0,
                       fontFamily: 'monospace',
-                      color: Colors.white70,
+                      color: appColors.informativeText,
                       fontStyle: FontStyle.italic),
                 ),
                 TextFormField(
-                  initialValue: _uuidToUse,
+                  initialValue: _uuid,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.amber, fontSize: 15.0),
+                  style:
+                      TextStyle(color: appColors.userInputText, fontSize: 15.0),
                   decoration: InputDecoration(
-                    labelText: languageDataManager.getLabel('paste-public-data'),
-                    labelStyle: const TextStyle(color: Colors.white),
+                    labelText:
+                        languageDataManager.getLabel('paste-public-data'),
+                    labelStyle: TextStyle(color: appColors.primaryText),
                     floatingLabelAlignment: FloatingLabelAlignment.center,
                   ),
                   onFieldSubmitted: (value) =>
-                      setState(() => {_uuidToUse = value, _setUuidToUse()}),
+                      setState(() => {_setPublicDataToUse(value)}),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: appColors.primaryBtn),
+                  onPressed: _buyTicket,
+                  child: const Text('BUY'),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _informativeText,
+                  style: TextStyle(
+                    fontSize: 12.0,
+                    fontFamily: 'monospace',
+                    color: _informativeTextColor,
+                  ),
                 ),
               ],
             )));

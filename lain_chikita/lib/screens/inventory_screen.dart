@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 // ignore: library_prefixes
-import '../app_colors.dart' as MY_APP_COLORS;
 import '../global_vars.dart';
 
 class InventoryScreen extends StatefulWidget {
@@ -25,7 +24,7 @@ class MyWidgetState extends State<InventoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: MY_APP_COLORS.darkBackground,
+      color: appColors.background,
       child: ListView.builder(
         itemCount: inventory.length,
         itemBuilder: (BuildContext context, int index) {
@@ -37,17 +36,17 @@ class MyWidgetState extends State<InventoryScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: Colors.black,
+                    color: appColors.inventoryListBorders,
                     width: 2,
                   ),
                 ),
                 child: ListTile(
-                  textColor: Colors.white,
+                  textColor: appColors.primaryText,
                   title:
                       Text(languageDataManager.getAccessoryName(inventory[index]['name'])),
                   subtitle: Text('by: ${inventory[index]['by']}',
-                      style: const TextStyle(
-                          color: MY_APP_COLORS.secondaryLightText,
+                      style: TextStyle(
+                          color: appColors.secondaryText,
                           fontStyle: FontStyle.italic)),
                 ),
               ));

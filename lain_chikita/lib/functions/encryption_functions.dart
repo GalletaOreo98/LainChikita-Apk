@@ -22,7 +22,7 @@ String decryptData(String encryptedData, String secretKey) {
 }
 
 String generateCryptoRngUuid(){
-  var uuid = Uuid();
+  Uuid uuid = const Uuid();
   final v4Crypto = uuid.v4(options: {'rng': UuidUtil.cryptoRNG});
   return v4Crypto;
 }
