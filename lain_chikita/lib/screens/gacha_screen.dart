@@ -23,12 +23,28 @@ class GachaScreen extends StatefulWidget {
 
 class MyWidgetState extends State<GachaScreen> {
   final _player = AudioPlayer(playerId: 'selectAccessory');
-  String _copiedText = ''; // Avisa si ya se copio el texto en la clipboard
+
+  /// Avisa si ya se copio el texto en la clipboard
+  String _copiedText = '';
   String _userName = '';
   String _uuid = '';
+  List<Map<String, dynamic>> _unlockedInventory = [];
+
+  /// Texto informativo sobre las acciones realizadas
   String _informativeText = '';
   Color _informativeTextColor = appColors.informativeText;
+  bool _showTicketEData = false;
+  String _ticketEData = '';
+  bool _showClaimTicket = false;
   void Function()? _buyTicket;
+  /* El flujo de comprar un ticket se basa en:
+    1. _copyMyData() #Para copiar nuestra data nada más, si es para regalar no es necesario este paso
+    2. _setPublicDataToUse(String publicData) #Se verifica la data que copiamos en el campo (nuestra, o de alguien mas)
+    3. _readyToBuyTicket() #Gestiona si se esta comprando ticket para uno mismo o para alguien más
+    4. buyTicket() || buyTicketFor(_unlockedInventory) #Dependiendo de si es para nosotros o para alguien mas
+       #Se nos agrega el item en el inventario o se da el codigo encriptado para copiar y regalarlo
+       #encrypt data es `jsonItem + "&" + _uuid` por lo que hay que separarlo por `&` para reclamar el ticket
+  */
 
   Future<void> playSelectAccessorySound() async {
     await _player.play(AssetSource("audio/select_accessory_sound.mp3"));
@@ -44,9 +60,65 @@ class MyWidgetState extends State<GachaScreen> {
     });
   }
 
+  void _claimTicket(String ticketToClaim) {
+    // encrypt data es `jsonItem + "&" + _uuid`
+    setState(() {
+      //_informativeTextColor = appColors.informativeText;
+      try {
+        String decryptedItem = decryptData(ticketToClaim, secretKey);
+        List<String> parts = decryptedItem.split('&');
+        if (parts.length == 2) {
+          String jsonItem = parts[0];
+          String uuid = parts[1];
+          if (uuid != userUuid) {
+            _informativeText = 'No se puede reclamar';
+            return;
+          }
+          Map<String, dynamic> item =
+              Map<String, dynamic>.from(json.decode(jsonItem));
+          Map<String, dynamic> inInventory = inventory.firstWhere(
+            (element) =>
+                element.values.first ==
+                item.values.first, //element['name'] == item['name']
+            orElse: () => {},
+          );
+          if (inInventory.isEmpty) {
+            unlockedInventory
+                .removeWhere((element) => element['name'] == item['name']);
+            inventory.add(item);
+            _informativeText = '¡Ticket reclamado exitosamente!';
+            _saveInventaries();
+          } else {
+            _informativeText = 'Ya tienes este item';
+          }
+        } else {
+          _informativeText = 'No se puede reclamar';
+        }
+      } catch (e) {
+        _informativeTextColor = appColors.errorText;
+        _informativeText = 'Error, datos invalidos';
+      }
+    });
+  }
+
+  void _copyTicketEData() {
+    Clipboard.setData(ClipboardData(text: _ticketEData));
+    setState(() {
+      _showTicketEData = false;
+      _informativeText = 'Ticket data copiada, compartela con tu amigo';
+    });
+  }
+
   void _copyMyData() async {
-    final jsonData = json.encode({'username': username, 'useruuid': userUuid});
+    // Formateo de la data necesaria a encriptar
+    final jsonUnlockedInventory = json.encode(unlockedInventory);
+    final jsonData = json.encode({
+      'username': username,
+      'useruuid': userUuid,
+      'unlockedinventory': jsonUnlockedInventory
+    });
     final encryptedData = encryptData(jsonData, secretKey);
+    // Copiar la data ya encriptada al clipboard
     Clipboard.setData(ClipboardData(text: encryptedData));
     setState(() {
       _copiedText = languageDataManager.getLabel('clipboard-is-copied');
@@ -59,40 +131,61 @@ class MyWidgetState extends State<GachaScreen> {
     widget.callback();
   }
 
-  void _readyToBuyTicket() {
+  void _readyToBuyTicket() async {
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
       _informativeTextColor = appColors.informativeText;
       _informativeText = 'Ticket para: $_userName';
     });
     _buyTicket = () {
       setState(() {
+        if (userUuid == _uuid) {
+          bool isDone = buyTicket();
+          isDone
+              ? _informativeText = '¡Ticket comprado!'
+              : _informativeText = 'No se puede comprar';
+          prefs.setInt('coins', coins);
+          _saveInventaries();
+        } else {
+          String jsonItem = buyTicketFor(_unlockedInventory);
+          if (jsonItem.isNotEmpty) {
+            /* Se le concatena el uuid del usuario para quien se compro el ticket
+               para que solo el pueda cambiarlo */
+            String encryptedItem =
+                encryptData(jsonItem + "&" + _uuid, secretKey);
+            //debugPrint(encryptedItem);
+            _ticketEData = encryptedItem;
+            _showTicketEData = true;
+            _informativeText = '¡Ticket comprado!';
+            prefs.setInt('coins', coins);
+            _saveInventaries();
+          } else {
+            _informativeText = 'No se puede comprar';
+          }
+        }
         _buyTicket = null;
-        _informativeText = '¡Ticket comprado!';
       });
     };
   }
 
   void _setPublicDataToUse(String publicData) async {
-    /* buyTicket();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('coins', coins);
-    _saveInventaries(); */
     String decryptedData;
     try {
       decryptedData = decryptData(publicData, secretKey);
+      Map<String, String> decryptedDataMap =
+          Map<String, String>.from(json.decode(decryptedData));
+      _userName = decryptedDataMap['username'] ?? '';
+      _uuid = decryptedDataMap['useruuid'] ?? '';
+      _unlockedInventory = List<Map<String, dynamic>>.from(
+          jsonDecode(decryptedDataMap['unlockedinventory'] ?? '[{}]'));
+      _readyToBuyTicket();
     } catch (e) {
       setState(() {
         _buyTicket = null;
         _informativeTextColor = appColors.errorText;
         _informativeText = 'Error, datos publicos invalidos';
       });
-      return;
     }
-    Map<String, String> decryptedDataMap =
-        Map<String, String>.from(json.decode(decryptedData));
-    _userName = decryptedDataMap['username'] ?? '';
-    _uuid = decryptedDataMap['useruuid'] ?? '';
-    _readyToBuyTicket();
   }
 
   @override
@@ -142,6 +235,15 @@ class MyWidgetState extends State<GachaScreen> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       backgroundColor: appColors.primaryBtn),
+                  onPressed: () => setState(() {
+                    _showClaimTicket = true;
+                  }),
+                  child: Text(languageDataManager.getLabel('Canjear codigo')),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: appColors.primaryBtn),
                   onPressed: _copyMyData,
                   child:
                       Text(languageDataManager.getLabel('copy-my-public-data')),
@@ -155,6 +257,26 @@ class MyWidgetState extends State<GachaScreen> {
                       color: appColors.informativeText,
                       fontStyle: FontStyle.italic),
                 ),
+                if (_showClaimTicket)
+                  Column(
+                    children: [
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: appColors.userInputText, fontSize: 15.0),
+                        decoration: InputDecoration(
+                          labelText:
+                              languageDataManager.getLabel('Ticket Data'),
+                          labelStyle: TextStyle(color: appColors.primaryText),
+                          floatingLabelAlignment: FloatingLabelAlignment.center,
+                        ),
+                        onFieldSubmitted: (value) =>
+                            setState(() => {_claimTicket(value)}),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
                 TextFormField(
                   initialValue: _uuid,
                   textAlign: TextAlign.center,
@@ -185,6 +307,19 @@ class MyWidgetState extends State<GachaScreen> {
                     color: _informativeTextColor,
                   ),
                 ),
+                if (_showTicketEData)
+                  Column(
+                    children: [
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: appColors.primaryBtn),
+                        onPressed: _copyTicketEData,
+                        child: Text(
+                            languageDataManager.getLabel('Copiar ticket data')),
+                      ),
+                    ],
+                  )
               ],
             )));
   }

@@ -1,22 +1,46 @@
 import 'dart:math';
-import '../global_vars.dart';
+import 'dart:convert';
+import '../global_vars.dart' as gv;
+import 'encryption_functions.dart';
 
 /// Crea un numero Random secureRandom
-/// 
+///
 /// maxValue es un numero >= 0
-/// 
+///
 /// Devuelve un numero >= 0 y < maxValue.
-int generateSecureRandom(int maxValue) {
-    final secureRandom = Random.secure();
-    return secureRandom.nextInt(maxValue);
+int _generateSecureRandom(int maxValue) {
+  final secureRandom = Random.secure();
+  return secureRandom.nextInt(maxValue);
 }
 
-bool buyTicket(){
-  if (coins <= 0) return false;
-  if (unlockedInventory.isEmpty) return false;
-  coins --;
-  int random = generateSecureRandom(unlockedInventory.length);
-  inventory.add(unlockedInventory[random]);
-  unlockedInventory.removeAt(random);
+
+/// Retorna empty (String vacio) si no se puede proceder,
+/// en otro caso agrega el item elegido al inventario y retorna true
+/// 
+/// Gasta el coin cuando se realiza exitosamente
+bool buyTicket() {
+  if (gv.coins <= 0) return false;
+  if (gv.unlockedInventory.isEmpty) return false;
+  gv.coins--;
+  int random = _generateSecureRandom(gv.unlockedInventory.length);
+  gv.inventory.add(gv.unlockedInventory[random]);
+  gv.unlockedInventory.removeAt(random);
   return true;
+}
+
+/// Retorna empty (String vacio) si no se puede proceder,
+/// en otro caso retorna el item elegido aleatoriamente, 
+/// ejemplo: {"name":"item_name", "by": "This_is_just_an_example"}
+/// 
+/// El intem esta json.encode por lo que se puede json.decode para usar como Map<String, String>
+/// 
+/// Gasta el coin cuando se realiza exitosamente
+String buyTicketFor(List<Map<String, dynamic>> unlockedInventory){
+  if (gv.coins <= 0) return '';
+  if (unlockedInventory.isEmpty) return '';
+  gv.coins--;
+  int random = _generateSecureRandom(unlockedInventory.length);
+  Map<String, dynamic> item = unlockedInventory[random];
+  String jsonItem = json.encode(item);
+  return jsonItem;
 }
