@@ -172,7 +172,7 @@ class _MyAppState extends State<MyApp> {
                                 style: TextStyle(color: appColors.nameLabel),
                                 decoration: InputDecoration(
                                   labelText: languageDataManager.getLabel('new-user-name'),
-                                  labelStyle: TextStyle(color: appColors.nameLabel),
+                                  labelStyle: TextStyle(color: appColors.primaryText),
                                   floatingLabelAlignment:
                                       FloatingLabelAlignment.center,
                                 ),
