@@ -71,7 +71,8 @@ class MyWidgetState extends State<GachaScreen> {
           String jsonItem = parts[0];
           String uuid = parts[1];
           if (uuid != userUuid) {
-            _informativeText = 'No se puede reclamar';
+            _informativeText =
+                languageDataManager.getLabel('cannot-be-claimed');
             return;
           }
           Map<String, dynamic> item =
@@ -86,17 +87,19 @@ class MyWidgetState extends State<GachaScreen> {
             unlockedInventory
                 .removeWhere((element) => element['name'] == item['name']);
             inventory.add(item);
-            _informativeText = '¡Ticket reclamado exitosamente!';
+            _informativeText =
+                languageDataManager.getLabel('ticket-successfully-claimed');
             _saveInventaries();
           } else {
-            _informativeText = 'Ya tienes este item';
+            _informativeText =
+                languageDataManager.getLabel('already-have-this-item');
           }
         } else {
-          _informativeText = 'No se puede reclamar';
+          _informativeText = languageDataManager.getLabel('cannot-be-claimed');
         }
       } catch (e) {
         _informativeTextColor = appColors.errorText;
-        _informativeText = 'Error, datos invalidos';
+        _informativeText = languageDataManager.getLabel('error-invalid-data');
       }
     });
   }
@@ -105,7 +108,8 @@ class MyWidgetState extends State<GachaScreen> {
     Clipboard.setData(ClipboardData(text: _ticketEData));
     setState(() {
       _showTicketEData = false;
-      _informativeText = 'Ticket data copiada, compartela con tu amigo';
+      _informativeText =
+          languageDataManager.getLabel('ticket-data-has-been-copied');
     });
   }
 
@@ -135,32 +139,36 @@ class MyWidgetState extends State<GachaScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _informativeTextColor = appColors.informativeText;
-      _informativeText = 'Ticket para: $_userName';
+      _informativeText =
+          "${languageDataManager.getLabel('ticket-for')}: $_userName";
     });
     _buyTicket = () {
       setState(() {
         if (userUuid == _uuid) {
           bool isDone = buyTicket();
           isDone
-              ? _informativeText = '¡Ticket comprado!'
-              : _informativeText = 'No se puede comprar';
+              ? _informativeText =
+                  languageDataManager.getLabel('ticket-purchased')
+              : _informativeText =
+                  languageDataManager.getLabel('cannot-be-purchased');
           prefs.setInt('coins', coins);
           _saveInventaries();
         } else {
           String jsonItem = buyTicketFor(_unlockedInventory);
           if (jsonItem.isNotEmpty) {
-            /* Se le concatena el uuid del usuario para quien se compro el ticket
-               para que solo el pueda cambiarlo */
+            /* Se le concatena el uuid del usuario (separado por un &) para quien se compro (como regalo) el ticket
+               para que solo el pueda reclamarlo */
             String encryptedItem =
                 encryptData(jsonItem + "&" + _uuid, secretKey);
             //debugPrint(encryptedItem);
             _ticketEData = encryptedItem;
             _showTicketEData = true;
-            _informativeText = '¡Ticket comprado!';
+            _informativeText = languageDataManager.getLabel('ticket-purchased');
             prefs.setInt('coins', coins);
             _saveInventaries();
           } else {
-            _informativeText = 'No se puede comprar';
+            _informativeText =
+                languageDataManager.getLabel('cannot-be-purchased');
           }
         }
         _buyTicket = null;
@@ -183,7 +191,7 @@ class MyWidgetState extends State<GachaScreen> {
       setState(() {
         _buyTicket = null;
         _informativeTextColor = appColors.errorText;
-        _informativeText = 'Error, datos publicos invalidos';
+        _informativeText = languageDataManager.getLabel('error-invalid-data');
       });
     }
   }
@@ -238,7 +246,7 @@ class MyWidgetState extends State<GachaScreen> {
                   onPressed: () => setState(() {
                     _showClaimTicket = true;
                   }),
-                  child: Text(languageDataManager.getLabel('Canjear codigo')),
+                  child: Text(languageDataManager.getLabel('redeem-code')),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
@@ -267,7 +275,7 @@ class MyWidgetState extends State<GachaScreen> {
                             color: appColors.userInputText, fontSize: 15.0),
                         decoration: InputDecoration(
                           labelText:
-                              languageDataManager.getLabel('Ticket Data'),
+                              languageDataManager.getLabel('ticket-data'),
                           labelStyle: TextStyle(color: appColors.primaryText),
                           floatingLabelAlignment: FloatingLabelAlignment.center,
                         ),
@@ -296,7 +304,7 @@ class MyWidgetState extends State<GachaScreen> {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: appColors.primaryBtn),
                   onPressed: _buyTicket,
-                  child: const Text('BUY'),
+                  child: Text(languageDataManager.getLabel('buy')),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -316,7 +324,7 @@ class MyWidgetState extends State<GachaScreen> {
                             backgroundColor: appColors.primaryBtn),
                         onPressed: _copyTicketEData,
                         child: Text(
-                            languageDataManager.getLabel('Copiar ticket data')),
+                            languageDataManager.getLabel('copy-ticket-data')),
                       ),
                     ],
                   )

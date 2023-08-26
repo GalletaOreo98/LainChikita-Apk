@@ -4,5 +4,17 @@
     "clipboard-is-copied": "Copied!",
     "unlocked-skins": "Unlocked skins",
     "copy-my-public-data": "Copy my public data",
-    "paste-public-data": "Paste public data"
+    "paste-public-data": "Paste public data",
+    "cannot-be-claimed": "Cannot be claimed",
+    "ticket-successfully-claimed": "Ticket successfully claimed!",
+    "already-have-this-item": "You already have this item",
+    "error-invalid-data": "Error, invalid data",
+    "ticket-data-has-been-copied": "The ticket data has been copied, share it with your friend",
+    "ticket-for": "Ticket for",
+    "ticket-purchased": "Ticket purchased!",
+    "cannot-be-purchased": "Cannot be purchased",
+    "redeem-code": "Redeem code",
+    "ticket-data": "Ticket Data",
+    "buy": "Buy",
+    "copy-ticket-data": "Copy ticket data"
 }

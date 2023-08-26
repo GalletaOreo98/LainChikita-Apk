@@ -3,6 +3,18 @@
     "new-user-name": "Nuevo nombre de usuario",
     "clipboard-is-copied": "¡Copiado!",
     "unlocked-skins": "Skins sin desbloquear",
-    "copy-my-public-data": "Copiar mis datos publicos",
-    "paste-public-data": "Pegar datos publicos"
+    "copy-my-public-data": "Copiar mis datos públicos",
+    "paste-public-data": "Pegar datos públicos",
+    "cannot-be-claimed": "No se puede reclamar",
+    "ticket-successfully-claimed": "¡Ticket reclamado exitosamente!",
+    "already-have-this-item": "Ya tienes este ítem",
+    "error-invalid-data": "Error, datos inválidos",
+    "ticket-data-has-been-copied": "Los datos del ticket han sido copiados, compártelo con tu amigo",
+    "ticket-for": "Ticket para",
+    "ticket-purchased": "¡Ticket comprado!",
+    "cannot-be-purchased": "No se puede comprar",
+    "redeem-code": "Canjear código",
+    "ticket-data": "Datos del ticket",
+    "buy": "Comprar",
+    "copy-ticket-data": "Copiar datos del ticket"
 }
