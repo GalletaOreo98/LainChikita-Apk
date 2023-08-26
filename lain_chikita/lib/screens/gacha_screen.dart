@@ -234,7 +234,7 @@ class MyWidgetState extends State<GachaScreen> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: appColors.primaryBtn),
+                      backgroundColor: appColors.secondaryBtn),
                   onPressed: () => setState(() {
                     _showClaimTicket = true;
                   }),
@@ -243,7 +243,7 @@ class MyWidgetState extends State<GachaScreen> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: appColors.primaryBtn),
+                      backgroundColor: appColors.secondaryBtn),
                   onPressed: _copyMyData,
                   child:
                       Text(languageDataManager.getLabel('copy-my-public-data')),

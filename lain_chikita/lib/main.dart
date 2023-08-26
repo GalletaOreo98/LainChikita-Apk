@@ -169,10 +169,10 @@ class _MyAppState extends State<MyApp> {
                               child: TextFormField(
                                 initialValue: username,
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(color: Colors.amber),
+                                style: TextStyle(color: appColors.nameLabel),
                                 decoration: InputDecoration(
                                   labelText: languageDataManager.getLabel('new-user-name'),
-                                  labelStyle: const TextStyle(color: Colors.white),
+                                  labelStyle: TextStyle(color: appColors.nameLabel),
                                   floatingLabelAlignment:
                                       FloatingLabelAlignment.center,
                                 ),
@@ -191,11 +191,11 @@ class _MyAppState extends State<MyApp> {
                                 Text(
                                   username,
                                   textAlign: TextAlign.start,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 20.0,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'monospace',
-                                    color: Colors.amber,
+                                    color: appColors.nameLabel,
                                   ),
                                 )
                               ],
@@ -222,11 +222,11 @@ class _MyAppState extends State<MyApp> {
                             children: [
                               Text(
                                 '${languageDataManager.getLabel('level')} $level',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.bold,
                                   fontFamily: 'monospace',
-                                  color: Colors.white,
+                                  color: appColors.primaryText,
                                 ),
                               ),
                               const SizedBox(height: 8.0),
@@ -235,20 +235,20 @@ class _MyAppState extends State<MyApp> {
                                 width: 250.0,
                                 child: LinearProgressIndicator(
                                   value: progress / _maxProgress,
-                                  backgroundColor: Colors.white,
+                                  backgroundColor: appColors.loveBarOpposite,
                                   valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
-                                    Color.fromARGB(255, 248, 187, 208),
+                                    AlwaysStoppedAnimation<Color>(
+                                    appColors.loveBar,
                                   ),
                                 ),
                               ),
                               const SizedBox(height: 8.0),
                               FloatingActionButton(
-                                backgroundColor: Colors.pink[100],
+                                backgroundColor: appColors.loveBtn,
                                 onPressed: _incrementProgress,
-                                child: const Icon(
+                                child: Icon(
                                   Icons.favorite,
-                                  color: Colors.white,
+                                  color: appColors.loveBtnOpposite,
                                 ),
                               ),
                             ],
