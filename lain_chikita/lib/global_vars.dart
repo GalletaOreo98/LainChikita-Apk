@@ -19,6 +19,7 @@ List<Map<String, dynamic>> unlockedInventory = [
   {'name': 'sports_glasses', 'by': 'oreo_dev'},
   {'name': 'christmas_cane', 'by': 'oreo_dev'},
   {'name': 'pacman_mob', 'by': 'oreo_dev'},
+  {'name': 'vinca_flower', 'by': 'oreo_dev'},
 ];
 
 //Variables sin backup
