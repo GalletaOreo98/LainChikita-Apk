@@ -11,6 +11,8 @@ String username = "NULLUSER";
 String accessoryName = "null";
 String userUuid = "";
 
+int inventoryVersion = 1;
+
 List<Map<String, dynamic>> inventory = [
   {'name': 'null', 'by': 'NULLUSER'},
   {'name': 'sunglasses', 'by': 'oreo_dev'},
@@ -24,7 +26,7 @@ List<Map<String, dynamic>> unlockedInventory = [
   {'name': 'vinca_flower', 'by': 'oreo_dev'},
 ];
 
-//Variables sin backup
+//User vars sin backup
 int coins = 2;
 
 //Preferencias y Configuraciones en general
@@ -33,6 +35,7 @@ LanguageDataManager languageDataManager = LanguageDataManager();
 AppAudioPlayer appAudioPlayer = AppAudioPlayer();
 AppColors appColors = AppColors();
 String platformName = _getPlatformName();
+String appPathStorage = '';
 
 //Funciones privadas
 String _getPlatformName(){

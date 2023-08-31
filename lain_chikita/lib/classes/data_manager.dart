@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart' show rootBundle;
-import 'dart:convert';
+import 'dart:convert' show json;
 
 /// Clase para administrar el lenguaje de los textos 
 /// segun el codigo de leguaje del dispositivo

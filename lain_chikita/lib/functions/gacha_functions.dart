@@ -1,7 +1,6 @@
-import 'dart:math';
-import 'dart:convert';
+import 'dart:math' show Random;
+import 'dart:convert' show json;
 import '../global_vars.dart' as gv;
-import 'encryption_functions.dart';
 
 /// Crea un numero Random secureRandom
 ///

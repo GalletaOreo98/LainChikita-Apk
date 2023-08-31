@@ -1,8 +1,12 @@
-import 'dart:io';
+import 'dart:io' show Directory;
 import 'package:path_provider/path_provider.dart' show getApplicationDocumentsDirectory, getExternalStorageDirectory;
-import '../global_vars.dart';
+import '../global_vars.dart' show platformName;
 
-Future<void> writeAThankUTxt() async {
+
+/// Consigue el path donde se almacenan los archivos de la app en el sistema
+/// 
+/// Example: user/0/com.example.lain_chikita/files
+Future<String> getAppPathStorage() async{
   Directory? directory;
   if (platformName == "android") {
     directory = await getExternalStorageDirectory();
@@ -10,7 +14,5 @@ Future<void> writeAThankUTxt() async {
     directory = await getApplicationDocumentsDirectory();
   }
   directory!.path;
-  Directory outputDir = await Directory("${directory.path}/README").create();
-  final File file = File('${outputDir.path}/my_file.txt');
-  await file.writeAsString("Gracias por instalar lain_chikita, amable senior $username");
+  return directory.path;
 }

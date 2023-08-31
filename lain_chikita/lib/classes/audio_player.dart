@@ -1,4 +1,4 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers/audioplayers.dart' show AudioPlayer, AssetSource;
 
 class AppAudioPlayer {
   AudioPlayer player = AudioPlayer(playerId: 'myGlobalPlayer');

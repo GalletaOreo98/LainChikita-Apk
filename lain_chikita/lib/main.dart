@@ -1,13 +1,15 @@
+import 'dart:io' show File;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/services.dart' show SystemUiMode, SystemChrome, RawKeyEvent, RawKeyDownEvent, LogicalKeyboardKey;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-import 'dart:ui';
+import 'dart:convert' show json, jsonDecode;
+import 'dart:ui' show window;
 //My custom imports
-import 'functions/encryption_functions.dart';
 import 'global_vars.dart';
 import 'private_keys.dart';
+import 'functions/encryption_functions.dart';
 import 'functions/write_read_files_functions.dart';
+import 'functions/directory_path_provider.dart';
 
 //screens
 import 'screens/inventory_screen.dart';
@@ -50,6 +52,7 @@ class _MyAppState extends State<MyApp> {
 
   /// Carga progreso y configuraciones necesarias en general
   Future<void> _loadProgress() async {
+    appPathStorage = await getAppPathStorage();
     final prefs = await SharedPreferences.getInstance();
     userUuid = prefs.getString("userUuid") ?? "";
     if (userUuid.isEmpty) {
@@ -263,6 +266,7 @@ class _MyAppState extends State<MyApp> {
                 ),
                 InventoryScreen(callback: _updateAccessory),
                 GachaScreen(callback: _saveInventaries),
+                ImageViewer(color: appColors.background)
               ],
             ),
           ),
@@ -285,3 +289,19 @@ class _MyAppState extends State<MyApp> {
     );
   }
 } */
+
+class ImageViewer extends StatelessWidget {
+  final String encryptedImagePath = 'path_to_encrypted_image'; // Cambia la ruta al archivo encriptado
+  final Color color;
+  const ImageViewer({required this.color});
+  @override
+  Widget build(BuildContext context) {
+    File decryptedImageFile = decryptImage("encryptedImagePath", secretKey);
+    return Container(
+      color: color,
+      child: Center(
+        child: Image.file(decryptedImageFile),
+      ),
+    );
+  }
+}

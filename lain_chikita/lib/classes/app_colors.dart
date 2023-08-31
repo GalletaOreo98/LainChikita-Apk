@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:ui' show Color;
 
 class AppColors {
   Color background = const Color.fromARGB(255, 52, 39, 57);

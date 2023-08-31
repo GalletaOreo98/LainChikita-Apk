@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'dart:convert' show json, jsonDecode;
 
 // ignore: library_prefixes
 import '../functions/encryption_functions.dart';
