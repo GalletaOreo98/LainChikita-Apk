@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'classes/app_colors.dart';
 import 'classes/audio_player.dart';
 import 'classes/data_manager.dart';
@@ -30,3 +32,14 @@ String language = 'en';
 LanguageDataManager languageDataManager = LanguageDataManager();
 AppAudioPlayer appAudioPlayer = AppAudioPlayer();
 AppColors appColors = AppColors();
+String platformName = _getPlatformName();
+
+//Funciones privadas
+String _getPlatformName(){
+  if (Platform.isAndroid) return "android";
+  if (Platform.isIOS) return "ios";
+  if (Platform.isMacOS) return "macos"; 
+  if (Platform.isWindows) return "windows";
+  if (Platform.isLinux) return "linux";
+  return "unknown";
+}

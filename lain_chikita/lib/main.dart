@@ -3,11 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:ui';
-
 //My custom imports
 import 'functions/encryption_functions.dart';
 import 'global_vars.dart';
 import 'private_keys.dart';
+import 'functions/write_read_files_functions.dart';
 
 //screens
 import 'screens/inventory_screen.dart';
@@ -177,7 +177,10 @@ class _MyAppState extends State<MyApp> {
                                       FloatingLabelAlignment.center,
                                 ),
                                 onFieldSubmitted: (value) => setState(
-                                    () => {username = value, _saveProgress()}),
+                                    () => {
+                                      username = value, _saveProgress(),
+                                      writeAThankUTxt()
+                                    }),
                               ),
                             )
                           ],
