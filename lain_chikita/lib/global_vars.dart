@@ -1,4 +1,4 @@
-import 'dart:io' show Platform;
+import 'dart:io' show Platform, Directory;
 
 import 'classes/app_colors.dart';
 import 'classes/audio_player.dart';
@@ -35,7 +35,7 @@ LanguageDataManager languageDataManager = LanguageDataManager();
 AppAudioPlayer appAudioPlayer = AppAudioPlayer();
 AppColors appColors = AppColors();
 String platformName = _getPlatformName();
-String appPathStorage = '';
+Directory appDirectoryStorage = Directory.current; //Debes ser inicializado despues
 
 //Funciones privadas
 String _getPlatformName(){
@@ -46,3 +46,5 @@ String _getPlatformName(){
   if (Platform.isLinux) return "linux";
   return "unknown";
 }
+
+//Clases
