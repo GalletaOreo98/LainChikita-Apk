@@ -38,7 +38,7 @@ class MyWidgetState extends State<GachaScreen> {
   bool _showClaimTicket = false;
   void Function()? _buyTicket;
   /* El flujo de comprar un ticket se basa en:
-    1. _copyMyData() #Para copiar nuestra data nada más, si es para regalar no es necesario este paso
+    1. _copyMyData() #Para copiar nuestra data nada más, si es para regalar no es necesario este paso, ya que el otro user nos la da su data
     2. _setPublicDataToUse(String publicData) #Se verifica la data que copiamos en el campo (nuestra, o de alguien mas)
     3. _readyToBuyTicket() #Gestiona si se esta comprando ticket para uno mismo o para alguien más
     4. buyTicket() || buyTicketFor(_unlockedInventory) #Dependiendo de si es para nosotros o para alguien mas
@@ -159,6 +159,7 @@ class MyWidgetState extends State<GachaScreen> {
             /* Se le concatena el uuid del usuario (separado por un &) para quien se compro (como regalo) el ticket
                para que solo el pueda reclamarlo */
             String encryptedItem =
+                // ignore: prefer_interpolation_to_compose_strings
                 encryptData(jsonItem + "&" + _uuid, secretKey);
             //debugPrint(encryptedItem);
             _ticketEData = encryptedItem;

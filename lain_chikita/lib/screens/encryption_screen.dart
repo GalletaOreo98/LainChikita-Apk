@@ -26,6 +26,7 @@ class MyWidgetState extends State<EncryptionScreen> {
 
   void _encryptImages() {
     setState(() {
+      _informativeText = '';
       encryptImages(secretKey, progressCallback).then((value) => _updateInfoTxt("$_informativeText \n¡Listo!"));
     });
   }
@@ -51,6 +52,7 @@ class MyWidgetState extends State<EncryptionScreen> {
             ),
             const SizedBox(height: 16),
             Text(_informativeText,
+            textAlign: TextAlign.center,
             style: TextStyle(
                     fontSize: 12.0,
                     fontFamily: 'monospace',
