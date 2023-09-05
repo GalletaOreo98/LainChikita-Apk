@@ -17,17 +17,27 @@ class EncryptionScreen extends StatefulWidget {
 class MyWidgetState extends State<EncryptionScreen> {
 
   String _informativeText = '';
+  String _currentAction = '';
 
   void progressCallback(int i, int total) {
     setState(() {
-      _informativeText = "Encryptando...\nNo salgas de la aplicación\nProgreso: $i / $total";
+      _informativeText = "$_currentAction...\nNo salgas de la aplicación\nProgreso: $i / $total";
     });
   }
 
   void _encryptImages() {
     setState(() {
       _informativeText = '';
-      encryptImages(secretKey, progressCallback).then((value) => _updateInfoTxt("$_informativeText \n¡Listo!"));
+      _currentAction = 'Encryptando';
+      encryptFiles(secretKey, progressCallback).then((value) => _updateInfoTxt("$_informativeText \n¡Listo!"));
+    });
+  }
+
+  void _dencryptImages() {
+    setState(() {
+      _informativeText = '';
+      _currentAction = 'Desencryptando';
+      decryptFiles(secretKey, progressCallback).then((value) => _updateInfoTxt("$_informativeText \n¡Listo!"));
     });
   }
 
@@ -49,6 +59,13 @@ class MyWidgetState extends State<EncryptionScreen> {
                   backgroundColor: appColors.primaryBtn),
               onPressed: () => _encryptImages(),
               child: const Text("Encrypt images"),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: appColors.primaryBtn),
+              onPressed: () => _dencryptImages(),
+              child: const Text("Dencrypt images"),
             ),
             const SizedBox(height: 16),
             Text(_informativeText,

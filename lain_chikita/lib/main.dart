@@ -52,8 +52,10 @@ class _MyAppState extends State<MyApp> {
 
   /// Carga progreso y configuraciones necesarias en general
   Future<void> _loadProgress() async {
+    //Carga directorios de la app y crea los folders si es necesario
     appDirectoryStorage = await getAppDirectoryStorage();
     await createAppFolders();
+    //Revisa si el usuario tiene userUuid
     final prefs = await SharedPreferences.getInstance();
     userUuid = prefs.getString("userUuid") ?? "";
     if (userUuid.isEmpty) {
@@ -63,6 +65,7 @@ class _MyAppState extends State<MyApp> {
     //Carga los nombres de los items del inventario segun el lenguaje del dispositivo
     await languageDataManager.loadAccessoryNames(language);
     await languageDataManager.loadLabels(language);
+    //Carga los datos guardados en SharedPreferences
     setState(() {
       level = prefs.getInt('level') ?? 0;
       progress = prefs.getInt('progress') ?? 0;

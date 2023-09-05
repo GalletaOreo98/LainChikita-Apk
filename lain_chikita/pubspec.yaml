@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # MY COMMENT:
 # Update version:A.B.C+X
 # A.B.C represents the versionName such as 1.0.0
-# X (the number after the +) represents the versionCode such as 1, 2, 3, etc. (Only int types)
+# X (the number after the +) represents the versionCode such as 1, 2, 3, etc. (Only int types) 
 version: 1.4.1+1
 
 environment:
@@ -43,6 +43,7 @@ dependencies:
   encrypt: ^5.0.1
   uuid: ^3.0.7
   path_provider: ^2.1.1
+  path: ^1.8.2
 
 dev_dependencies:
   flutter_test:

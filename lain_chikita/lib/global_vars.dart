@@ -2,7 +2,7 @@ import 'dart:io' show Platform, Directory;
 
 import 'classes/app_colors.dart';
 import 'classes/audio_player.dart';
-import 'classes/data_manager.dart';
+import 'classes/language_data_manager.dart';
 
 //User vars
 int level = 0;
@@ -11,6 +11,11 @@ String username = "NULLUSER";
 String accessoryName = "null";
 String userUuid = "";
 
+/*
+Cada vez que se haga un add, delete o update a unlockedInventory se debe aumentar la version de inventoryVersion
+(Cuando desimos add, delete o update a unlockedInventory nos referimos a nivel de aplicacion,
+como cuando se agrega una nueva skin a la app o se quita u modifica una)
+*/
 int inventoryVersion = 1;
 
 List<Map<String, dynamic>> inventory = [
@@ -26,7 +31,7 @@ List<Map<String, dynamic>> unlockedInventory = [
   {'name': 'vinca_flower', 'by': 'oreo_dev'},
 ];
 
-//User vars sin backup
+//User vars (sin backup)
 int coins = 2;
 
 //Preferencias y Configuraciones en general
@@ -38,13 +43,11 @@ String platformName = _getPlatformName();
 Directory appDirectoryStorage = Directory.current; //Debes ser inicializado despues
 
 //Funciones privadas
-String _getPlatformName(){
+String _getPlatformName() {
   if (Platform.isAndroid) return "android";
   if (Platform.isIOS) return "ios";
-  if (Platform.isMacOS) return "macos"; 
+  if (Platform.isMacOS) return "macos";
   if (Platform.isWindows) return "windows";
   if (Platform.isLinux) return "linux";
   return "unknown";
 }
-
-//Clases

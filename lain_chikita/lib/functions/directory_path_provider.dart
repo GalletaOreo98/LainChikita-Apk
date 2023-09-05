@@ -3,9 +3,9 @@ import 'package:path_provider/path_provider.dart' show getApplicationDocumentsDi
 import '../global_vars.dart' show platformName;
 
 class AppFolders {
-  static String imagesToEncrypt = 'IMAGES_TO_ENCRYPT';
-  static String encryptedImages= 'ENCRYPTED_IMAGES';
-  static String decryptedImages= 'DECRYPTED_IMAGES';
+  static String imagesToEncrypt = 'FILES_TO_ENCRYPT';
+  static String encryptedImages= 'ENCRYPTED_FILES';
+  static String decryptedImages= 'DECRYPTED_FILES';
   static String readme= 'README';
 }
 
