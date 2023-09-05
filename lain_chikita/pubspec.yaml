@@ -72,6 +72,7 @@ flutter:
     - assets/images/lain_chikita.png
     - assets/images/background.png
     - assets/images/coin.png
+    - assets/images/updated.gif
 
     #Accessories
     - assets/images/accessories/

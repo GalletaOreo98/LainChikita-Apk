@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show SystemUiMode, SystemChrome, RawKeyEvent, RawKeyDownEvent, LogicalKeyboardKey;
+import 'package:flutter/services.dart'
+    show SystemUiMode, SystemChrome, RawKeyEvent, RawKeyDownEvent, LogicalKeyboardKey;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert' show json, jsonDecode;
 import 'dart:ui' show window;
 //My custom imports
+import 'functions/prefs_version_manager.dart';
 import 'global_vars.dart';
 import 'private_keys.dart';
 import 'functions/encryption_functions.dart';
@@ -36,6 +38,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late PageController _pageController;
   final focusNode = FocusNode();
+  bool wasUpdated = false;
 
   @override
   void initState() {
@@ -62,6 +65,24 @@ class _MyAppState extends State<MyApp> {
       userUuid = generateCryptoRngUuid();
       await prefs.setString('userUuid', userUuid);
     }
+    int thisInventoryVersion = prefs.getInt('inventoryVersion') ?? 1;
+    //Inventarios
+    final jsonInventory = prefs.getString('inventory') ?? '';
+    if (jsonInventory.isNotEmpty) {
+      inventory = List<Map<String, dynamic>>.from(jsonDecode(jsonInventory));
+    }
+    //Check unlockedInventory version
+    final jsonUnlockedInventory = prefs.getString('unlockedInventory') ?? '';
+    if (jsonUnlockedInventory.isNotEmpty) {
+      final thisUnlockedInventary = List<Map<String, dynamic>>.from(jsonDecode(jsonUnlockedInventory));
+      if (inventoryVersion == thisInventoryVersion) {
+        unlockedInventory = thisUnlockedInventary;
+      } else {
+        unlockedInventory = applyInventoryVerionUpdate(thisUnlockedInventary, unlockedInventory, inventory);
+        await prefs.setInt('inventoryVersion', inventoryVersion);
+        runUpdateAnimation(5);
+      }
+    }
     //Carga los nombres de los items del inventario segun el lenguaje del dispositivo
     await languageDataManager.loadAccessoryNames(language);
     await languageDataManager.loadLabels(language);
@@ -72,16 +93,6 @@ class _MyAppState extends State<MyApp> {
       username = prefs.getString('username') ?? "NULLUSER";
       accessoryName = prefs.getString('accessoryName') ?? "null";
       coins = prefs.getInt('coins') ?? 2;
-      //Inventarios
-      final jsonInventory = prefs.getString('inventory') ?? '';
-      if (jsonInventory.isNotEmpty) {
-        inventory = List<Map<String, dynamic>>.from(jsonDecode(jsonInventory));
-      }
-      final jsonUnlockedInventory = prefs.getString('unlockedInventory') ?? '';
-      if (jsonUnlockedInventory.isNotEmpty) {
-        unlockedInventory =
-            List<Map<String, dynamic>>.from(jsonDecode(jsonUnlockedInventory));
-      }
     });
   }
 
@@ -111,6 +122,17 @@ class _MyAppState extends State<MyApp> {
     await appAudioPlayer.playSound('audio/btn_sound.mp3');
   }
 
+  void runUpdateAnimation(int seconds) {
+    setState(() {
+      wasUpdated = true;
+    });
+    Future.delayed(Duration(seconds: seconds), () {
+      setState(() {
+        wasUpdated = false;
+      });
+    });
+  }
+
   void _incrementProgress() {
     _playLoveBtnSound();
     setState(() {
@@ -137,12 +159,10 @@ class _MyAppState extends State<MyApp> {
     if (event.runtimeType == RawKeyDownEvent) {
       if (event.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
         // Cambiar a la siguiente pantalla
-        _pageController.nextPage(
-            duration: const Duration(milliseconds: 300), curve: Curves.ease);
+        _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
       } else if (event.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
         // Cambiar a la pantalla anterior
-        _pageController.previousPage(
-            duration: const Duration(milliseconds: 300), curve: Curves.ease);
+        _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
       }
     }
   }
@@ -180,14 +200,10 @@ class _MyAppState extends State<MyApp> {
                                 decoration: InputDecoration(
                                   labelText: languageDataManager.getLabel('new-user-name'),
                                   labelStyle: TextStyle(color: appColors.primaryText),
-                                  floatingLabelAlignment:
-                                      FloatingLabelAlignment.center,
+                                  floatingLabelAlignment: FloatingLabelAlignment.center,
                                 ),
-                                onFieldSubmitted: (value) => setState(
-                                    () => {
-                                      username = value, _saveProgress(),
-                                      writeAThankUTxt()
-                                    }),
+                                onFieldSubmitted: (value) =>
+                                    setState(() => {username = value, _saveProgress(), writeAThankUTxt()}),
                               ),
                             )
                           ],
@@ -218,11 +234,15 @@ class _MyAppState extends State<MyApp> {
                       ),
                       Positioned(
                         child: Center(
-                          child: Image.asset(
-                              'assets/images/accessories/$accessoryName.png',
-                              fit: BoxFit.cover),
+                          child: Image.asset('assets/images/accessories/$accessoryName.png', fit: BoxFit.cover),
                         ),
                       ),
+                      if (wasUpdated)
+                        Positioned(
+                          child: Center(
+                            child: Image.asset('assets/images/updated.gif', fit: BoxFit.cover),
+                          ),
+                        ),
                       Align(
                         alignment: Alignment.bottomCenter,
                         child: Padding(
@@ -246,8 +266,7 @@ class _MyAppState extends State<MyApp> {
                                 child: LinearProgressIndicator(
                                   value: progress / _maxProgress,
                                   backgroundColor: appColors.loveBarOpposite,
-                                  valueColor:
-                                    AlwaysStoppedAnimation<Color>(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
                                     appColors.loveBar,
                                   ),
                                 ),
