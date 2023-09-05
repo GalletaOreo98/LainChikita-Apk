@@ -16,5 +16,13 @@
     "redeem-code": "Canjear código",
     "ticket-data": "Datos del ticket",
     "buy": "Comprar",
-    "copy-ticket-data": "Copiar datos del ticket"
+    "copy-ticket-data": "Copiar datos del ticket",
+    "encrypt-images": "Encriptar imágenes",
+    "decrypt-images": "Desencriptar imágenes",
+    "encrypting": "Encriptando",
+    "decrypting": "Desencriptando",
+    "do-not-leave-the-application": "No salgas de la aplicación",
+    "completed": "Completado",
+    "progress": "Progreso",
+    "thank-you-for-installing": "Gracias por instalar lain_chikita, amable senior"
 }

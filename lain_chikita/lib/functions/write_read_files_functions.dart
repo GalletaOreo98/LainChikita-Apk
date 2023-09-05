@@ -13,7 +13,7 @@ Future<void> writeAThankUTxt() async {
   directory!.path;
   Directory outputDir = await Directory("${directory.path}/${AppFolders.readme}").create();
   final File file = File('${outputDir.path}/THANKS.txt');
-  await file.writeAsString("Gracias por instalar lain_chikita, amable senior $username");
+  await file.writeAsString("${languageDataManager.getLabel('thank-you-for-installing')} $username");
 }
 
 Future<void> createAppFolders() async {

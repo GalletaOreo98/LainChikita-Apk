@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 // ignore: library_prefixes
+
+// My imports
 import '../global_vars.dart';
 import '../functions/encryption_functions.dart';
 import '../private_keys.dart';
-
 
 const secretKey = SECRET_KEY;
 
@@ -15,29 +16,31 @@ class EncryptionScreen extends StatefulWidget {
 }
 
 class MyWidgetState extends State<EncryptionScreen> {
-
   String _informativeText = '';
   String _currentAction = '';
 
   void progressCallback(int i, int total) {
     setState(() {
-      _informativeText = "$_currentAction...\nNo salgas de la aplicación\nProgreso: $i / $total";
+      _informativeText =
+          "$_currentAction...\n${languageDataManager.getLabel('do-not-leave-the-application')}\n${languageDataManager.getLabel('progress')}: $i / $total";
     });
   }
 
   void _encryptImages() {
     setState(() {
       _informativeText = '';
-      _currentAction = 'Encryptando';
-      encryptFiles(secretKey, progressCallback).then((value) => _updateInfoTxt("$_informativeText \n¡Listo!"));
+      _currentAction = languageDataManager.getLabel('encrypting');
+      encryptFiles(secretKey, progressCallback).then(
+          (value) => _updateInfoTxt("$_informativeText \n${languageDataManager.getLabel('completed').toUpperCase()}!"));
     });
   }
 
   void _dencryptImages() {
     setState(() {
       _informativeText = '';
-      _currentAction = 'Desencryptando';
-      decryptFiles(secretKey, progressCallback).then((value) => _updateInfoTxt("$_informativeText \n¡Listo!"));
+      _currentAction = languageDataManager.getLabel('decrypting');
+      decryptFiles(secretKey, progressCallback).then((value) =>
+          _updateInfoTxt("$_informativeText \n¡${languageDataManager.getLabel('completed').toUpperCase()}!"));
     });
   }
 
@@ -55,26 +58,24 @@ class MyWidgetState extends State<EncryptionScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: appColors.primaryBtn),
+              style: ElevatedButton.styleFrom(backgroundColor: appColors.primaryBtn),
               onPressed: () => _encryptImages(),
-              child: const Text("Encrypt images"),
+              child: Text(languageDataManager.getLabel('encrypt-images')),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: appColors.primaryBtn),
+              style: ElevatedButton.styleFrom(backgroundColor: appColors.primaryBtn),
               onPressed: () => _dencryptImages(),
-              child: const Text("Dencrypt images"),
+              child: Text(languageDataManager.getLabel('decrypt-images')),
             ),
             const SizedBox(height: 16),
             Text(_informativeText,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                    fontSize: 12.0,
-                    fontFamily: 'monospace',
-                    color: appColors.informativeText,
-                  ))
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12.0,
+                  fontFamily: 'monospace',
+                  color: appColors.informativeText,
+                ))
           ]),
         ));
   }
