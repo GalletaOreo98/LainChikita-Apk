@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-// ignore: library_prefixes
+
+//My imports
 import '../global_vars.dart';
 
 class InventoryScreen extends StatefulWidget {

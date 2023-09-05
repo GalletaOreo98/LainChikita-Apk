@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert' show json, jsonDecode;
 
-// ignore: library_prefixes
+//My imports
 import '../functions/encryption_functions.dart';
 import '../functions/gacha_functions.dart';
 import '../global_vars.dart';
@@ -22,8 +21,6 @@ class GachaScreen extends StatefulWidget {
 }
 
 class MyWidgetState extends State<GachaScreen> {
-  final _player = AudioPlayer(playerId: 'selectAccessory');
-
   /// Avisa si ya se copio el texto en la clipboard
   String _copiedText = '';
   String _userName = '';
@@ -45,10 +42,6 @@ class MyWidgetState extends State<GachaScreen> {
        #Se nos agrega el item en el inventario o se da el codigo encriptado para copiar y regalarlo
        #encrypt data es `jsonItem + "&" + _uuid` por lo que hay que separarlo por `&` para reclamar el ticket
   */
-
-  Future<void> playSelectAccessorySound() async {
-    await _player.play(AssetSource("audio/select_accessory_sound.mp3"));
-  }
 
   // No hace falta optimizar pero se podria
   void hideInformativeText(String element, int seconds) {

@@ -4,7 +4,8 @@ import 'package:flutter/services.dart'
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert' show json, jsonDecode;
 import 'dart:ui' show window;
-//My custom imports
+
+//My imports
 import 'functions/prefs_version_manager.dart';
 import 'global_vars.dart';
 import 'private_keys.dart';
@@ -38,6 +39,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late PageController _pageController;
   final focusNode = FocusNode();
+  /// Cuando el usuario actualiza la aplicacion a una nueva versión de [inventoryVersion] se mostrará la animación
   bool wasUpdated = false;
 
   @override
@@ -312,22 +314,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 } */
-
-/*
-class ImageViewer extends StatelessWidget {
-  final String encryptedImagePath = 'path_to_encrypted_image'; // Cambia la ruta al archivo encriptado
-  final Color color;
-  const ImageViewer({required this.color});
-  @override
-  Widget build(BuildContext context) {
-    File decryptedImageFile = decryptImage(secretKey);
-    encryptImages(secretKey);
-    return Container(
-      color: color,
-      child: Center(
-        child: Image.file(decryptedImageFile),
-      ),
-    );
-  }
-}
- */
