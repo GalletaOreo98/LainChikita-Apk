@@ -16,7 +16,7 @@ A Flutter + Dart simple minigame
 | IOS | Yes | No |
 | Windows | Yes | W10x64 |
 | Linux | Yes | Ubuntu22.04.3x64 |
-| Web | No | | No |
+| Web | No | No |
 
 ### Building commands  
 
