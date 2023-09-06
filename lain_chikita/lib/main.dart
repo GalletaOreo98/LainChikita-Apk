@@ -124,6 +124,10 @@ class _MyAppState extends State<MyApp> {
     await appAudioPlayer.playSound('audio/btn_sound.mp3');
   }
 
+  Future<void> _playUpdatedSound() async {
+    if(wasUpdated) await appAudioPlayer.playSound('audio/updated_sound.mp3');
+  }
+
   void runUpdateAnimation(int seconds) {
     setState(() {
       wasUpdated = true;
@@ -171,6 +175,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    _playUpdatedSound();
     return MaterialApp(
         title: 'Lain Chikita',
         home: Scaffold(
