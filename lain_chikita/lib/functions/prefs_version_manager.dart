@@ -11,6 +11,6 @@ List<Map<String, dynamic>> applyInventoryVerionUpdate(List<Map<String, dynamic>>
       return element['name'] == myUnlockedInventary[i]['name'];
     });
   }
-  myUnlockedInventary.addAll(appUnlokedInventory);
+  if(appUnlokedInventory.isNotEmpty) myUnlockedInventary.addAll(appUnlokedInventory);
   return myUnlockedInventary;
 }

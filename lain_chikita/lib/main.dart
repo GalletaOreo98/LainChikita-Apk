@@ -39,6 +39,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late PageController _pageController;
   final focusNode = FocusNode();
+
   /// Cuando el usuario actualiza la aplicacion a una nueva versión de [inventoryVersion] se mostrará la animación
   bool wasUpdated = false;
 
@@ -68,6 +69,10 @@ class _MyAppState extends State<MyApp> {
       await prefs.setString('userUuid', userUuid);
     }
     int thisInventoryVersion = prefs.getInt('inventoryVersion') ?? 1;
+    if(thisInventoryVersion == 1) {
+      await prefs.setInt('inventoryVersion', inventoryVersion);
+      //thisInventoryVersion = inventoryVersion;
+    }
     //Inventarios
     final jsonInventory = prefs.getString('inventory') ?? '';
     if (jsonInventory.isNotEmpty) {
@@ -76,15 +81,16 @@ class _MyAppState extends State<MyApp> {
     //Check unlockedInventory version
     final jsonUnlockedInventory = prefs.getString('unlockedInventory') ?? '';
     if (jsonUnlockedInventory.isNotEmpty) {
-      final thisUnlockedInventary = List<Map<String, dynamic>>.from(jsonDecode(jsonUnlockedInventory));
-      if (inventoryVersion == thisInventoryVersion) {
-        unlockedInventory = thisUnlockedInventary;
-      } else {
-        unlockedInventory = applyInventoryVerionUpdate(thisUnlockedInventary, unlockedInventory, inventory);
-        await prefs.setInt('inventoryVersion', inventoryVersion);
-        runUpdateAnimation(5);
-      }
+      unlockedInventory = List<Map<String, dynamic>>.from(jsonDecode(jsonUnlockedInventory));
     }
+    if (inventoryVersion != thisInventoryVersion) {
+      final thisUnlockedInventory = unlockedInventory.toList();
+      unlockedInventory = applyInventoryVerionUpdate(thisUnlockedInventory, unlockedInventory, inventory);
+      await prefs.setInt('inventoryVersion', inventoryVersion);
+      runUpdateAnimation(5); //En esta funcion se hace el wasUpdated = true;
+      _playUpdatedSound();
+    }
+
     //Carga los nombres de los items del inventario segun el lenguaje del dispositivo
     await languageDataManager.loadAccessoryNames(language);
     await languageDataManager.loadLabels(language);
@@ -125,7 +131,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _playUpdatedSound() async {
-    if(wasUpdated) await appAudioPlayer.playSound('audio/updated_sound.mp3');
+    if (wasUpdated) await appAudioPlayer.playSound('audio/updated_sound.mp3');
   }
 
   void runUpdateAnimation(int seconds) {
@@ -175,7 +181,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    _playUpdatedSound();
     return MaterialApp(
         title: 'Lain Chikita',
         home: Scaffold(
