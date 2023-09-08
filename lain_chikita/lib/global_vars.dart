@@ -17,7 +17,7 @@ Cada vez que se haga un add, delete o update a unlockedInventory se debe aumenta
 (Cuando desimos add, delete o update a unlockedInventory nos referimos a nivel de aplicacion,
 como cuando se agrega una nueva skin a la app o se quita u modifica una)
 */
-int inventoryVersion = 2;
+int inventoryVersion = 3;
 
 List<Map<String, dynamic>> inventory = [
   {'name': 'null', 'by': 'NULLUSER'},
@@ -30,6 +30,7 @@ List<Map<String, dynamic>> unlockedInventory = [
   {'name': 'christmas_cane', 'by': 'oreo_dev'},
   {'name': 'pacman_mob', 'by': 'oreo_dev'},
   {'name': 'vinca_flower', 'by': 'oreo_dev'},
+  {'name': 'pickaxe_minecraft', 'by': 'oreo_dev'},
 ];
 
 //User vars (sin backup)
