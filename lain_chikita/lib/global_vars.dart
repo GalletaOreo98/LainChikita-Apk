@@ -15,9 +15,10 @@ String userUuid = "";
 /*
 Cada vez que se haga un add, delete o update a unlockedInventory se debe aumentar la version de inventoryVersion
 (Cuando desimos add, delete o update a unlockedInventory nos referimos a nivel de aplicacion,
-como cuando se agrega una nueva skin a la app o se quita u modifica una)
+como cuando se agrega una nueva skin a la app o se quita u modifica una; también cuando modificas 
+algo de los inventarios en general)
 */
-int inventoryVersion = 3;
+int inventoryVersion = 4;
 
 List<Map<String, dynamic>> inventory = [
   {'name': 'null', 'by': 'NULLUSER'},

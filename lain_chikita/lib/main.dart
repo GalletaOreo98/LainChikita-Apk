@@ -79,13 +79,15 @@ class _MyAppState extends State<MyApp> {
       inventory = List<Map<String, dynamic>>.from(jsonDecode(jsonInventory));
     }
     //Check unlockedInventory version
+    //(Se podria optimizar...)
+    List<Map<String, dynamic>> appUnlockedInventory = unlockedInventory.toList();
     final jsonUnlockedInventory = prefs.getString('unlockedInventory') ?? '';
     if (jsonUnlockedInventory.isNotEmpty) {
       unlockedInventory = List<Map<String, dynamic>>.from(jsonDecode(jsonUnlockedInventory));
     }
     if (inventoryVersion != thisInventoryVersion) {
       final thisUnlockedInventory = unlockedInventory.toList();
-      unlockedInventory = applyInventoryVerionUpdate(thisUnlockedInventory, unlockedInventory, inventory);
+      unlockedInventory = applyInventoryVerionUpdate(thisUnlockedInventory, appUnlockedInventory, inventory);
       await prefs.setInt('inventoryVersion', inventoryVersion);
       runUpdateAnimation(5); //En esta funcion se hace el wasUpdated = true;
       _playUpdatedSound();
