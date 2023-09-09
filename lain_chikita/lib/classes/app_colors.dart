@@ -1,7 +1,7 @@
 import 'dart:ui' show Color;
 
 class AppColors {
-  Color background = const Color.fromARGB(255, 52, 39, 57);
+  Color background = const Color.fromARGB(255, 17, 16, 17);
   Color loveBtn = const Color.fromARGB(255, 248, 187, 208);
   Color loveBar = const Color.fromARGB(255, 248, 187, 208);
   Color loveBtnOpposite = const Color.fromARGB(255, 255, 255, 255);
