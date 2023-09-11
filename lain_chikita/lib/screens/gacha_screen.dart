@@ -58,8 +58,6 @@ class MyWidgetState extends State<GachaScreen> {
     });
   }
 
-  void pepe() {}
-
   void _claimTicket(String ticketToClaim) {
     // encrypt data es `jsonItem + "&" + _uuid`
     setState(() {
@@ -261,6 +259,7 @@ class MyWidgetState extends State<GachaScreen> {
                                 FocusManager.instance.primaryFocus?.unfocus()
                               },
                               icon: const Icon(Icons.done),
+                              color: appColors.userInputText,
                             ),
                             labelText: languageDataManager.getLabel('ticket-data'),
                             labelStyle: TextStyle(color: appColors.primaryText),
@@ -286,6 +285,7 @@ class MyWidgetState extends State<GachaScreen> {
                           FocusManager.instance.primaryFocus?.unfocus()
                         },
                         icon: const Icon(Icons.done),
+                        color: appColors.userInputText,
                       ),
                       labelText: languageDataManager.getLabel('paste-public-data'),
                       labelStyle: TextStyle(color: appColors.primaryText),
