@@ -23,9 +23,14 @@ class GachaScreen extends StatefulWidget {
 class MyWidgetState extends State<GachaScreen> {
   /// Avisa si ya se copio el texto en la clipboard
   String _copiedText = '';
+
   String _userName = '';
   String _uuid = '';
   List<Map<String, dynamic>> _unlockedInventory = [];
+
+  //Strings de utilidad para almacenar lo que escribe el usuario en las cajas de texto
+  final TextEditingController _publicDataTEC = TextEditingController(text: '');
+  final TextEditingController _claimTicketDataTEC = TextEditingController(text: '');
 
   /// Texto informativo sobre las acciones realizadas
   String _informativeText = '';
@@ -53,6 +58,8 @@ class MyWidgetState extends State<GachaScreen> {
     });
   }
 
+  void pepe() {}
+
   void _claimTicket(String ticketToClaim) {
     // encrypt data es `jsonItem + "&" + _uuid`
     setState(() {
@@ -64,28 +71,21 @@ class MyWidgetState extends State<GachaScreen> {
           String jsonItem = parts[0];
           String uuid = parts[1];
           if (uuid != userUuid) {
-            _informativeText =
-                languageDataManager.getLabel('cannot-be-claimed');
+            _informativeText = languageDataManager.getLabel('cannot-be-claimed');
             return;
           }
-          Map<String, dynamic> item =
-              Map<String, dynamic>.from(json.decode(jsonItem));
+          Map<String, dynamic> item = Map<String, dynamic>.from(json.decode(jsonItem));
           Map<String, dynamic> inInventory = inventory.firstWhere(
-            (element) =>
-                element.values.first ==
-                item.values.first, //element['name'] == item['name']
+            (element) => element.values.first == item.values.first, //element['name'] == item['name']
             orElse: () => {},
           );
           if (inInventory.isEmpty) {
-            unlockedInventory
-                .removeWhere((element) => element['name'] == item['name']);
+            unlockedInventory.removeWhere((element) => element['name'] == item['name']);
             inventory.add(item);
-            _informativeText =
-                languageDataManager.getLabel('ticket-successfully-claimed');
+            _informativeText = languageDataManager.getLabel('ticket-successfully-claimed');
             _saveInventaries();
           } else {
-            _informativeText =
-                languageDataManager.getLabel('already-have-this-item');
+            _informativeText = languageDataManager.getLabel('already-have-this-item');
           }
         } else {
           _informativeText = languageDataManager.getLabel('cannot-be-claimed');
@@ -101,19 +101,15 @@ class MyWidgetState extends State<GachaScreen> {
     Clipboard.setData(ClipboardData(text: _ticketEData));
     setState(() {
       _showTicketEData = false;
-      _informativeText =
-          languageDataManager.getLabel('ticket-data-has-been-copied');
+      _informativeText = languageDataManager.getLabel('ticket-data-has-been-copied');
     });
   }
 
   void _copyMyData() async {
     // Formateo de la data necesaria a encriptar
     final jsonUnlockedInventory = json.encode(unlockedInventory);
-    final jsonData = json.encode({
-      'username': username,
-      'useruuid': userUuid,
-      'unlockedinventory': jsonUnlockedInventory
-    });
+    final jsonData =
+        json.encode({'username': username, 'useruuid': userUuid, 'unlockedinventory': jsonUnlockedInventory});
     final encryptedData = encryptData(jsonData, secretKey);
     // Copiar la data ya encriptada al clipboard
     Clipboard.setData(ClipboardData(text: encryptedData));
@@ -132,18 +128,15 @@ class MyWidgetState extends State<GachaScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _informativeTextColor = appColors.informativeText;
-      _informativeText =
-          "${languageDataManager.getLabel('ticket-for')}: $_userName";
+      _informativeText = "${languageDataManager.getLabel('ticket-for')}: $_userName";
     });
     _buyTicket = () {
       setState(() {
         if (userUuid == _uuid) {
           bool isDone = buyTicket();
           isDone
-              ? _informativeText =
-                  languageDataManager.getLabel('ticket-purchased')
-              : _informativeText =
-                  languageDataManager.getLabel('cannot-be-purchased');
+              ? _informativeText = languageDataManager.getLabel('ticket-purchased')
+              : _informativeText = languageDataManager.getLabel('cannot-be-purchased');
           prefs.setInt('coins', coins);
           _saveInventaries();
         } else {
@@ -161,8 +154,7 @@ class MyWidgetState extends State<GachaScreen> {
             prefs.setInt('coins', coins);
             _saveInventaries();
           } else {
-            _informativeText =
-                languageDataManager.getLabel('cannot-be-purchased');
+            _informativeText = languageDataManager.getLabel('cannot-be-purchased');
           }
         }
         _buyTicket = null;
@@ -174,12 +166,10 @@ class MyWidgetState extends State<GachaScreen> {
     String decryptedData;
     try {
       decryptedData = decryptData(publicData, secretKey);
-      Map<String, String> decryptedDataMap =
-          Map<String, String>.from(json.decode(decryptedData));
+      Map<String, String> decryptedDataMap = Map<String, String>.from(json.decode(decryptedData));
       _userName = decryptedDataMap['username'] ?? '';
       _uuid = decryptedDataMap['useruuid'] ?? '';
-      _unlockedInventory = List<Map<String, dynamic>>.from(
-          jsonDecode(decryptedDataMap['unlockedinventory'] ?? '[{}]'));
+      _unlockedInventory = List<Map<String, dynamic>>.from(jsonDecode(decryptedDataMap['unlockedinventory'] ?? '[{}]'));
       _readyToBuyTicket();
     } catch (e) {
       setState(() {
@@ -214,8 +204,7 @@ class MyWidgetState extends State<GachaScreen> {
                             ),
                           ),
                           TableCell(
-                              verticalAlignment:
-                                  TableCellVerticalAlignment.middle,
+                              verticalAlignment: TableCellVerticalAlignment.middle,
                               child: Text(' x: $coins',
                                   style: TextStyle(
                                     fontSize: 15.0,
@@ -226,8 +215,7 @@ class MyWidgetState extends State<GachaScreen> {
                       ),
                     ]),
                 const SizedBox(height: 16),
-                Text(
-                    '${languageDataManager.getLabel('unlocked-skins')} x ${unlockedInventory.length}',
+                Text('${languageDataManager.getLabel('unlocked-skins')} x ${unlockedInventory.length}',
                     style: TextStyle(
                       fontSize: 15.0,
                       fontFamily: 'monospace',
@@ -235,8 +223,7 @@ class MyWidgetState extends State<GachaScreen> {
                     )),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: appColors.secondaryBtn),
+                  style: ElevatedButton.styleFrom(backgroundColor: appColors.secondaryBtn),
                   onPressed: () => setState(() {
                     _showClaimTicket = true;
                   }),
@@ -244,11 +231,9 @@ class MyWidgetState extends State<GachaScreen> {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: appColors.secondaryBtn),
+                  style: ElevatedButton.styleFrom(backgroundColor: appColors.secondaryBtn),
                   onPressed: _copyMyData,
-                  child:
-                      Text(languageDataManager.getLabel('copy-my-public-data')),
+                  child: Text(languageDataManager.getLabel('copy-my-public-data')),
                 ),
                 const SizedBox(height: 1),
                 Text(
@@ -263,40 +248,55 @@ class MyWidgetState extends State<GachaScreen> {
                   Column(
                     children: [
                       const SizedBox(height: 16),
-                      TextFormField(
+                      //Textbox de "Pegar datos de ticket a reclamar"
+                      TextField(
+                        controller: _claimTicketDataTEC,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: appColors.userInputText, fontSize: 15.0),
+                        style: TextStyle(color: appColors.userInputText, fontSize: 15.0),
                         decoration: InputDecoration(
-                          labelText:
-                              languageDataManager.getLabel('ticket-data'),
-                          labelStyle: TextStyle(color: appColors.primaryText),
-                          floatingLabelAlignment: FloatingLabelAlignment.center,
-                        ),
-                        onFieldSubmitted: (value) =>
-                            setState(() => {_claimTicket(value)}),
+                            suffixIcon: IconButton(
+                              onPressed: () => {
+                                _claimTicket(_claimTicketDataTEC.text),
+                                _claimTicketDataTEC.clear(),
+                                FocusManager.instance.primaryFocus?.unfocus()
+                              },
+                              icon: const Icon(Icons.done),
+                            ),
+                            labelText: languageDataManager.getLabel('ticket-data'),
+                            labelStyle: TextStyle(color: appColors.primaryText),
+                            floatingLabelAlignment: FloatingLabelAlignment.center,
+                            enabledBorder:
+                                UnderlineInputBorder(borderSide: BorderSide(color: appColors.userInputText))),
+                        onSubmitted: (value) => setState(() => {_claimTicket(value)}),
+                        onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
                       ),
                       const SizedBox(height: 16),
                     ],
                   ),
-                TextFormField(
-                  initialValue: _uuid,
+                //Textbox de "Pegar datos publicos"
+                TextField(
+                  controller: _publicDataTEC,
                   textAlign: TextAlign.center,
-                  style:
-                      TextStyle(color: appColors.userInputText, fontSize: 15.0),
+                  style: TextStyle(color: appColors.userInputText, fontSize: 15.0),
                   decoration: InputDecoration(
-                    labelText:
-                        languageDataManager.getLabel('paste-public-data'),
-                    labelStyle: TextStyle(color: appColors.primaryText),
-                    floatingLabelAlignment: FloatingLabelAlignment.center,
-                  ),
-                  onFieldSubmitted: (value) =>
-                      setState(() => {_setPublicDataToUse(value)}),
+                      suffixIcon: IconButton(
+                        onPressed: () => {
+                          _setPublicDataToUse(_publicDataTEC.text),
+                          _publicDataTEC.clear(),
+                          FocusManager.instance.primaryFocus?.unfocus()
+                        },
+                        icon: const Icon(Icons.done),
+                      ),
+                      labelText: languageDataManager.getLabel('paste-public-data'),
+                      labelStyle: TextStyle(color: appColors.primaryText),
+                      floatingLabelAlignment: FloatingLabelAlignment.center,
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: appColors.userInputText))),
+                  onSubmitted: (value) => setState(() => {_setPublicDataToUse(value)}),
+                  onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: appColors.primaryBtn),
+                  style: ElevatedButton.styleFrom(backgroundColor: appColors.primaryBtn),
                   onPressed: _buyTicket,
                   child: Text(languageDataManager.getLabel('buy')),
                 ),
@@ -314,11 +314,9 @@ class MyWidgetState extends State<GachaScreen> {
                     children: [
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: appColors.primaryBtn),
+                        style: ElevatedButton.styleFrom(backgroundColor: appColors.primaryBtn),
                         onPressed: _copyTicketEData,
-                        child: Text(
-                            languageDataManager.getLabel('copy-ticket-data')),
+                        child: Text(languageDataManager.getLabel('copy-ticket-data')),
                       ),
                     ],
                   )
