@@ -89,6 +89,8 @@ class _MyAppState extends State<MyApp> {
       final thisUnlockedInventory = unlockedInventory.toList();
       unlockedInventory = applyInventoryVerionUpdate(thisUnlockedInventory, appUnlockedInventory, inventory);
       await prefs.setInt('inventoryVersion', inventoryVersion);
+      final jsonUnlockedInventoryToSet = json.encode(unlockedInventory);
+      await prefs.setString('unlockedInventory', jsonUnlockedInventoryToSet);
       runUpdateAnimation(5); //En esta funcion se hace el wasUpdated = true;
       _playUpdatedSound();
     }

@@ -18,7 +18,7 @@ Cada vez que se haga un add, delete o update a unlockedInventory se debe aumenta
 como cuando se agrega una nueva skin a la app o se quita u modifica una; también cuando modificas 
 algo de los inventarios en general)
 */
-int inventoryVersion = 4;
+int inventoryVersion = 5;
 
 List<Map<String, dynamic>> inventory = [
   {'name': 'null', 'by': 'NULLUSER'},
