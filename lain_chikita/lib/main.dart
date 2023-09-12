@@ -187,6 +187,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Lain Chikita',
+        theme: ThemeData(fontFamily: 'monogram'),
         home: Scaffold(
           body: RawKeyboardListener(
             focusNode: focusNode,
@@ -212,10 +213,10 @@ class _MyAppState extends State<MyApp> {
                               child: TextFormField(
                                 initialValue: username,
                                 textAlign: TextAlign.center,
-                                style: TextStyle(color: appColors.nameLabel),
+                                style: TextStyle(color: appColors.nameLabel, fontSize: 34.0),
                                 decoration: InputDecoration(
                                   labelText: languageDataManager.getLabel('new-user-name'),
-                                  labelStyle: TextStyle(color: appColors.primaryText),
+                                  labelStyle: TextStyle(color: appColors.primaryText, fontSize: 34.0),
                                   floatingLabelAlignment: FloatingLabelAlignment.center,
                                 ),
                                 onFieldSubmitted: (value) =>
@@ -234,9 +235,7 @@ class _MyAppState extends State<MyApp> {
                                   username,
                                   textAlign: TextAlign.start,
                                   style: TextStyle(
-                                    fontSize: 20.0,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'monospace',
+                                    fontSize: 48.0,
                                     color: appColors.nameLabel,
                                   ),
                                 )
@@ -269,9 +268,7 @@ class _MyAppState extends State<MyApp> {
                               Text(
                                 '${languageDataManager.getLabel('level')} $level',
                                 style: TextStyle(
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'monospace',
+                                  fontSize: 40.0,
                                   color: appColors.primaryText,
                                 ),
                               ),

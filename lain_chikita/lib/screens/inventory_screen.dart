@@ -44,11 +44,11 @@ class MyWidgetState extends State<InventoryScreen> {
                 child: ListTile(
                   textColor: appColors.primaryText,
                   title:
-                      Text(languageDataManager.getAccessoryName(inventory[index]['name'])),
+                      Text(languageDataManager.getAccessoryName(inventory[index]['name']), style: const TextStyle(fontSize: 34.0)),
                   subtitle: Text('by: ${inventory[index]['by']}',
                       style: TextStyle(
                           color: appColors.secondaryText,
-                          fontStyle: FontStyle.italic)),
+                          fontStyle: FontStyle.italic, fontSize: 25.0)),
                 ),
               ));
         },

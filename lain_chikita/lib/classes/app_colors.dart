@@ -1,7 +1,7 @@
 import 'dart:ui' show Color;
 
 class AppColors {
-  Color background = const Color.fromARGB(255, 17, 16, 17);
+  Color background = const Color.fromARGB(255, 14, 14, 42);
   Color loveBtn = const Color.fromARGB(255, 248, 187, 208);
   Color loveBar = const Color.fromARGB(255, 248, 187, 208);
   Color loveBtnOpposite = const Color.fromARGB(255, 255, 255, 255);
@@ -13,18 +13,7 @@ class AppColors {
   Color inventoryListBorders = const Color.fromARGB(255, 0, 0, 0);
   Color informativeText = const Color.fromARGB(179, 255, 255, 255);
   Color errorText = const Color.fromARGB(255, 255, 158, 158);
-  Color primaryBtn = const Color.fromARGB(255, 59, 141, 137);
-  Color secondaryBtn = const Color.fromARGB(255, 13, 116, 182);  
+  Color primaryBtn = const Color.fromARGB(255, 52, 58, 116);
+  Color secondaryBtn = const Color.fromARGB(255, 52, 58, 116);
+  Color focusItem = const Color.fromARGB(255, 115, 50, 167);
 }
-
-/*
-
-145, 104, 72
-245, 179, 144
-52, 39, 57
-59, 141, 137
-190, 214, 120
-166, 217, 238
-13, 116, 182
-
-*/

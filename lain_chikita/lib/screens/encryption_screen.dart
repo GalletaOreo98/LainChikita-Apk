@@ -29,8 +29,8 @@ class MyWidgetState extends State<EncryptionScreen> {
     setState(() {
       _informativeText = '';
       _currentAction = languageDataManager.getLabel('encrypting');
-      encryptFiles(secretKey, progressCallback).then((value) =>
-          _updateInfoTxt("$_informativeText \n${languageDataManager.getLabel('completed').toUpperCase()}"));
+      encryptFiles(secretKey, progressCallback).then(
+          (value) => _updateInfoTxt("$_informativeText \n${languageDataManager.getLabel('completed').toUpperCase()}"));
     });
   }
 
@@ -38,8 +38,8 @@ class MyWidgetState extends State<EncryptionScreen> {
     setState(() {
       _informativeText = '';
       _currentAction = languageDataManager.getLabel('decrypting');
-      decryptFiles(secretKey, progressCallback).then((value) =>
-          _updateInfoTxt("$_informativeText \n${languageDataManager.getLabel('completed').toUpperCase()}"));
+      decryptFiles(secretKey, progressCallback).then(
+          (value) => _updateInfoTxt("$_informativeText \n${languageDataManager.getLabel('completed').toUpperCase()}"));
     });
   }
 
@@ -54,28 +54,34 @@ class MyWidgetState extends State<EncryptionScreen> {
     return Container(
         color: appColors.background,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: appColors.primaryBtn),
-              onPressed: () => _encryptImages(),
-              child: Text(languageDataManager.getLabel('encrypt-images')),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: appColors.primaryBtn),
-              onPressed: () => _dencryptImages(),
-              child: Text(languageDataManager.getLabel('decrypt-images')),
-            ),
-            const SizedBox(height: 16),
-            Text(_informativeText,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12.0,
-                  fontFamily: 'monospace',
-                  color: appColors.informativeText,
-                ))
-          ]),
-        ));
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(320, 80),
+                      backgroundColor: appColors.primaryBtn, padding: const EdgeInsets.all(20.0)),
+                  onPressed: () => _encryptImages(),
+                  child: Text(languageDataManager.getLabel('encrypt-images'),
+                      style: const TextStyle(fontSize: 34.0), textAlign: TextAlign.center),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(320, 80),
+                      backgroundColor: appColors.primaryBtn, padding: const EdgeInsets.all(20.0)),
+                  onPressed: () => _dencryptImages(),
+                  child: Text(languageDataManager.getLabel('decrypt-images'),
+                      style: const TextStyle(fontSize: 34.0), textAlign: TextAlign.center),
+                ),
+                const SizedBox(height: 16),
+                Text(_informativeText,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 32.0,
+                      color: appColors.informativeText,
+                    ))
+              ]),
+            )));
   }
 }

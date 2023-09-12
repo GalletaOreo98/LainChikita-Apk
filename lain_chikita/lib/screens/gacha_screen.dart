@@ -184,8 +184,9 @@ class MyWidgetState extends State<GachaScreen> {
         color: appColors.background,
         child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            //Con SingleChildScrollView si el texto es muy grande y no cabe en la pantalla, el usuario pueda hacer scroll para seguir viendo
+            child: SingleChildScrollView(
+                child: Column(
               children: [
                 const SizedBox(height: 16),
                 Table(
@@ -205,8 +206,7 @@ class MyWidgetState extends State<GachaScreen> {
                               verticalAlignment: TableCellVerticalAlignment.middle,
                               child: Text(' x: $coins',
                                   style: TextStyle(
-                                    fontSize: 15.0,
-                                    fontFamily: 'monospace',
+                                    fontSize: 25.0,
                                     color: appColors.primaryText,
                                   )))
                         ],
@@ -214,33 +214,37 @@ class MyWidgetState extends State<GachaScreen> {
                     ]),
                 const SizedBox(height: 16),
                 Text('${languageDataManager.getLabel('unlocked-skins')} x ${unlockedInventory.length}',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 15.0,
-                      fontFamily: 'monospace',
+                      fontSize: 25.0,
                       color: appColors.primaryText,
                     )),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: appColors.secondaryBtn),
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(380, 80),
+                      backgroundColor: appColors.secondaryBtn, padding: const EdgeInsets.all(20.0)),
                   onPressed: () => setState(() {
                     _showClaimTicket = true;
                   }),
-                  child: Text(languageDataManager.getLabel('redeem-code')),
+                  child: Text(languageDataManager.getLabel('redeem-code'),
+                      style: const TextStyle(fontSize: 34.0), textAlign: TextAlign.center),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: appColors.secondaryBtn),
-                  onPressed: _copyMyData,
-                  child: Text(languageDataManager.getLabel('copy-my-public-data')),
-                ),
+                    style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(380, 80),
+                        backgroundColor: appColors.secondaryBtn, padding: const EdgeInsets.all(20.0)),
+                    onPressed: _copyMyData,
+                    child: Text(languageDataManager.getLabel('copy-my-public-data'),
+                        style: const TextStyle(
+                          fontSize: 34.0,
+                        ),
+                        textAlign: TextAlign.center)),
                 const SizedBox(height: 1),
                 Text(
                   _copiedText,
-                  style: TextStyle(
-                      fontSize: 10.0,
-                      fontFamily: 'monospace',
-                      color: appColors.informativeText,
-                      fontStyle: FontStyle.italic),
+                  style: TextStyle(fontSize: 25.0, color: appColors.informativeText, fontStyle: FontStyle.italic),
                 ),
                 if (_showClaimTicket)
                   Column(
@@ -250,7 +254,7 @@ class MyWidgetState extends State<GachaScreen> {
                       TextField(
                         controller: _claimTicketDataTEC,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: appColors.userInputText, fontSize: 15.0),
+                        style: TextStyle(color: appColors.userInputText, fontSize: 35.0),
                         decoration: InputDecoration(
                             suffixIcon: IconButton(
                               onPressed: () => {
@@ -259,11 +263,12 @@ class MyWidgetState extends State<GachaScreen> {
                                 FocusManager.instance.primaryFocus?.unfocus()
                               },
                               icon: const Icon(Icons.done),
-                              color: appColors.userInputText,
+                              color: appColors.userInputText
                             ),
                             labelText: languageDataManager.getLabel('ticket-data'),
-                            labelStyle: TextStyle(color: appColors.primaryText),
+                            labelStyle: TextStyle(color: appColors.primaryText, fontSize: 20),
                             floatingLabelAlignment: FloatingLabelAlignment.center,
+                            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: appColors.focusItem)),
                             enabledBorder:
                                 UnderlineInputBorder(borderSide: BorderSide(color: appColors.userInputText))),
                         onSubmitted: (value) => setState(() => {_claimTicket(value)}),
@@ -276,7 +281,7 @@ class MyWidgetState extends State<GachaScreen> {
                 TextField(
                   controller: _publicDataTEC,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: appColors.userInputText, fontSize: 15.0),
+                  style: TextStyle(color: appColors.userInputText, fontSize: 35.0),
                   decoration: InputDecoration(
                       suffixIcon: IconButton(
                         onPressed: () => {
@@ -285,27 +290,29 @@ class MyWidgetState extends State<GachaScreen> {
                           FocusManager.instance.primaryFocus?.unfocus()
                         },
                         icon: const Icon(Icons.done),
-                        color: appColors.userInputText,
+                        color: appColors.userInputText
                       ),
                       labelText: languageDataManager.getLabel('paste-public-data'),
-                      labelStyle: TextStyle(color: appColors.primaryText),
+                      labelStyle: TextStyle(color: appColors.primaryText, fontSize: 20),
                       floatingLabelAlignment: FloatingLabelAlignment.center,
+                      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: appColors.focusItem)),
                       enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: appColors.userInputText))),
                   onSubmitted: (value) => setState(() => {_setPublicDataToUse(value)}),
                   onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: appColors.primaryBtn),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: appColors.primaryBtn, padding: const EdgeInsets.all(20.0)),
                   onPressed: _buyTicket,
-                  child: Text(languageDataManager.getLabel('buy')),
+                  child: Text(languageDataManager.getLabel('buy'), style: const TextStyle(fontSize: 34.0)),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   _informativeText,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 12.0,
-                    fontFamily: 'monospace',
+                    fontSize: 25.0,
                     color: _informativeTextColor,
                   ),
                 ),
@@ -314,13 +321,15 @@ class MyWidgetState extends State<GachaScreen> {
                     children: [
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: appColors.primaryBtn),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: appColors.primaryBtn, padding: const EdgeInsets.all(20.0)),
                         onPressed: _copyTicketEData,
-                        child: Text(languageDataManager.getLabel('copy-ticket-data')),
+                        child: Text(languageDataManager.getLabel('copy-ticket-data'),
+                            style: const TextStyle(fontSize: 34.0)),
                       ),
                     ],
                   )
               ],
-            )));
+            ))));
   }
 }
