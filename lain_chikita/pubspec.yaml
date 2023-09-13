@@ -70,7 +70,8 @@ flutter:
   assets:
     #Main Images
     - assets/images/lain_chikita.png
-    - assets/images/background.png
+    - assets/images/background-day.png
+    - assets/images/background-night.png
     - assets/images/coin.png
     - assets/images/updated.gif
 

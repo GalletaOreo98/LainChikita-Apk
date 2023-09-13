@@ -39,6 +39,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late PageController _pageController;
   final focusNode = FocusNode();
+  String _appBackground = 'background-night';
 
   /// Cuando el usuario actualiza la aplicacion a una nueva versión de [inventoryVersion] se mostrará la animación
   bool wasUpdated = false;
@@ -58,6 +59,7 @@ class _MyAppState extends State<MyApp> {
 
   /// Carga progreso y configuraciones necesarias en general
   Future<void> _loadProgress() async {
+    if(_isMoorning()) _appBackground = 'background-day';
     //Carga directorios de la app y crea los folders si es necesario
     appDirectoryStorage = await getAppDirectoryStorage();
     await createAppFolders();
@@ -138,6 +140,12 @@ class _MyAppState extends State<MyApp> {
     if (wasUpdated) await appAudioPlayer.playSound('audio/updated_sound.mp3');
   }
 
+  bool _isMoorning(){
+    final hour = DateTime.now().hour;
+    if(hour>=5 &&hour<18) return true;
+    return false;
+  }
+
   void runUpdateAnimation(int seconds) {
     setState(() {
       wasUpdated = true;
@@ -196,9 +204,9 @@ class _MyAppState extends State<MyApp> {
               controller: _pageController,
               children: [
                 Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/images/background.png'),
+                      image: AssetImage('assets/images/$_appBackground.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
