@@ -11,6 +11,8 @@ int progress = 0;
 String username = "NULLUSER";
 String accessoryName = "null";
 String userUuid = "";
+String userIv = "";
+String userSecretKey = "";
 
 /*
 Cada vez que se haga un add, delete o update a unlockedInventory se debe aumentar la version de inventoryVersion

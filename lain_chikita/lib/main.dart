@@ -70,6 +70,17 @@ class _MyAppState extends State<MyApp> {
       userUuid = generateCryptoRngUuid();
       await prefs.setString('userUuid', userUuid);
     }
+    //Revisa si el usuario tiene su userSecretKey Y su userIV
+    userSecretKey = prefs.getString("userSecretKey") ?? "";
+    if (userSecretKey.isEmpty) {
+      userSecretKey = generateUserSecretKey(32);
+      await prefs.setString('userSecretKey', userSecretKey);
+    }
+    userIv = prefs.getString("userIv") ?? "";
+    if (userIv.isEmpty) {
+      userIv = generateUserIV(16);
+      await prefs.setString('userIv', userIv);
+    }
     int thisInventoryVersion = prefs.getInt('inventoryVersion') ?? 1;
     if(thisInventoryVersion == 1) {
       await prefs.setInt('inventoryVersion', inventoryVersion);
@@ -96,7 +107,6 @@ class _MyAppState extends State<MyApp> {
       runUpdateAnimation(5); //En esta funcion se hace el wasUpdated = true;
       _playUpdatedSound();
     }
-
     //Carga los nombres de los items del inventario segun el lenguaje del dispositivo
     await languageDataManager.loadAccessoryNames(language);
     await languageDataManager.loadLabels(language);

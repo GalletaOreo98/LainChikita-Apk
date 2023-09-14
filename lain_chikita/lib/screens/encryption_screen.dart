@@ -31,7 +31,7 @@ class MyWidgetState extends State<EncryptionScreen> {
       _informativeText = '';
       _currentAction = languageDataManager.getLabel('encrypting');
       _isWorking = true;
-      encryptFiles(secretKey, progressCallback).then((value) => {
+      encryptFiles(progressCallback).then((value) => {
             _updateInfoTxt("$_informativeText \n${languageDataManager.getLabel('completed').toUpperCase()}"),
             _isWorking = false
           });
@@ -43,7 +43,7 @@ class MyWidgetState extends State<EncryptionScreen> {
       _informativeText = '';
       _currentAction = languageDataManager.getLabel('decrypting');
       _isWorking = true;
-      decryptFiles(secretKey, progressCallback).then((value) => {
+      decryptFiles(progressCallback).then((value) => {
             _updateInfoTxt("$_informativeText \n${languageDataManager.getLabel('completed').toUpperCase()}"),
             _isWorking = false
           });
