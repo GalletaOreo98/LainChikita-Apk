@@ -107,7 +107,7 @@ class MyWidgetState extends State<GachaScreen> {
     // Formateo de la data necesaria a encriptar
     final jsonUnlockedInventory = json.encode(unlockedInventory);
     final jsonData =
-        json.encode({'username': username, 'useruuid': userUuid, 'unlockedinventory': jsonUnlockedInventory});
+        json.encode({'userName': userName, 'userUuid': userUuid, 'unlockedInventory': jsonUnlockedInventory});
     final encryptedData = encryptData(jsonData, secretKey);
     // Copiar la data ya encriptada al clipboard
     Clipboard.setData(ClipboardData(text: encryptedData));
@@ -165,9 +165,9 @@ class MyWidgetState extends State<GachaScreen> {
     try {
       decryptedData = decryptData(publicData, secretKey);
       Map<String, String> decryptedDataMap = Map<String, String>.from(json.decode(decryptedData));
-      _userName = decryptedDataMap['username'] ?? '';
-      _uuid = decryptedDataMap['useruuid'] ?? '';
-      _unlockedInventory = List<Map<String, dynamic>>.from(jsonDecode(decryptedDataMap['unlockedinventory'] ?? '[{}]'));
+      _userName = decryptedDataMap['userName'] ?? '';
+      _uuid = decryptedDataMap['userUuid'] ?? '';
+      _unlockedInventory = List<Map<String, dynamic>>.from(jsonDecode(decryptedDataMap['unlockedInventory'] ?? '[{}]'));
       _readyToBuyTicket();
     } catch (e) {
       setState(() {

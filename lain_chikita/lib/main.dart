@@ -114,9 +114,9 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       level = prefs.getInt('level') ?? 0;
       progress = prefs.getInt('progress') ?? 0;
-      username = prefs.getString('username') ?? "NULLUSER";
+      userName = prefs.getString('userName') ?? "NULLUSER";
       accessoryName = prefs.getString('accessoryName') ?? "null";
-      coins = prefs.getInt('coins') ?? 2;
+      coins = prefs.getInt('coins') ?? 0;
     });
   }
 
@@ -125,7 +125,7 @@ class _MyAppState extends State<MyApp> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('level', level);
     await prefs.setInt('progress', progress);
-    await prefs.setString('username', username);
+    await prefs.setString('userName', userName);
     await prefs.setInt('coins', coins);
   }
 
@@ -189,6 +189,12 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  void _updateUI() {
+    setState(() {
+      print("UI");
+    });
+  }
+
   void _handleKeyEvent(RawKeyEvent event) {
     if (event.runtimeType == RawKeyDownEvent) {
       if (event.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
@@ -222,14 +228,14 @@ class _MyAppState extends State<MyApp> {
                   ),
                   child: Stack(
                     children: [
-                      if (username == "NULLUSER")
+                      if (userName == "NULLUSER")
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const SizedBox(height: 16),
                             Form(
                               child: TextFormField(
-                                initialValue: username,
+                                initialValue: userName,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(color: appColors.nameLabel, fontSize: 34.0),
                                 decoration: InputDecoration(
@@ -238,7 +244,7 @@ class _MyAppState extends State<MyApp> {
                                   floatingLabelAlignment: FloatingLabelAlignment.center,
                                 ),
                                 onFieldSubmitted: (value) =>
-                                    setState(() => {username = value, _saveProgress(), writeAThankUTxt()}),
+                                    setState(() => {userName = value, _saveProgress(), writeAThankUTxt()}),
                               ),
                             )
                           ],
@@ -250,7 +256,7 @@ class _MyAppState extends State<MyApp> {
                               children: [
                                 const SizedBox(height: 16),
                                 Text(
-                                  username,
+                                  userName,
                                   textAlign: TextAlign.start,
                                   style: TextStyle(
                                     fontSize: 48.0,
@@ -320,7 +326,7 @@ class _MyAppState extends State<MyApp> {
                 ),
                 InventoryScreen(callback: _updateAccessory),
                 GachaScreen(callback: _saveInventaries),
-                const EncryptionScreen()
+                EncryptionScreen(callback: _updateUI),
               ],
             ),
           ),

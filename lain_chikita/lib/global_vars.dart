@@ -8,7 +8,7 @@ import 'classes/language_data_manager.dart';
 //User vars
 int level = 0;
 int progress = 0;
-String username = "NULLUSER";
+String userName = "NULLUSER";
 String accessoryName = "null";
 String userUuid = "";
 String userIv = "";
@@ -37,7 +37,7 @@ List<Map<String, dynamic>> unlockedInventory = [
 ];
 
 //User vars (sin backup)
-int coins = 2;
+int coins = 0;
 
 //Preferencias y Configuraciones en general
 String language = 'en';
