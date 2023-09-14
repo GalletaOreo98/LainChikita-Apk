@@ -88,7 +88,7 @@ class MyWidgetState extends State<EncryptionScreen> {
     // Copiar la data ya encriptada al clipboard
     Clipboard.setData(ClipboardData(text: encryptedData));
     setState(() {
-      _informativeText = languageDataManager.getLabel('clipboard-is-copied');
+      _informativeText = "${languageDataManager.getLabel('clipboard-is-copied')}\n(${languageDataManager.getLabel('press-and-hold-button-to-see-more')})";
       hideInformativeText(2);
     });
   }
@@ -139,7 +139,7 @@ class MyWidgetState extends State<EncryptionScreen> {
         inventoryVersion = inventoryVersionD;
         inventory = inventoryD;
         unlockedInventory = unlockedInventoryD;
-        _informativeText = languageDataManager.getLabel('BACKUP EXITOSA');
+        _informativeText = "${languageDataManager.getLabel('backup-completed')}\n${languageDataManager.getLabel('restart-your-app')}";
         _updateUI();
       });
     } catch (e) {
@@ -167,14 +167,14 @@ class MyWidgetState extends State<EncryptionScreen> {
               child: Column(children: [
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(190, 80),
+                        minimumSize: const Size(380, 80),
                         backgroundColor: appColors.secondaryBtn,
                         padding: const EdgeInsets.all(20.0)),
                     onPressed: _backupMyData,
                     onLongPress: () => setState(() {
                           _showBackupTextBox = true;
                         }),
-                    child: Text(languageDataManager.getLabel('BACKUP'),
+                    child: Text(languageDataManager.getLabel('backup'),
                         style: const TextStyle(
                           fontSize: 34.0,
                         ),
@@ -197,7 +197,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                                     },
                                 icon: const Icon(Icons.done),
                                 color: appColors.userInputText),
-                            labelText: languageDataManager.getLabel('YOUR BACKUP DATA'),
+                            labelText: languageDataManager.getLabel('paste-backup-data'),
                             labelStyle: TextStyle(color: appColors.primaryText, fontSize: 20),
                             floatingLabelAlignment: FloatingLabelAlignment.center,
                             focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: appColors.focusItem)),
@@ -211,7 +211,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                   ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(340, 80),
+                      minimumSize: const Size(380, 80),
                       backgroundColor: appColors.primaryBtn,
                       padding: const EdgeInsets.all(20.0)),
                   onPressed: () => _encryptImages(),
@@ -221,7 +221,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(340, 80),
+                      minimumSize: const Size(380, 80),
                       backgroundColor: appColors.primaryBtn,
                       padding: const EdgeInsets.all(20.0)),
                   onPressed: () => _dencryptImages(),

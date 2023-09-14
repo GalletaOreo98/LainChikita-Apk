@@ -24,5 +24,10 @@
     "do-not-leave-the-application": "No salgas de la aplicación",
     "completed": "Completado",
     "progress": "Progreso",
-    "thank-you-for-installing": "Gracias por instalar lain_chikita, amable senior"
+    "thank-you-for-installing": "Gracias por instalar lain_chikita, amable senior",
+    "backup": "Backup",
+    "paste-backup-data": "Pega la data de tu backup",
+    "backup-completed": "Backup completada",
+    "press-and-hold-button-to-see-more": "Mantén pulsado el botón para ver más opciones",
+    "restart-your-app": "Reinicia tu aplicación"
 }

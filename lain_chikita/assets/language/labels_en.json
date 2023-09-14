@@ -24,5 +24,10 @@
     "do-not-leave-the-application": "Do not leave the application",
     "completed": "Completed",
     "progress": "Progress",
-    "thank-you-for-installing": "Thank you for installing lain_chikita, kind senior"
+    "thank-you-for-installing": "Thank you for installing lain_chikita, kind senior",
+    "backup": "Backup",
+    "paste-backup-data": "Paste your backup data",
+    "backup-completed": "Backup completed",
+    "press-and-hold-button-to-see-more": "Press and hold the button to see more options",
+    "restart-your-app": "Restart your app"
 }
