@@ -3,6 +3,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:uuid/uuid.dart' show Uuid;
 import 'package:uuid/uuid_util.dart';
 import 'package:path/path.dart' as p;
+import 'dart:isolate';
 
 //My imports
 import '../functions/directory_path_provider.dart' show AppFolders;
@@ -33,26 +34,69 @@ String generateCryptoRngUuid() {
   return v4Crypto;
 }
 
-Future<void> encryptFileSync(File imageFile, String outputPath, String secretKey) async {
+void encryptFileSync(File imageFile, String outputPath, String secretKey) {
   final key = encrypt.Key.fromUtf8(secretKey);
   final iv = encrypt.IV.fromLength(16);
   final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
-  final imageBytes = await imageFile.readAsBytes();
+  final imageBytes = imageFile.readAsBytesSync();
   final encrypted = encrypter.encryptBytes(imageBytes, iv: iv);
   final encryptedImageFile = File(outputPath);
-  await encryptedImageFile.writeAsBytes(encrypted.bytes);
+  encryptedImageFile.writeAsBytesSync(encrypted.bytes);
 }
 
-Future<void> decryptFileSync(File encryptedImageFile, String outputPath, String secretKey) async {
+void decryptFileSync(File encryptedImageFile, String outputPath, String secretKey) {
   final key = encrypt.Key.fromUtf8(secretKey);
   final iv = encrypt.IV.fromLength(16);
   final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
-  final encryptedImageBytes = await encryptedImageFile.readAsBytes();
+  final encryptedImageBytes = encryptedImageFile.readAsBytesSync();
   final encrypted = encrypt.Encrypted(encryptedImageBytes);
   final decryptedImageBytes = encrypter.decryptBytes(encrypted, iv: iv);
   // Cambia la ruta según donde quieras guardar la imagen desencriptada
   final decryptedImageFile = File(outputPath);
-  await decryptedImageFile.writeAsBytes(decryptedImageBytes);
+  decryptedImageFile.writeAsBytesSync(decryptedImageBytes);
+}
+
+/*
+Se usa Isolate para hacer algo así como una simulación de hilos y que no detenga el hilo principal mientras se encriptan
+archivos. Aún así se obliga a que se encripte archivo por archivo, y no varios a la vez, esto para que no consuma
+demasiados recursos y así pueda dejarse la app en segundo plano, por lo que solo estará el hilo principal y el hilo
+de encriptación del archivo que se este encriptando en ese momento. Esto aplica también para la desencriptación.
+*/
+
+Future<int> useIsolateEncryption(String filePath, String outDir, String secretKey) async {
+  final ReceivePort receivePort = ReceivePort();
+  try {
+    await Isolate.spawn(encryptFilesWithIsolate, [receivePort.sendPort, filePath, outDir, secretKey]);
+  } on Object {
+    receivePort.close();
+    return 1;
+  }
+  await receivePort.first;
+  return 0;
+}
+
+int encryptFilesWithIsolate(List<dynamic> args) {
+  SendPort resultPort = args[0];
+  encryptFileSync(File(args[1]), args[2], args[3]);
+  Isolate.exit(resultPort, 0);
+}
+
+Future<int> useIsolateDecryption(String filePath, String outDir, String secretKey) async {
+  final ReceivePort receivePort = ReceivePort();
+  try {
+    await Isolate.spawn(decryptFilesWithIsolate, [receivePort.sendPort, filePath, outDir, secretKey]);
+  } on Object {
+    receivePort.close();
+    return 1;
+  }
+  await receivePort.first;
+  return 0;
+}
+
+int decryptFilesWithIsolate(List<dynamic> args) {
+  SendPort resultPort = args[0];
+  decryptFileSync(File(args[1]), args[2], args[3]);
+  Isolate.exit(resultPort, 0);
 }
 
 Future<void> encryptFiles(String secretKey, void Function(int, int) callback) async {
@@ -62,8 +106,8 @@ Future<void> encryptFiles(String secretKey, void Function(int, int) callback) as
     callback(i + 1, totalIterations);
     String filePath = userFilesList[i].path;
     String fileBasename = p.basename(filePath); //nombre + la extension, ejemplo: my_archivo.png
-    await encryptFileSync(
-        File(filePath), "${appDirectoryStorage.path}/${AppFolders.encryptedImages}/$fileBasename", secretKey);
+    String outPath = "${appDirectoryStorage.path}/${AppFolders.encryptedImages}/$fileBasename";
+    await useIsolateEncryption(filePath, outPath, secretKey);
   }
 }
 
@@ -74,7 +118,7 @@ Future<void> decryptFiles(String secretKey, void Function(int, int) callback) as
     callback(i + 1, totalIterations);
     String filePath = userFilesList[i].path;
     String fileBasename = p.basename(filePath);
-    await decryptFileSync(
-        File(filePath), "${appDirectoryStorage.path}/${AppFolders.decryptedImages}/$fileBasename", secretKey);
+    String outPath = "${appDirectoryStorage.path}/${AppFolders.decryptedImages}/$fileBasename";
+    await useIsolateDecryption(filePath, outPath, secretKey);
   }
 }

@@ -17,6 +17,7 @@ class EncryptionScreen extends StatefulWidget {
 class MyWidgetState extends State<EncryptionScreen> {
   String _informativeText = '';
   String _currentAction = '';
+  bool _isWorking = false;
 
   void progressCallback(int i, int total) {
     setState(() {
@@ -29,8 +30,11 @@ class MyWidgetState extends State<EncryptionScreen> {
     setState(() {
       _informativeText = '';
       _currentAction = languageDataManager.getLabel('encrypting');
-      encryptFiles(secretKey, progressCallback).then(
-          (value) => _updateInfoTxt("$_informativeText \n${languageDataManager.getLabel('completed').toUpperCase()}"));
+      _isWorking = true;
+      encryptFiles(secretKey, progressCallback).then((value) => {
+            _updateInfoTxt("$_informativeText \n${languageDataManager.getLabel('completed').toUpperCase()}"),
+            _isWorking = false
+          });
     });
   }
 
@@ -38,8 +42,11 @@ class MyWidgetState extends State<EncryptionScreen> {
     setState(() {
       _informativeText = '';
       _currentAction = languageDataManager.getLabel('decrypting');
-      decryptFiles(secretKey, progressCallback).then(
-          (value) => _updateInfoTxt("$_informativeText \n${languageDataManager.getLabel('completed').toUpperCase()}"));
+      _isWorking = true;
+      decryptFiles(secretKey, progressCallback).then((value) => {
+            _updateInfoTxt("$_informativeText \n${languageDataManager.getLabel('completed').toUpperCase()}"),
+            _isWorking = false
+          });
     });
   }
 
@@ -59,8 +66,9 @@ class MyWidgetState extends State<EncryptionScreen> {
               child: Column(children: [
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(340, 80),
-                      backgroundColor: appColors.primaryBtn, padding: const EdgeInsets.all(20.0)),
+                      minimumSize: const Size(340, 80),
+                      backgroundColor: appColors.primaryBtn,
+                      padding: const EdgeInsets.all(20.0)),
                   onPressed: () => _encryptImages(),
                   child: Text(languageDataManager.getLabel('encrypt-files'),
                       style: const TextStyle(fontSize: 34.0), textAlign: TextAlign.center),
@@ -68,12 +76,15 @@ class MyWidgetState extends State<EncryptionScreen> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(340, 80),
-                      backgroundColor: appColors.primaryBtn, padding: const EdgeInsets.all(20.0)),
+                      minimumSize: const Size(340, 80),
+                      backgroundColor: appColors.primaryBtn,
+                      padding: const EdgeInsets.all(20.0)),
                   onPressed: () => _dencryptImages(),
                   child: Text(languageDataManager.getLabel('decrypt-files'),
                       style: const TextStyle(fontSize: 34.0), textAlign: TextAlign.center),
                 ),
+                const SizedBox(height: 16),
+                if(_isWorking) Image.asset('assets/images/working.gif'),
                 const SizedBox(height: 16),
                 Text(_informativeText,
                     textAlign: TextAlign.center,
