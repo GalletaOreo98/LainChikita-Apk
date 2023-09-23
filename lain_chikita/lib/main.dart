@@ -40,6 +40,7 @@ class _MyAppState extends State<MyApp> {
   late PageController _pageController;
   final focusNode = FocusNode();
   String _appBackground = 'background-night';
+  final TextEditingController _userNameTEC = TextEditingController(text: 'NULLUSER');
 
   /// Cuando el usuario actualiza la aplicacion a una nueva versión de [inventoryVersion] se mostrará la animación
   bool wasUpdated = false;
@@ -59,7 +60,7 @@ class _MyAppState extends State<MyApp> {
 
   /// Carga progreso y configuraciones necesarias en general
   Future<void> _loadProgress() async {
-    if(_isMoorning()) _appBackground = 'background-day';
+    if (_isMoorning()) _appBackground = 'background-day';
     //Carga directorios de la app y crea los folders si es necesario
     appDirectoryStorage = await getAppDirectoryStorage();
     await createAppFolders();
@@ -82,7 +83,7 @@ class _MyAppState extends State<MyApp> {
       await prefs.setString('userIv', userIv);
     }
     int thisInventoryVersion = prefs.getInt('inventoryVersion') ?? 1;
-    if(thisInventoryVersion == 1) {
+    if (thisInventoryVersion == 1) {
       await prefs.setInt('inventoryVersion', inventoryVersion);
       //thisInventoryVersion = inventoryVersion;
     }
@@ -150,9 +151,9 @@ class _MyAppState extends State<MyApp> {
     if (wasUpdated) await appAudioPlayer.playSound('audio/updated_sound.mp3');
   }
 
-  bool _isMoorning(){
+  bool _isMoorning() {
     final hour = DateTime.now().hour;
-    if(hour>=5 &&hour<18) return true;
+    if (hour >= 5 && hour < 18) return true;
     return false;
   }
 
@@ -191,7 +192,6 @@ class _MyAppState extends State<MyApp> {
 
   void _updateUI() {
     setState(() {
-      print("UI");
     });
   }
 
@@ -229,26 +229,34 @@ class _MyAppState extends State<MyApp> {
                   child: Stack(
                     children: [
                       if (userName == "NULLUSER")
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(height: 16),
-                            Form(
-                              child: TextFormField(
-                                initialValue: userName,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(color: appColors.nameLabel, fontSize: 34.0),
-                                decoration: InputDecoration(
-                                  labelText: languageDataManager.getLabel('new-user-name'),
-                                  labelStyle: TextStyle(color: appColors.primaryText, fontSize: 34.0),
-                                  floatingLabelAlignment: FloatingLabelAlignment.center,
-                                ),
-                                onFieldSubmitted: (value) =>
-                                    setState(() => {userName = value, _saveProgress(), writeAThankUTxt()}),
-                              ),
-                            )
-                          ],
-                        )
+                        Column(mainAxisSize: MainAxisSize.min, children: [
+                          const SizedBox(height: 16),
+                          TextField(
+                            controller: _userNameTEC,
+                            textAlign: TextAlign.center,
+                            maxLength: 15,
+                            style: TextStyle(color: appColors.nameLabel, fontSize: 34.0),
+                            decoration: InputDecoration(
+                                suffixIcon: IconButton(
+                                    onPressed: () => setState(() => {
+                                          userName = _userNameTEC.text,
+                                          _saveProgress(),
+                                          writeAThankUTxt(),
+                                          FocusManager.instance.primaryFocus?.unfocus()
+                                        }),
+                                    icon: const Icon(Icons.done),
+                                    color: appColors.focusItem),
+                                labelText: languageDataManager.getLabel('new-user-name'),
+                                labelStyle: TextStyle(color: appColors.primaryText, fontSize: 34.0),
+                                floatingLabelAlignment: FloatingLabelAlignment.center,
+                                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: appColors.focusItem)),
+                                enabledBorder:
+                                    UnderlineInputBorder(borderSide: BorderSide(color: appColors.userInputText))),
+                            onSubmitted: (value) =>
+                                setState(() => {userName = value, _saveProgress(), writeAThankUTxt()}),
+                            onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
+                          )
+                        ])
                       else
                         Align(
                             alignment: Alignment.topCenter,
@@ -265,17 +273,19 @@ class _MyAppState extends State<MyApp> {
                                 )
                               ],
                             )),
-                      Center(
-                        child: Image.asset(
-                          'assets/images/lain_chikita.png',
-                          fit: BoxFit.cover,
+                      if (userName != "NULLUSER")
+                        Center(
+                          child: Image.asset(
+                            'assets/images/lain_chikita.png',
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                      ),
-                      Positioned(
-                        child: Center(
-                          child: Image.asset('assets/images/accessories/$accessoryName.png', fit: BoxFit.cover),
+                      if (userName != "NULLUSER")
+                        Positioned(
+                          child: Center(
+                            child: Image.asset('assets/images/accessories/$accessoryName.png', fit: BoxFit.cover),
+                          ),
                         ),
-                      ),
                       if (wasUpdated)
                         Positioned(
                           child: Center(
