@@ -13,7 +13,7 @@ class AppFolders {
 
 /// Consigue el path donde se almacenan los archivos de la app en el sistema
 /// 
-/// Example: user/0/com.example.lain_chikita/files
+/// Example: user/0/com.oreodev.lain_chikita/files
 Future<Directory> getAppDirectoryStorage() async{
   Directory? directory;
   if (platformName == "android") {

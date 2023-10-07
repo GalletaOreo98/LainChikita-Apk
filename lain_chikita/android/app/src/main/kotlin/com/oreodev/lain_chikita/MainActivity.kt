@@ -1,4 +1,4 @@
-package com.example.lain_chikita
+package com.oreodev.lain_chikita
 
 import io.flutter.embedding.android.FlutterActivity
 

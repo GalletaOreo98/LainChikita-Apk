@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.lain_chikita">
+    package="com.oreodev.lain_chikita">
    <application
         android:label="lain_chikita"
         android:name="${applicationName}"
