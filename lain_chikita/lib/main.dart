@@ -147,6 +147,10 @@ class _MyAppState extends State<MyApp> {
     await appAudioPlayer.playSound('audio/btn_sound.mp3');
   }
 
+  Future<void> _playLevelUpSound() async {
+    await appAudioPlayer.playSound2('audio/level_up_sound.mp3');
+  }
+
   Future<void> _playUpdatedSound() async {
     if (wasUpdated) await appAudioPlayer.playSound('audio/updated_sound.mp3');
   }
@@ -177,6 +181,7 @@ class _MyAppState extends State<MyApp> {
         level += 1;
         if (level % 100 == 0) {
           coins++;
+          _playLevelUpSound();
         }
       }
       _saveProgress();
