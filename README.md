@@ -4,23 +4,19 @@ A Flutter + Dart simple minigame
 
 <img src="/demo/demo_smart_phone_view.png" width="150">  
 
+[Download](https://play.google.com/store/apps/details?id=com.oreodev.lain_chikita)  
+
 [Promotional video ▶](https://www.youtube.com/watch?v=AjTnw3ZtlUE)  
 
 ## Building
 
-### Supported platforms  
+### Private files  
 
-| Platforms | Supported | Tested |
-| :--- | :--- | :--- |
-| Android | Yes | 11, 12 |
-| IOS | Yes | No |
-| Windows | Yes | W10x64 |
-| Linux | Yes | Ubuntu22.04.3x64 |
-| Web | No | No |
+You need to create "key.properties" and "private_keys.dart" files; the folder "key" and the file keystore.jks (key/keystore.jks)
 
 ### Building commands  
 
 1. **cd lain_chikita/**  
      *cd to the project folder*
-3. **flutter build apk --release**  
+2. **flutter build apk --release**  
      *build the .apk*
