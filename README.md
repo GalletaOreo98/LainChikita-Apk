@@ -18,5 +18,5 @@ You need to create "key.properties" and "private_keys.dart" files; the folder "k
 
 1. **cd lain_chikita/**  
      *cd to the project folder*
-2. **flutter build apk --release**  
+2. **flutter build apk --release** or **flutter build appbundle --release**
      *build the .apk*
