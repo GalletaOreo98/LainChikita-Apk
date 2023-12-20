@@ -12,8 +12,10 @@ import 'private_keys.dart';
 import 'functions/encryption_functions.dart';
 import 'functions/write_read_files_functions.dart';
 import 'functions/directory_path_provider.dart';
+import 'functions/gacha_functions.dart' show generateSecureRandom;
 
 //screens
+import 'screens/game_screen.dart';
 import 'screens/inventory_screen.dart';
 import 'screens/gacha_screen.dart';
 import 'screens/encryption_screen.dart';
@@ -40,6 +42,8 @@ class _MyAppState extends State<MyApp> {
   late PageController _pageController;
   final focusNode = FocusNode();
   String _appBackground = 'background-night';
+  /// Para mostrar decoraciones cuando haya fechas especiales
+  bool _specialEvent = false;
   final TextEditingController _userNameTEC = TextEditingController(text: 'NULLUSER');
 
   /// Cuando el usuario actualiza la aplicacion a una nueva versión de [inventoryVersion] se mostrará la animación
@@ -61,6 +65,7 @@ class _MyAppState extends State<MyApp> {
   /// Carga progreso y configuraciones necesarias en general
   Future<void> _loadProgress() async {
     if (_isMoorning()) _appBackground = 'background-day';
+    if (generateSecureRandom(4) == 3) _specialEvent = true;
     //Carga directorios de la app y crea los folders si es necesario
     appDirectoryStorage = await getAppDirectoryStorage();
     await createAppFolders();
@@ -218,7 +223,10 @@ class _MyAppState extends State<MyApp> {
         title: 'Lain Chikita',
         theme: ThemeData(fontFamily: 'monogram'),
         home: Scaffold(
-          body: RawKeyboardListener(
+          body: Stack(
+            fit: StackFit.expand,
+        children: [
+          RawKeyboardListener(
             focusNode: focusNode,
             onKey: _handleKeyEvent,
             child: PageView(
@@ -342,10 +350,19 @@ class _MyAppState extends State<MyApp> {
                 InventoryScreen(callback: _updateAccessory),
                 GachaScreen(callback: _saveInventaries),
                 EncryptionScreen(callback: _updateUI),
+                //GameScreen(callback: _updateUI)
               ],
             ),
+          ), 
+          if (_specialEvent)
+          IgnorePointer(
+            ignoring: true,
+            child: Image.asset(
+              'assets/images/snowing.gif',
+              fit: BoxFit.cover, // O ajusta según tus necesidades
+            ),
           ),
-        ));
+        ],)));
   }
 }
 

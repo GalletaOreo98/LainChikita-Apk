@@ -9,7 +9,7 @@ import '../global_vars.dart' as gv;
 /// maxValue es un numero >= 0
 ///
 /// Devuelve un numero >= 0 y < maxValue.
-int _generateSecureRandom(int maxValue) {
+int generateSecureRandom(int maxValue) {
   final secureRandom = Random.secure();
   return secureRandom.nextInt(maxValue);
 }
@@ -23,7 +23,7 @@ bool buyTicket() {
   if (gv.coins <= 0) return false;
   if (gv.unlockedInventory.isEmpty) return false;
   gv.coins--;
-  int random = _generateSecureRandom(gv.unlockedInventory.length);
+  int random = generateSecureRandom(gv.unlockedInventory.length);
   gv.inventory.add(gv.unlockedInventory[random]);
   gv.unlockedInventory.removeAt(random);
   return true;
@@ -40,7 +40,7 @@ String buyTicketFor(List<Map<String, dynamic>> unlockedInventory){
   if (gv.coins <= 0) return '';
   if (unlockedInventory.isEmpty) return '';
   gv.coins--;
-  int random = _generateSecureRandom(unlockedInventory.length);
+  int random = generateSecureRandom(unlockedInventory.length);
   Map<String, dynamic> item = unlockedInventory[random];
   String jsonItem = json.encode(item);
   return jsonItem;

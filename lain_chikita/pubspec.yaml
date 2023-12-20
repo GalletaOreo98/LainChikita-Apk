@@ -75,6 +75,7 @@ flutter:
     - assets/images/coin.png
     - assets/images/updated.gif
     - assets/images/working.gif
+    - assets/images/snowing.gif
 
     #Accessories
     - assets/images/accessories/
