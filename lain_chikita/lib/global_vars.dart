@@ -51,7 +51,12 @@ List<Map<String, dynamic>> unlockedInventory = [
 //User vars (sin backup)
 int coins = 0;
 
+//Mods vars
+bool isActiveMod = false;
+//String accessoryModPath = "";
+
 //Preferencias y Configuraciones en general
+String accessoryPath = 'assets/images/accessories/';
 String language = 'en';
 LanguageDataManager languageDataManager = LanguageDataManager();
 AppAudioPlayer appAudioPlayer = AppAudioPlayer();

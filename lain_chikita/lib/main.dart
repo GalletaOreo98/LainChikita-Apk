@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'
     show SystemUiMode, SystemChrome, RawKeyEvent, RawKeyDownEvent, LogicalKeyboardKey;
@@ -15,10 +17,11 @@ import 'functions/directory_path_provider.dart';
 import 'functions/gacha_functions.dart' show generateSecureRandom;
 
 //screens
-import 'screens/game_screen.dart';
+//import 'screens/game_screen.dart';
 import 'screens/inventory_screen.dart';
 import 'screens/gacha_screen.dart';
 import 'screens/encryption_screen.dart';
+import 'screens/configuration_screen.dart';
 
 //App vars
 const int _maxProgress = 20;
@@ -64,11 +67,13 @@ class _MyAppState extends State<MyApp> {
 
   /// Carga progreso y configuraciones necesarias en general
   Future<void> _loadProgress() async {
+    if (isActiveMod) applyMod();
     if (_isMoorning()) _appBackground = 'background-day';
     if (generateSecureRandom(4) == 3) _specialEvent = true;
     //Carga directorios de la app y crea los folders si es necesario
     appDirectoryStorage = await getAppDirectoryStorage();
-    await createAppFolders();
+    await createEncryptionFolders();
+    await createModsFolder();
     //Revisa si el usuario tiene userUuid
     final prefs = await SharedPreferences.getInstance();
     userUuid = prefs.getString("userUuid") ?? "";
@@ -121,7 +126,7 @@ class _MyAppState extends State<MyApp> {
       level = prefs.getInt('level') ?? 0;
       progress = prefs.getInt('progress') ?? 0;
       userName = prefs.getString('userName') ?? "NULLUSER";
-      accessoryName = prefs.getString('accessoryName') ?? "null";
+      if(!isActiveMod) accessoryName = prefs.getString('accessoryName') ?? "null";
       coins = prefs.getInt('coins') ?? 0;
     });
   }
@@ -296,7 +301,7 @@ class _MyAppState extends State<MyApp> {
                       if (userName != "NULLUSER")
                         Positioned(
                           child: Center(
-                            child: Image.asset('assets/images/accessories/$accessoryName.png', fit: BoxFit.cover),
+                            child: Image.file(File('$accessoryPath$accessoryName.png'), fit: BoxFit.cover),
                           ),
                         ),
                       if (wasUpdated)
@@ -349,6 +354,7 @@ class _MyAppState extends State<MyApp> {
                 ),
                 InventoryScreen(callback: _updateAccessory),
                 GachaScreen(callback: _saveInventaries),
+                ConfigurationScreen(callback: _updateUI),
                 EncryptionScreen(callback: _updateUI),
                 //GameScreen(callback: _updateUI)
               ],
