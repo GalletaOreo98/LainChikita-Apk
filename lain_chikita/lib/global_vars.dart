@@ -56,7 +56,7 @@ bool isActiveMod = false;
 //String accessoryModPath = "";
 
 //Preferencias y Configuraciones en general
-String accessoryPath = 'assets/images/accessories/';
+String accessoryPath = '';
 String language = 'en';
 LanguageDataManager languageDataManager = LanguageDataManager();
 AppAudioPlayer appAudioPlayer = AppAudioPlayer();

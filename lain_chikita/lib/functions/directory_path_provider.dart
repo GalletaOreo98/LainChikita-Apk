@@ -1,9 +1,8 @@
 import 'dart:io' show Directory;
 import 'package:path_provider/path_provider.dart' show getApplicationDocumentsDirectory, getExternalStorageDirectory;
-import 'package:flutter/services.dart' show rootBundle;
 
 //My imports
-import '../global_vars.dart' show platformName, accessoryPath, accessoryName, appDirectoryStorage;
+import '../global_vars.dart' show platformName, accessoryPath, appDirectoryStorage;
 
 class AppFolders {
   static String imagesToEncrypt = 'FILES_TO_ENCRYPT';
@@ -28,8 +27,7 @@ Future<Directory> getAppDirectoryStorage() async{
 }
 
 Future<void> applyMod() async{
-  Directory outputDir = await Directory("${appDirectoryStorage.path}\\${AppFolders.mods}\\").create();
+  Directory outputDir = await Directory("${appDirectoryStorage.path}/${AppFolders.mods}/").create();
   final imagePath = outputDir.path;
   accessoryPath = imagePath;
-  accessoryName = 'skin';
 }

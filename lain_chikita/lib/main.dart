@@ -126,7 +126,7 @@ class _MyAppState extends State<MyApp> {
       level = prefs.getInt('level') ?? 0;
       progress = prefs.getInt('progress') ?? 0;
       userName = prefs.getString('userName') ?? "NULLUSER";
-      if(!isActiveMod) accessoryName = prefs.getString('accessoryName') ?? "null";
+      accessoryName = prefs.getString('accessoryName') ?? "null";
       coins = prefs.getInt('coins') ?? 0;
     });
   }
@@ -298,10 +298,16 @@ class _MyAppState extends State<MyApp> {
                             fit: BoxFit.cover,
                           ),
                         ),
-                      if (userName != "NULLUSER")
+                      if (userName != "NULLUSER" && !isActiveMod)
                         Positioned(
                           child: Center(
-                            child: Image.file(File('$accessoryPath$accessoryName.png'), fit: BoxFit.cover),
+                            child: Image.asset('assets/images/accessories/$accessoryName.png', fit: BoxFit.cover),
+                          ),
+                        ),
+                      if (userName != "NULLUSER" && isActiveMod)
+                        Positioned(
+                          child: Center(
+                            child: Image.file(File('${accessoryPath}skin.png'), fit: BoxFit.cover),
                           ),
                         ),
                       if (wasUpdated)

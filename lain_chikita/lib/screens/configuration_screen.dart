@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 //My imports
-import '../functions/directory_path_provider.dart';
+import '../functions/directory_path_provider.dart' show applyMod;
 import '../global_vars.dart';
 
 class ConfigurationScreen extends StatefulWidget {
@@ -13,10 +13,10 @@ class ConfigurationScreen extends StatefulWidget {
 }
 
 class MyWidgetState extends State<ConfigurationScreen> {
-
-  void changeAccessory() async{
+  void changeAccessory() async {
     // Llamada a la función de callback
-    applyMod();
+    isActiveMod = !isActiveMod;
+    await applyMod();
     widget.callback();
   }
 
@@ -30,9 +30,13 @@ class MyWidgetState extends State<ConfigurationScreen> {
       color: appColors.background,
       child: Table(
         children: [
-          TableRow(
-            children: [
-              TableCell(
+          const TableRow(children: [
+            TableCell(
+              child: SizedBox(height: 16),
+            )
+          ]),
+          TableRow(children: [
+            TableCell(
                 child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         minimumSize: const Size(380, 80),
@@ -42,14 +46,12 @@ class MyWidgetState extends State<ConfigurationScreen> {
                     onLongPress: () => setState(() {
                           /////////////
                         }),
-                    child: Text(languageDataManager.getLabel('backup'),
+                    child: Text(languageDataManager.getLabel('MOD'),
                         style: const TextStyle(
                           fontSize: 34.0,
                         ),
-                        textAlign: TextAlign.center))
-              )
-            ]
-          )
+                        textAlign: TextAlign.center)))
+          ])
         ],
       ),
     );
