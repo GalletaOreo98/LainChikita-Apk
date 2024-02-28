@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.oreodev.lain_chikita",
+      "sha256_cert_fingerprints": [
+        "33:FD:30:1E:36:9B:A5:CE:F3:06:5A:DA:D6:1E:9F:3B:B0:79:60:F9:4F:78:D0:5F:B1:2F:97:F7:BF:78:1F:BC"
+      ]
+    }
+  }
+]
