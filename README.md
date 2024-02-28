@@ -2,7 +2,7 @@
 
 A Flutter + Dart simple minigame  
 
-<img src="/demo/demo_smart_phone_view.png" width="200">  
+<img src="https://raw.githubusercontent.com/GalletaOreo98/LainChikita-Apk/main/demo/demo_smart_phone_view.png" width="200">  
 
 <a href='https://play.google.com/store/apps/details?id=com.oreodev.lain_chikita&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img width='200' alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
 
