@@ -20,7 +20,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # Update version:A.B.C+X
 # A.B.C represents the versionName such as 1.0.0
 # X (the number after the +) represents the versionCode such as 1, 2, 3, etc. (Only int types) 
-version: 1.1.0+8
+version: 1.1.0+9
 
 environment:
   sdk: '>=2.19.6 <3.0.0'
