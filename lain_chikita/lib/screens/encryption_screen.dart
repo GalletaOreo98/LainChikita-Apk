@@ -203,7 +203,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                             focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: appColors.focusItem)),
                             enabledBorder:
                                 UnderlineInputBorder(borderSide: BorderSide(color: appColors.userInputText))),
-                        onSubmitted: (value) => setState(() => {_applyBackup(value)}),
+                        onSubmitted: (value) => setState(() {_applyBackup(value);}),
                         onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
                       ),
                       const SizedBox(height: 16),

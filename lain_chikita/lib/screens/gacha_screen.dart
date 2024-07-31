@@ -271,7 +271,7 @@ class MyWidgetState extends State<GachaScreen> {
                             focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: appColors.focusItem)),
                             enabledBorder:
                                 UnderlineInputBorder(borderSide: BorderSide(color: appColors.userInputText))),
-                        onSubmitted: (value) => setState(() => {_claimTicket(value)}),
+                        onSubmitted: (value) => setState(() {_claimTicket(value);}),
                         onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
                       ),
                       const SizedBox(height: 16),
@@ -297,7 +297,7 @@ class MyWidgetState extends State<GachaScreen> {
                       floatingLabelAlignment: FloatingLabelAlignment.center,
                       focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: appColors.focusItem)),
                       enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: appColors.userInputText))),
-                  onSubmitted: (value) => setState(() => {_setPublicDataToUse(value)}),
+                  onSubmitted: (value) => setState(() {_setPublicDataToUse(value);}),
                   onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
                 ),
                 const SizedBox(height: 16),

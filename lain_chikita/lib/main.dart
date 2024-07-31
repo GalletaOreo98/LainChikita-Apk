@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'
-    show SystemUiMode, SystemChrome, RawKeyEvent, RawKeyDownEvent, LogicalKeyboardKey;
+    show SystemUiMode, SystemChrome, KeyEvent, KeyDownEvent, LogicalKeyboardKey;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert' show json, jsonDecode;
 import 'dart:ui' show window;
@@ -210,12 +210,12 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void _handleKeyEvent(RawKeyEvent event) {
-    if (event.runtimeType == RawKeyDownEvent) {
-      if (event.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
+  void _handleKeyEvent(KeyEvent event) {
+    if (event.runtimeType == KeyDownEvent) {
+      if (event.logicalKey == LogicalKeyboardKey.arrowRight ) {
         // Cambiar a la siguiente pantalla
         _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
-      } else if (event.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
+      } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
         // Cambiar a la pantalla anterior
         _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
       }
@@ -231,9 +231,9 @@ class _MyAppState extends State<MyApp> {
           body: Stack(
             fit: StackFit.expand,
         children: [
-          RawKeyboardListener(
+          KeyboardListener(
             focusNode: focusNode,
-            onKey: _handleKeyEvent,
+            onKeyEvent: _handleKeyEvent,
             child: PageView(
               controller: _pageController,
               children: [
@@ -256,11 +256,11 @@ class _MyAppState extends State<MyApp> {
                             style: TextStyle(color: appColors.nameLabel, fontSize: 34.0),
                             decoration: InputDecoration(
                                 suffixIcon: IconButton(
-                                    onPressed: () => setState(() => {
-                                          userName = _userNameTEC.text,
-                                          _saveProgress(),
-                                          writeAThankUTxt(),
-                                          FocusManager.instance.primaryFocus?.unfocus()
+                                    onPressed: () => setState(() {
+                                          userName = _userNameTEC.text;
+                                          _saveProgress();
+                                          writeAThankUTxt();
+                                          FocusManager.instance.primaryFocus?.unfocus();
                                         }),
                                     icon: const Icon(Icons.done),
                                     color: appColors.focusItem),
@@ -271,7 +271,7 @@ class _MyAppState extends State<MyApp> {
                                 enabledBorder:
                                     UnderlineInputBorder(borderSide: BorderSide(color: appColors.userInputText))),
                             onSubmitted: (value) =>
-                                setState(() => {userName = value, _saveProgress(), writeAThankUTxt()}),
+                                setState(() {userName = value; _saveProgress(); writeAThankUTxt();}),
                             onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
                           )
                         ])
