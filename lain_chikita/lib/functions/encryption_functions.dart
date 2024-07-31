@@ -1,8 +1,9 @@
 import 'dart:io' show File, Directory;
 import 'dart:math' show Random;
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:uuid/data.dart';
+import 'package:uuid/rng.dart';
 import 'package:uuid/uuid.dart' show Uuid;
-import 'package:uuid/uuid_util.dart';
 import 'package:path/path.dart' as p;
 import 'dart:isolate';
 
@@ -31,7 +32,7 @@ String decryptData(String encryptedData, String secretKey) {
 
 String generateCryptoRngUuid() {
   Uuid uuid = const Uuid();
-  final v4Crypto = uuid.v4(options: {'rng': UuidUtil.cryptoRNG});
+  final v4Crypto = uuid.v4(config: V4Options(CryptoRNG().generate(), CryptoRNG()));
   return v4Crypto;
 }
 

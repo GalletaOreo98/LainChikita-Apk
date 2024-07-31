@@ -47,7 +47,8 @@ class MyWidgetState extends State<ConfigurationScreen> {
                           /////////////
                         }),
                     child: Text(languageDataManager.getLabel('MOD'),
-                        style: const TextStyle(
+                        style: TextStyle(  
+                          color: appColors.primaryText,
                           fontSize: 34.0,
                         ),
                         textAlign: TextAlign.center)))

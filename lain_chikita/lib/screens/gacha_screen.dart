@@ -228,7 +228,7 @@ class MyWidgetState extends State<GachaScreen> {
                     _showClaimTicket = true;
                   }),
                   child: Text(languageDataManager.getLabel('redeem-code'),
-                      style: const TextStyle(fontSize: 34.0), textAlign: TextAlign.center),
+                      style: TextStyle(color: appColors.primaryText, fontSize: 34.0), textAlign: TextAlign.center),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
@@ -237,7 +237,8 @@ class MyWidgetState extends State<GachaScreen> {
                         backgroundColor: appColors.secondaryBtn, padding: const EdgeInsets.all(20.0)),
                     onPressed: _copyMyData,
                     child: Text(languageDataManager.getLabel('copy-my-public-data'),
-                        style: const TextStyle(
+                        style: TextStyle(
+                          color: appColors.primaryText,
                           fontSize: 34.0,
                         ),
                         textAlign: TextAlign.center)),
@@ -305,7 +306,7 @@ class MyWidgetState extends State<GachaScreen> {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: appColors.primaryBtn, padding: const EdgeInsets.all(20.0)),
                   onPressed: _buyTicket,
-                  child: Text(languageDataManager.getLabel('buy'), style: const TextStyle(fontSize: 34.0)),
+                  child: Text(languageDataManager.getLabel('buy'), style: TextStyle(color: appColors.primaryText, fontSize: 34.0)),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -325,7 +326,7 @@ class MyWidgetState extends State<GachaScreen> {
                             backgroundColor: appColors.primaryBtn, padding: const EdgeInsets.all(20.0)),
                         onPressed: _copyTicketEData,
                         child: Text(languageDataManager.getLabel('copy-ticket-data'),
-                            style: const TextStyle(fontSize: 34.0)),
+                            style: TextStyle(color: appColors.primaryText, fontSize: 34.0)),
                       ),
                     ],
                   )

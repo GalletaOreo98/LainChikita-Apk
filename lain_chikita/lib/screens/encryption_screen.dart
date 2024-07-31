@@ -175,7 +175,8 @@ class MyWidgetState extends State<EncryptionScreen> {
                           _showBackupTextBox = true;
                         }),
                     child: Text(languageDataManager.getLabel('backup'),
-                        style: const TextStyle(
+                        style: TextStyle(
+                          color: appColors.primaryText,
                           fontSize: 34.0,
                         ),
                         textAlign: TextAlign.center)),
@@ -216,7 +217,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                       padding: const EdgeInsets.all(20.0)),
                   onPressed: () => _encryptImages(),
                   child: Text(languageDataManager.getLabel('encrypt-files'),
-                      style: const TextStyle(fontSize: 34.0), textAlign: TextAlign.center),
+                      style: TextStyle(color: appColors.primaryText, fontSize: 34.0), textAlign: TextAlign.center),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
@@ -226,7 +227,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                       padding: const EdgeInsets.all(20.0)),
                   onPressed: () => _dencryptImages(),
                   child: Text(languageDataManager.getLabel('decrypt-files'),
-                      style: const TextStyle(fontSize: 34.0), textAlign: TextAlign.center),
+                      style: TextStyle(color: appColors.primaryText, fontSize: 34.0), textAlign: TextAlign.center),
                 ),
                 const SizedBox(height: 16),
                 if (_isWorking) Image.asset('assets/images/working.gif'),
