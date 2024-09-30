@@ -20,10 +20,10 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # Update version:A.B.C+X
 # A.B.C represents the versionName such as 1.0.0
 # X (the number after the +) represents the versionCode such as 1, 2, 3, etc. (Only int types) 
-version: 1.1.0+9
+version: 1.1.2+13
 
 environment:
-  sdk: '>=2.19.6 <3.0.0'
+  sdk: '>=2.19.6 <3.22.3'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions

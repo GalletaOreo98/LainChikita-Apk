@@ -5,7 +5,7 @@ import 'package:flutter/services.dart'
     show SystemUiMode, SystemChrome, KeyEvent, KeyDownEvent, LogicalKeyboardKey;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert' show json, jsonDecode;
-import 'dart:ui' show window;
+import 'dart:ui' show PlatformDispatcher;
 
 //My imports
 import 'functions/prefs_version_manager.dart';
@@ -29,7 +29,7 @@ const secretKey = SECRET_KEY;
 
 void main() {
   //Lo pongo asi nada mas para asegurar, por si acaso... pero funciona con == 'es'
-  if (window.locale.languageCode.toLowerCase().contains('es')) language = 'es';
+  if (PlatformDispatcher.instance.locale.languageCode.toLowerCase().contains('es')) language = 'es';
   runApp(const MyApp());
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
 }
@@ -346,6 +346,7 @@ class _MyAppState extends State<MyApp> {
                               FloatingActionButton(
                                 backgroundColor: appColors.loveBtn,
                                 onPressed: _incrementProgress,
+                                shape: const CircleBorder(),
                                 child: Icon(
                                   Icons.favorite,
                                   color: appColors.loveBtnOpposite,
