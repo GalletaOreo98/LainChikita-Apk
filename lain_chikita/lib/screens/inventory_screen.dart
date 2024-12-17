@@ -15,7 +15,6 @@ class MyWidgetState extends State<InventoryScreen> {
 
   void changeAccessory(String newAccessoryName) {
     // Llamada a la función de callback
-    isActiveMod = false;
     widget.callback(newAccessoryName);
   }
 

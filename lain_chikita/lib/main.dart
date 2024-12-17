@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'
     show SystemUiMode, SystemChrome, KeyEvent, KeyDownEvent, LogicalKeyboardKey;
@@ -21,7 +19,6 @@ import 'functions/gacha_functions.dart' show generateSecureRandom;
 import 'screens/inventory_screen.dart';
 import 'screens/gacha_screen.dart';
 import 'screens/encryption_screen.dart';
-import 'screens/configuration_screen.dart';
 
 //App vars
 const int _maxProgress = 20;
@@ -35,7 +32,7 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -67,13 +64,11 @@ class _MyAppState extends State<MyApp> {
 
   /// Carga progreso y configuraciones necesarias en general
   Future<void> _loadProgress() async {
-    if (isActiveMod) applyMod();
     if (_isMoorning()) _appBackground = 'background-day';
     if (generateSecureRandom(4) == 3) _specialEvent = true;
     //Carga directorios de la app y crea los folders si es necesario
     appDirectoryStorage = await getAppDirectoryStorage();
     await createEncryptionFolders();
-    await createModsFolder();
     //Revisa si el usuario tiene userUuid
     final prefs = await SharedPreferences.getInstance();
     userUuid = prefs.getString("userUuid") ?? "";
@@ -298,16 +293,10 @@ class _MyAppState extends State<MyApp> {
                             fit: BoxFit.cover,
                           ),
                         ),
-                      if (userName != "NULLUSER" && !isActiveMod)
+                      if (userName != "NULLUSER")
                         Positioned(
                           child: Center(
                             child: Image.asset('assets/images/accessories/$accessoryName.png', fit: BoxFit.cover),
-                          ),
-                        ),
-                      if (userName != "NULLUSER" && isActiveMod)
-                        Positioned(
-                          child: Center(
-                            child: Image.file(File('${accessoryPath}skin.png'), fit: BoxFit.cover),
                           ),
                         ),
                       if (wasUpdated)
@@ -361,7 +350,6 @@ class _MyAppState extends State<MyApp> {
                 ),
                 InventoryScreen(callback: _updateAccessory),
                 GachaScreen(callback: _saveInventaries),
-                ConfigurationScreen(callback: _updateUI),
                 EncryptionScreen(callback: _updateUI),
                 //GameScreen(callback: _updateUI)
               ],
@@ -378,19 +366,3 @@ class _MyAppState extends State<MyApp> {
         ],)));
   }
 }
-
-/* class CustomScreen extends StatelessWidget {
-  final Color color;
-
-  const CustomScreen({required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: color,
-      child: const Center(
-        child: Text('Custom Screen'),
-      ),
-    );
-  }
-} */
