@@ -296,13 +296,25 @@ class _MyAppState extends State<MyApp> {
                       if (userName != "NULLUSER")
                         Positioned(
                           child: Center(
-                            child: Image.asset('assets/images/accessories/$accessoryName.png', fit: BoxFit.cover),
+                            child: GestureDetector(
+                              onTap: _incrementProgress,
+                              child: Image.asset(
+                                'assets/images/accessories/$accessoryName.png',
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
                         ),
                       if (wasUpdated)
                         Positioned(
                           child: Center(
-                            child: Image.asset('assets/images/updated.gif', fit: BoxFit.cover),
+                            child: GestureDetector(
+                              onTap: _incrementProgress,
+                              child: Image.asset(
+                                'assets/images/updated.gif',
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
                         ),
                       Align(
