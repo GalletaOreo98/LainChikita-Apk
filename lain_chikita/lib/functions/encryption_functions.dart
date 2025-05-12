@@ -48,23 +48,33 @@ String generateUserSecretKey(int length) {
   return List.generate(length, (index) => charset[random.nextInt(charset.length)]).join();
 }
 
-void encryptFileSync(File imageFile, String outputPath, String userSecretKey, String userIv) {
+void encryptFileSync(File imageFile, String outputPath, String userSecretKey) {
   final key = encrypt.Key.fromUtf8(userSecretKey);
-  final iv = encrypt.IV.fromBase16(userIv);
+  final iv = encrypt.IV.fromSecureRandom(16); // Generar IV automáticamente
   final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
   final imageBytes = imageFile.readAsBytesSync();
   final encrypted = encrypter.encryptBytes(imageBytes, iv: iv);
+
+  // Combinar IV y datos cifrados
+  final combinedData = iv.bytes + encrypted.bytes;
+
   final encryptedImageFile = File(outputPath);
-  encryptedImageFile.writeAsBytesSync(encrypted.bytes);
+  encryptedImageFile.writeAsBytesSync(combinedData);
 }
 
-void decryptFileSync(File encryptedImageFile, String outputPath, String userSecretKey, String userIv) {
+void decryptFileSync(File encryptedImageFile, String outputPath, String userSecretKey) {
   final key = encrypt.Key.fromUtf8(userSecretKey);
-  final iv = encrypt.IV.fromBase16(userIv);
-  final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
   final encryptedImageBytes = encryptedImageFile.readAsBytesSync();
-  final encrypted = encrypt.Encrypted(encryptedImageBytes);
+
+  // Separar IV y datos cifrados
+  final ivBytes = encryptedImageBytes.sublist(0, 16);
+  final encryptedBytes = encryptedImageBytes.sublist(16);
+
+  final iv = encrypt.IV(ivBytes);
+  final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
+  final encrypted = encrypt.Encrypted(encryptedBytes);
   final decryptedImageBytes = encrypter.decryptBytes(encrypted, iv: iv);
+
   final decryptedImageFile = File(outputPath);
   decryptedImageFile.writeAsBytesSync(decryptedImageBytes);
 }
@@ -79,10 +89,10 @@ OJO: TENER CUIDADO CON VARIABLES GLOBALES O DIRECTORIOS DENTRO DE UN ISOLATE, YA
 LAS DE LA APP EN GENERAL
 */
 
-Future<int> useIsolateEncryption(String filePath, String outDir, String secretKey, String userIV) async {
+Future<int> useIsolateEncryption(String filePath, String outDir, String secretKey) async {
   final ReceivePort receivePort = ReceivePort();
   try {
-    await Isolate.spawn(encryptFilesWithIsolate, [receivePort.sendPort, filePath, outDir, secretKey, userIV]);
+    await Isolate.spawn(encryptFilesWithIsolate, [receivePort.sendPort, filePath, outDir, secretKey]);
   } on Object {
     receivePort.close();
     return 1;
@@ -93,14 +103,14 @@ Future<int> useIsolateEncryption(String filePath, String outDir, String secretKe
 
 int encryptFilesWithIsolate(List<dynamic> args) {
   SendPort resultPort = args[0];
-  encryptFileSync(File(args[1]), args[2], args[3], args[4]);
+  encryptFileSync(File(args[1]), args[2], args[3]);
   Isolate.exit(resultPort, 0);
 }
 
-Future<int> useIsolateDecryption(String filePath, String outDir, String secretKey, String userIV) async {
+Future<int> useIsolateDecryption(String filePath, String outDir, String secretKey) async {
   final ReceivePort receivePort = ReceivePort();
   try {
-    await Isolate.spawn(decryptFilesWithIsolate, [receivePort.sendPort, filePath, outDir, secretKey, userIV]);
+    await Isolate.spawn(decryptFilesWithIsolate, [receivePort.sendPort, filePath, outDir, secretKey]);
   } on Object {
     receivePort.close();
     return 1;
@@ -111,7 +121,7 @@ Future<int> useIsolateDecryption(String filePath, String outDir, String secretKe
 
 int decryptFilesWithIsolate(List<dynamic> args) {
   SendPort resultPort = args[0];
-  decryptFileSync(File(args[1]), args[2], args[3], args[4]);
+  decryptFileSync(File(args[1]), args[2], args[3]);
   Isolate.exit(resultPort, 0);
 }
 
@@ -123,7 +133,7 @@ Future<void> encryptFiles(void Function(int, int) callback) async {
     String filePath = userFilesList[i].path;
     String fileBasename = p.basename(filePath); //nombre + la extension, ejemplo: my_archivo.png
     String outPath = "${appDirectoryStorage.path}/${AppFolders.encryptedImages}/$fileBasename";
-    await useIsolateEncryption(filePath, outPath, userSecretKey, userIv);
+    await useIsolateEncryption(filePath, outPath, userSecretKey);
   }
 }
 
@@ -135,6 +145,6 @@ Future<void> decryptFiles(void Function(int, int) callback) async {
     String filePath = userFilesList[i].path;
     String fileBasename = p.basename(filePath);
     String outPath = "${appDirectoryStorage.path}/${AppFolders.decryptedImages}/$fileBasename";
-    await useIsolateDecryption(filePath, outPath, userSecretKey, userIv);
+    await useIsolateDecryption(filePath, outPath, userSecretKey);
   }
 }
