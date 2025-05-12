@@ -168,6 +168,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         minimumSize: const Size(380, 80),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                         backgroundColor: appColors.secondaryBtn,
                         padding: const EdgeInsets.all(20.0)),
                     onPressed: _backupMyData,
@@ -213,6 +214,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       minimumSize: const Size(380, 80),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                       backgroundColor: appColors.primaryBtn,
                       padding: const EdgeInsets.all(20.0)),
                   onPressed: () => _encryptImages(),
@@ -223,6 +225,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       minimumSize: const Size(380, 80),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                       backgroundColor: appColors.primaryBtn,
                       padding: const EdgeInsets.all(20.0)),
                   onPressed: () => _dencryptImages(),
