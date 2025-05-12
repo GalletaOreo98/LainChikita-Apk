@@ -114,6 +114,7 @@ class MyWidgetState extends State<GachaScreen> {
     setState(() {
       _copiedText = languageDataManager.getLabel('clipboard-is-copied');
       hideInformativeText(_copiedText, 2);
+      _showClaimTicket = false;
     });
   }
 
@@ -223,6 +224,7 @@ class MyWidgetState extends State<GachaScreen> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       minimumSize: const Size(380, 80),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                       backgroundColor: appColors.secondaryBtn, padding: const EdgeInsets.all(20.0)),
                   onPressed: () => setState(() {
                     _showClaimTicket = true;
@@ -234,6 +236,7 @@ class MyWidgetState extends State<GachaScreen> {
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         minimumSize: const Size(380, 80),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                         backgroundColor: appColors.secondaryBtn, padding: const EdgeInsets.all(20.0)),
                     onPressed: _copyMyData,
                     child: Text(languageDataManager.getLabel('copy-my-public-data'),
@@ -279,6 +282,7 @@ class MyWidgetState extends State<GachaScreen> {
                     ],
                   ),
                 //Textbox de "Pegar datos publicos"
+                if (!_showClaimTicket)
                 TextField(
                   controller: _publicDataTEC,
                   textAlign: TextAlign.center,
@@ -304,6 +308,8 @@ class MyWidgetState extends State<GachaScreen> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(180, 80),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                       backgroundColor: appColors.primaryBtn, padding: const EdgeInsets.all(20.0)),
                   onPressed: _buyTicket,
                   child: Text(languageDataManager.getLabel('buy'), style: TextStyle(color: appColors.primaryText, fontSize: 34.0)),

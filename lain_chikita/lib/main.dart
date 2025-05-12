@@ -15,7 +15,6 @@ import 'functions/directory_path_provider.dart';
 import 'functions/gacha_functions.dart' show generateSecureRandom;
 
 //screens
-//import 'screens/game_screen.dart';
 import 'screens/inventory_screen.dart';
 import 'screens/gacha_screen.dart';
 import 'screens/encryption_screen.dart';
@@ -363,7 +362,6 @@ class _MyAppState extends State<MyApp> {
                 InventoryScreen(callback: _updateAccessory),
                 GachaScreen(callback: _saveInventaries),
                 EncryptionScreen(callback: _updateUI),
-                //GameScreen(callback: _updateUI)
               ],
             ),
           ), 
