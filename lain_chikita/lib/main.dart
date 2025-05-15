@@ -64,7 +64,7 @@ class _MyAppState extends State<MyApp> {
   /// Carga progreso y configuraciones necesarias en general
   Future<void> _loadProgress() async {
     if (_isMoorning()) _appBackground = 'background-day';
-    if (generateSecureRandom(4) == 3) _specialEvent = true;
+    if (generateSecureRandom(10) == 3) _specialEvent = true;
     //Carga directorios de la app y crea los folders si es necesario
     appDirectoryStorage = await getAppDirectoryStorage();
     await createEncryptionFolders();
