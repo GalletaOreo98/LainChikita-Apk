@@ -23,28 +23,28 @@ algo de los inventarios en general)
 int inventoryVersion = 13;
 
 List<Map<String, dynamic>> inventory = [
-  {'name': 'null', 'by': 'NULLUSER'},
-  {'name': 'sunglasses', 'by': 'oreo_dev'},
+  {'name': 'null'},
+  {'name': 'sunglasses'},
 ];
 
 List<Map<String, dynamic>> unlockedInventory = [
-  {'name': 'sunglasses_circle', 'by': 'Navi'},
-  {'name': 'sports_glasses', 'by': 'oreo_dev'},
-  {'name': 'christmas_cane', 'by': 'oreo_dev'},
-  {'name': 'pacman_mob', 'by': 'oreo_dev'},
-  {'name': 'vinca_flower', 'by': 'oreo_dev'},
-  {'name': 'pickaxe_minecraft', 'by': 'oreo_dev'},
-  {'name': 'pumpkin', 'by': 'oreo_dev'},
-  {'name': 'rei_chikita', 'by': 'oreo_dev'},
-  {'name': 'sus', 'by': 'Navi'},
-  {'name': 'pomni_chikita', 'by': 'oreo_dev'},
-  {'name': 'nerd_glasses', 'by': 'oreo_dev'},
-  {'name': 'capybara', 'by': 'Navi'},
-  {'name': 'omori_cat', 'by': 'Navi'},
-  {'name': 'c_programming_book', 'by': 'Navi'},
-  {'name': 'linux_penguin', 'by': 'Navi'},
-  {'name': 'monster_energy_beverage', 'by': 'Navi'},
-  {'name': 'fnaf_bonnie', 'by': 'Navi'},
+  {'name': 'sunglasses_circle'},
+  {'name': 'sports_glasses'},
+  {'name': 'christmas_cane'},
+  {'name': 'pacman_mob'},
+  {'name': 'vinca_flower'},
+  {'name': 'pickaxe_minecraft'},
+  {'name': 'pumpkin'},
+  {'name': 'rei_chikita'},
+  {'name': 'sus'},
+  {'name': 'pomni_chikita'},
+  {'name': 'nerd_glasses'},
+  {'name': 'capybara'},
+  {'name': 'omori_cat'},
+  {'name': 'c_programming_book'},
+  {'name': 'linux_penguin'},
+  {'name': 'monster_energy_beverage'},
+  {'name': 'fnaf_bonnie'},
   //ADD NEW SKINS HERE
 ];
 

@@ -292,16 +292,19 @@ class _MyAppState extends State<MyApp> {
                             fit: BoxFit.cover,
                           ),
                         ),
-                      if (userName != "NULLUSER")
+                        if (userName != "NULLUSER")
                         Positioned(
                           child: Center(
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
                             child: GestureDetector(
-                              onTap: _incrementProgress,
-                              child: Image.asset(
-                                'assets/images/accessories/$accessoryName.png',
-                                fit: BoxFit.cover,
-                              ),
+                            onTap: _incrementProgress,
+                            child: Image.asset(
+                              'assets/images/accessories/$accessoryName.png',
+                              fit: BoxFit.cover,
                             ),
+                            ),
+                          ),
                           ),
                         ),
                       if (wasUpdated)

@@ -12,14 +12,13 @@ class InventoryScreen extends StatefulWidget {
 }
 
 class MyWidgetState extends State<InventoryScreen> {
-
   void changeAccessory(String newAccessoryName) {
     // Llamada a la función de callback
     widget.callback(newAccessoryName);
   }
 
   Future<void> playSelectAccessorySound() async {
-    await appAudioPlayer.playSound("audio/select_accessory_sound.mp3"); 
+    await appAudioPlayer.playSound("audio/select_accessory_sound.mp3");
   }
 
   @override
@@ -43,12 +42,13 @@ class MyWidgetState extends State<InventoryScreen> {
                 ),
                 child: ListTile(
                   textColor: appColors.primaryText,
-                  title:
-                      Text(languageDataManager.getAccessoryName(inventory[index]['name']), style: const TextStyle(fontSize: 34.0)),
-                  subtitle: Text('by: ${inventory[index]['by']}',
-                      style: TextStyle(
-                          color: appColors.secondaryText,
-                          fontStyle: FontStyle.italic, fontSize: 25.0)),
+                  title: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: Text(
+                      languageDataManager.getAccessoryName(inventory[index]['name']),
+                      style: const TextStyle(fontSize: 34.0),
+                    ),
+                  ),
                 ),
               ));
         },
