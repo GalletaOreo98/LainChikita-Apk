@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.oreodev" "\0"
-            VALUE "FileDescription", "lain_chikita" "\0"
+            VALUE "FileDescription", "Dale amor a tu Lain Chikita." "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "lain_chikita" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2023 com.oreodev. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 com.oreodev. All rights reserved." "\0"
             VALUE "OriginalFilename", "lain_chikita.exe" "\0"
-            VALUE "ProductName", "lain_chikita" "\0"
+            VALUE "ProductName", "Lain Chikita" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
