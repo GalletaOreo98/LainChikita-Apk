@@ -1,5 +1,5 @@
 name: lain_chikita
-description: Dale amor a tu Lain.
+description: Dale amor a tu Lain Chikita.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -20,7 +20,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # Update version:A.B.C+X
 # A.B.C represents the versionName such as 1.0.0
 # X (the number after the +) represents the versionCode such as 1, 2, 3, etc. (Only int types) 
-version: 1.1.2+13
+version: 1.1.2+14
 
 environment:
   sdk: '>=2.19.6 <3.22.3'
