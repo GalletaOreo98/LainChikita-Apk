@@ -111,6 +111,10 @@ class _MyAppState extends State<MyApp> {
       await prefs.setString('unlockedInventory', jsonUnlockedInventoryToSet);
       runUpdateAnimation(5); //En esta funcion se hace el wasUpdated = true;
       _playUpdatedSound();
+      final userNameChecker = prefs.getString('userName') ?? "NULLUSER";
+      if (userNameChecker != "NULLUSER") {
+        writeAThankUTxt();
+      }
     }
     //Carga los nombres de los items del inventario segun el lenguaje del dispositivo
     await languageDataManager.loadAccessoryNames(language);
