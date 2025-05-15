@@ -12,7 +12,8 @@ Future<void> writeAThankUTxt() async {
   } else {
     directory = await getApplicationDocumentsDirectory();
   }
-  directory!.path;
+  await Directory("${directory!.path}/lain_chikita").create();
+  directory = Directory("${directory.path}/lain_chikita");
   Directory outputDir = await Directory("${directory.path}/${AppFolders.readme}").create();
   final File file = File('${outputDir.path}/THANKS.txt');
   await file.writeAsString("${languageDataManager.getLabel('thank-you-for-installing')} $userName");

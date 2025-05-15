@@ -21,6 +21,7 @@ Future<Directory> getAppDirectoryStorage() async{
   } else {
     directory = await getApplicationDocumentsDirectory();
   }
-  directory!.path;
+  await Directory("${directory!.path}/lain_chikita").create();
+  directory = Directory("${directory.path}/lain_chikita");
   return directory;
 }
