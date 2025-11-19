@@ -3,7 +3,8 @@
 # Custom
 key
 private_keys.dart
-
+android-old/
+.idea/
 # Files and directories created by pub
 .dart_tool/
 .packages
