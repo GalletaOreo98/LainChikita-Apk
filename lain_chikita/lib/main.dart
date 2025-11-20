@@ -291,9 +291,15 @@ class _MyAppState extends State<MyApp> {
                             )),
                       if (userName != "NULLUSER")
                         Center(
-                          child: Image.asset(
-                            'assets/images/lain_chikita.png',
-                            fit: BoxFit.cover,
+                          child: Container(
+                            margin: const EdgeInsets.only(top: 30), // Ajuste del margen superior
+                            child: Transform.translate(
+                              offset: const Offset(0, -30), // Ajuste de la posición vertical main character image
+                              child: Image.asset(
+                                'assets/images/lain_chikita.png',
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
                         ),
                         if (userName != "NULLUSER")
@@ -303,9 +309,15 @@ class _MyAppState extends State<MyApp> {
                             cursor: SystemMouseCursors.click,
                             child: GestureDetector(
                             onTap: _incrementProgress,
-                            child: Image.asset(
-                              'assets/images/accessories/$accessoryName.png',
-                              fit: BoxFit.cover,
+                            child: Container(
+                              margin: const EdgeInsets.only(top: 30),
+                              child: Transform.translate(
+                                offset: const Offset(0, -30),
+                                child: Image.asset(
+                                  'assets/images/accessories/$accessoryName.png',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
                             ),
                           ),
@@ -326,7 +338,7 @@ class _MyAppState extends State<MyApp> {
                       Align(
                         alignment: Alignment.bottomCenter,
                         child: Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0),
+                          padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.05),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
