@@ -52,9 +52,17 @@ android {
         getByName("release") {
             signingConfig = signingConfigs.getByName("release")
         }
+        getByName("debug") {
+            // forzamos el debug a usar la signingConfig de release porque nos da problemas con Google Play Games
+            signingConfig = signingConfigs.getByName("release")
+        }
     }
 }
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    implementation("com.google.android.gms:play-services-games-v2:+")
 }

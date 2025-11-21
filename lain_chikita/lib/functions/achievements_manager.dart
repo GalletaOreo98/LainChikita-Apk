@@ -1,0 +1,132 @@
+import 'package:games_services/games_services.dart';
+import 'package:flutter/foundation.dart';
+
+
+/// Global variable to store personal user achievements
+List<AchievementItemData> globalAchievements = [];
+
+/// Loads achievements from Game Services and stores them in the global variable
+Future<bool> loadAchievementsToGlobalVars() async {
+  try {
+    final result = await Achievements.loadAchievements();
+    if (result != null) {
+      globalAchievements = result;
+      print('Achievements loaded successfully: ${globalAchievements.length} achievements');
+      return true;
+    } else {
+      print('No achievements found');
+      globalAchievements = [];
+      return false;
+    }
+  } catch (e) {
+    print('Error loading achievements: $e');
+    globalAchievements = [];
+    return false;
+  }
+}
+
+/// Gets the current achievements list
+List<AchievementItemData> getAchievements() {
+  return globalAchievements;
+}
+
+/// Checks if achievements are loaded
+bool areAchievementsLoaded() {
+  return globalAchievements.isNotEmpty;
+}
+
+/// Step achievement increment progress updater
+Future<void> incrementAchievementsStepType() async {
+  if(globalAchievements.isEmpty) return;
+  
+  // Iterar a través de todos los logros
+  for (final achievement in globalAchievements) {
+    // Solo procesar logros con pasos (totalSteps > 0) y que no estén desbloqueados
+    if (achievement.totalSteps > 0 && !achievement.unlocked) {
+      try {
+        await GameAuth.signIn();
+        await Achievements.increment(
+          achievement: Achievement(
+            androidID: achievement.id,
+            steps: 50,
+            percentComplete: ((achievement.completedSteps + 50) / achievement.totalSteps) * 100,
+          )
+        );
+        await loadAchievementsToGlobalVars(); // Actualizar la lista de logros después de la actualización
+        print('Achievement progress updated: ${achievement.name} - Steps: ${achievement.completedSteps}/${achievement.totalSteps}');
+      } catch (e) {
+        print('Error updating achievement ${achievement.name}: $e');
+      }
+    }
+  }
+}
+
+/// Unlocks a specific achievement by its ID (percentage type achievement)
+Future<void> unlockAchievementById(String achievementId) async {
+  try {
+    //Checar si el usuario ya lo desbloqueó
+    final achievement = globalAchievements.firstWhere((ach) => ach.id == achievementId);
+    
+    if(achievement.unlocked) {
+      return;
+    }
+    await GameAuth.signIn();
+    await Achievements.unlock(
+      achievement: Achievement(
+        androidID: achievementId,
+        percentComplete: 100,
+        showsCompletionBanner: true
+      ),
+    );
+    await loadAchievementsToGlobalVars(); // Actualizar la lista de logros después de desbloquear
+    print('Achievement unlocked: $achievementId');
+  } catch (e) {
+    print('Error unlocking achievement $achievementId: $e');
+  }
+}
+
+/// Save cookies score to saved game slot - increments current score by 1
+Future<void> saveCookiesScore() async {
+  try {
+    await GameAuth.signIn();
+    
+    // Cargar el score actual de la nube
+    dynamic cloudData;
+    try {
+      cloudData = await SaveGame.loadGame(name: "cookies_score");
+    } catch (e) {
+      if (kDebugMode) debugPrint('Error loading saved score: $e');
+      print("HALLOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+      cloudData = null;
+    }
+
+    int currentScore = 0;
+    
+    // Si existe datos en la nube, parsear el score
+    if (cloudData != null && cloudData.isNotEmpty) {
+      try {
+        currentScore = int.parse(cloudData);
+      } catch (e) {
+        print('Error parsing saved score, starting from 0: $e');
+        currentScore = 0;
+      }
+    }
+    
+    // Incrementar el score en 1
+    int newScore = currentScore + 1;
+    
+    // Guardar el nuevo score en la nube
+    await SaveGame.saveGame(data: newScore.toString(), name: "cookies_score");
+    print('Cookies score updated: $currentScore -> $newScore');
+
+    // Submit score to leaderboard
+    await Leaderboards.submitScore(
+      score: Score(
+        androidLeaderboardID: 'CgkI8NLzkooQEAIQDA',
+        value: newScore
+      )
+    );
+  } catch (e) {
+    print('Error updating cookies score: $e');
+  }
+}

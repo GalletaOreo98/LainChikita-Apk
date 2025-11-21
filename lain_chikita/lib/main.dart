@@ -4,8 +4,11 @@ import 'package:flutter/services.dart'
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert' show json, jsonDecode;
 import 'dart:ui' show PlatformDispatcher;
+import 'package:games_services/games_services.dart';
+
 
 //My imports
+import 'functions/achievements_manager.dart';
 import 'functions/prefs_version_manager.dart';
 import 'global_vars.dart';
 import 'private_keys.dart';
@@ -122,6 +125,8 @@ class _MyAppState extends State<MyApp> {
       userName = prefs.getString('userName') ?? "NULLUSER";
       accessoryName = prefs.getString('accessoryName') ?? "null";
       coins = prefs.getInt('coins') ?? 0;
+      //Carga logros a variables globales
+      loadAchievementsToGlobalVars();
 
       if (userName != "NULLUSER") {
         writeAThankUTxt();
@@ -149,6 +154,34 @@ class _MyAppState extends State<MyApp> {
   Future<void> _saveAccesorrySelection() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('accessoryName', accessoryName);
+  }
+
+  Future<void> _saveProgressOnGooglePlayGames() async {
+    try {
+      final isSignedIn = await GameAuth.isSignedIn;
+      if (!isSignedIn) return;
+      // Formateo de los inventarios a json
+      final jsonInventory = json.encode(inventory);
+      final jsonUnlockedInventory = json.encode(unlockedInventory);
+      // Formateo de la data del juego (sin encriptar)
+      final gameData = {
+        'userName': userName,
+        'userUuid': userUuid,
+        'level': level,
+        'progress': progress,
+        'userIv': userIv,
+        'userSecretKey': userSecretKey,
+        'accessoryName': accessoryName,
+        'inventoryVersion': inventoryVersion,
+        'inventory': jsonInventory,
+        'unlockedInventory': jsonUnlockedInventory,
+      };
+      final data = json.encode(gameData);
+      //print('Saving game data: $data');
+      await SaveGame.saveGame(data: data, name: "slot1");
+    } catch (e) {
+      print('Error saving game data to Google Play Games: $e');
+    }
   }
 
   Future<void> _playLoveBtnSound() async {
@@ -187,9 +220,14 @@ class _MyAppState extends State<MyApp> {
       if (progress >= _maxProgress) {
         progress = 0;
         level += 1;
+        if (level % 50 == 0) {
+          incrementAchievementsStepType();
+        }
         if (level % 100 == 0) {
           coins++;
           _playLevelUpSound();
+          saveCookiesScore();
+          _saveProgressOnGooglePlayGames();
         }
       }
       _saveProgress();

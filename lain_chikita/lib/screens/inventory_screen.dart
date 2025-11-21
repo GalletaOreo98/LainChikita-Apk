@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 //My imports
+import '../functions/achievements_manager.dart';
 import '../global_vars.dart';
 
 class InventoryScreen extends StatefulWidget {
@@ -14,12 +15,14 @@ class InventoryScreen extends StatefulWidget {
 class MyWidgetState extends State<InventoryScreen> {
   void changeAccessory(String newAccessoryName) {
     // Llamada a la función de callback
+    unlockAchievementById("CgkI8NLzkooQEAIQCQ");
     widget.callback(newAccessoryName);
   }
 
   Future<void> playSelectAccessorySound() async {
     await appAudioPlayer.playSound("audio/select_accessory_sound.mp3");
   }
+
 
   @override
   Widget build(BuildContext context) {

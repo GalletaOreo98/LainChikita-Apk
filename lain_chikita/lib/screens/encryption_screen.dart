@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'dart:convert' show json, jsonDecode;
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:games_services/games_services.dart';
 
 // My imports
+import '../functions/achievements_manager.dart';
 import '../global_vars.dart';
 import '../functions/encryption_functions.dart' show decryptFiles, encryptFiles, encryptData, decryptData;
 import '../private_keys.dart';
@@ -23,11 +25,31 @@ class MyWidgetState extends State<EncryptionScreen> {
   String _currentAction = '';
   bool _isWorking = false;
   bool _showBackupTextBox = false;
+  bool _isSignedIn = false;
   final TextEditingController _backupDataTEC = TextEditingController(text: '');
 
   void _updateUI() {
     // Llamada a la función de callback
     widget.callback();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _checkSignInStatus();
+  }
+
+  void _checkSignInStatus() async {
+    try {
+      final isSignedIn = await GameAuth.isSignedIn;
+      setState(() {
+        _isSignedIn = isSignedIn;
+      });
+    } catch (e) {
+      setState(() {
+        _isSignedIn = false;
+      });
+    }
   }
 
   void progressCallback(int i, int total) {
@@ -37,7 +59,7 @@ class MyWidgetState extends State<EncryptionScreen> {
     });
   }
 
-  void _encryptImages() {
+/*   void _encryptImages() {
     setState(() {
       _informativeText = '';
       _currentAction = languageDataManager.getLabel('encrypting');
@@ -59,7 +81,7 @@ class MyWidgetState extends State<EncryptionScreen> {
             _isWorking = false
           });
     });
-  }
+  } */
 
   void _updateInfoTxt(String text) {
     setState(() {
@@ -110,7 +132,7 @@ class MyWidgetState extends State<EncryptionScreen> {
           List<Map<String, dynamic>>.from(jsonDecode(decryptedDataMap['inventory'] ?? '[{}]'));
       List<Map<String, dynamic>> unlockedInventoryD =
           List<Map<String, dynamic>>.from(jsonDecode(decryptedDataMap['unlockedInventory'] ?? '[{}]'));
-      //Save all progress
+      //Apply Save all progress
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('coins', 0);
       await prefs.setString('userName', userNameD);
@@ -149,6 +171,274 @@ class MyWidgetState extends State<EncryptionScreen> {
     }
   }
 
+  void _signInToGameServices() async {
+    try {
+      final result = await GameAuth.signIn();
+      print(result);
+      _checkSignInStatus(); // Actualizar el estado de sign-in
+      setState(() {
+        _informativeText = "${languageDataManager.getLabel('completed').toUpperCase()}: Game Services Sign In";
+        hideInformativeText(3);
+      });
+    } catch (e) {
+      print('GameAuth.signIn() error: $e');
+      setState(() {
+        _informativeText = "Error: $e";
+        hideInformativeText(5);
+      });
+    }
+  }
+
+  void _showAchievements() async {
+    try {
+      await Achievements.showAchievements();
+      setState(() {
+        _informativeText = "${languageDataManager.getLabel('completed').toUpperCase()}: Show Achievements";
+        hideInformativeText(3);
+      });
+    } catch (e) {
+      print('Achievements.showAchievements() error: $e');
+      setState(() {
+        _informativeText = "Error: $e";
+        hideInformativeText(5);
+      });
+    }
+  }
+
+  void _showLeaderboards() async {
+    try {
+      await Leaderboards.showLeaderboards(androidLeaderboardID: 'CgkI8NLzkooQEAIQDA');
+      setState(() {
+        _informativeText = "${languageDataManager.getLabel('completed').toUpperCase()}: Show Leaderboards";
+        hideInformativeText(3);
+      });
+    } catch (e) {
+      print('Leaderboards.showLeaderboards() error: $e');
+      setState(() {
+        _informativeText = "Error: $e";
+        hideInformativeText(5);
+      });
+    }
+  }
+
+
+
+  void _saveGameData() async {
+    // Show confirmation dialog
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: appColors.background,
+          title: Text(
+            'Confirm Save Data',
+            style: TextStyle(color: appColors.primaryText, fontSize: 24.0),
+          ),
+          content: Text(
+            'This will overwrite your current saved game with your current progress. Are you sure you want to continue?',
+            style: TextStyle(color: appColors.primaryText, fontSize: 24.0),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: appColors.primaryText, fontSize: 30.0),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                'Save Data',
+                style: TextStyle(color: appColors.focusItem, fontSize: 30.0),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) {
+      _playcancelSound();
+      return; // User cancelled
+    }
+
+    try {
+      _playAcceptPopupSound();
+      // Formateo de los inventarios a json
+      final jsonInventory = json.encode(inventory);
+      final jsonUnlockedInventory = json.encode(unlockedInventory);
+      // Formateo de la data del juego (sin encriptar)
+      final gameData = {
+        'userName': userName,
+        'userUuid': userUuid,
+        'level': level,
+        'progress': progress,
+        'userIv': userIv,
+        'userSecretKey': userSecretKey,
+        'accessoryName': accessoryName,
+        'inventoryVersion': inventoryVersion,
+        'inventory': jsonInventory,
+        'unlockedInventory': jsonUnlockedInventory,
+      };
+      final data = json.encode(gameData);
+      //print('Saving game data: $data');
+
+
+      
+      final result = await SaveGame.saveGame(data: data, name: "slot1");
+      //print('SaveGame.saveGame() result: $result');
+      unlockAchievementById("CgkI8NLzkooQEAIQBw"); // KeepYourLoveSafe achievement
+      
+      setState(() {
+        _informativeText = "${languageDataManager.getLabel('completed').toUpperCase()}: Save Game Data";
+        hideInformativeText(3);
+      });
+    } catch (e) {
+      print('SaveGame.saveGame() error: $e');
+      setState(() {
+        _informativeText = "Error saving data: $e";
+        hideInformativeText(5);
+      });
+    }
+  }
+
+  void _loadGameData() async {
+    // Show confirmation dialog
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: appColors.background,
+          title: Text(
+            'Confirm Load Data',
+            style: TextStyle(color: appColors.primaryText, fontSize: 24.0),
+          ),
+          content: Text(
+            'This will replace your current game data. Are you sure you want to continue?',
+            style: TextStyle(color: appColors.primaryText, fontSize: 24.0),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: appColors.primaryText, fontSize: 30.0),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                'Load Data',
+                style: TextStyle(color: appColors.focusItem, fontSize: 30.0),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) {
+      _playcancelSound();
+      return; // User cancelled
+    }
+
+    try {
+      _playAcceptPopupSound();
+      final result = await SaveGame.getSavedGames();
+      print('SaveGame.getSavedGames() result: $result');
+      
+      if (result != null && result.isNotEmpty) {
+        // Buscar el slot1
+        final slot1 = result.firstWhere(
+          (save) => save.name == "slot1",
+          orElse: () => throw Exception("No save found with name 'slot1'"),
+        );
+        
+        final saveData = await SaveGame.loadGame(name: slot1.name);
+        print('SaveGame.loadGame() data: $saveData');
+        
+        if (saveData != null) {
+          Map<String, dynamic> gameData = Map<String, dynamic>.from(json.decode(saveData));
+          String userNameD = gameData['userName'] ?? '';
+          String userUuidD = gameData['userUuid'] ?? '';
+          int levelD = gameData['level'] ?? 0;
+          int progressD = gameData['progress'] ?? 0;
+          String userIvD = gameData['userIv'] ?? '';
+          String userSecretKeyD = gameData['userSecretKey'] ?? '';
+          String accessoryNameD = gameData['accessoryName'] ?? '';
+          int inventoryVersionD = gameData['inventoryVersion'] ?? 0;
+          List<Map<String, dynamic>> inventoryD =
+              List<Map<String, dynamic>>.from(jsonDecode(gameData['inventory'] ?? '[{}]'));
+          List<Map<String, dynamic>> unlockedInventoryD =
+              List<Map<String, dynamic>>.from(jsonDecode(gameData['unlockedInventory'] ?? '[{}]'));
+          
+          // Save all progress to SharedPreferences
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setInt('coins', 0);
+          await prefs.setString('userName', userNameD);
+          await prefs.setString('userUuid', userUuidD);
+          await prefs.setInt('level', levelD);
+          await prefs.setInt('progress', progressD);
+          await prefs.setString('userIv', userIvD);
+          await prefs.setString('userSecretKey', userSecretKeyD);
+          await prefs.setString('accessoryName', accessoryNameD);
+          await prefs.setInt('inventoryVersion', inventoryVersionD);
+
+          // Cargar achievements a la variable global
+          await loadAchievementsToGlobalVars();
+          
+          // Inventarios
+          final jsonInventory = json.encode(inventoryD);
+          await prefs.setString('inventory', jsonInventory);
+          final jsonUnlockedInventory = json.encode(unlockedInventoryD);
+          await prefs.setString('unlockedInventory', jsonUnlockedInventory);
+          unlockAchievementById("CgkI8NLzkooQEAIQCg"); // WelcomeToTheWired achievement
+          
+          // Actualizar UI
+          setState(() {
+            coins = 0;
+            userName = userNameD;
+            userUuid = userUuidD;
+            level = levelD;
+            progress = progressD;
+            userIv = userIvD;
+            userSecretKey = userSecretKeyD;
+            accessoryName = accessoryNameD;
+            inventoryVersion = inventoryVersionD;
+            inventory = inventoryD;
+            unlockedInventory = unlockedInventoryD;
+            _informativeText = "${languageDataManager.getLabel('completed').toUpperCase()}: Load Game Data\n${languageDataManager.getLabel('restart-your-app')}";
+            _updateUI();
+          });
+        }
+      } else {
+        setState(() {
+          _informativeText = "No saved games found";
+          hideInformativeText(3);
+        });
+      }
+    } catch (e) {
+      print('LoadGame error: $e');
+      setState(() {
+        _informativeText = "Error loading data: $e";
+        hideInformativeText(5);
+      });
+    }
+  }
+
+  Future<void> _playInformativePopupSound() async {
+    await appAudioPlayer.playSound('audio/informative_popup_sound.mp3');
+  }
+
+  Future<void> _playAcceptPopupSound() async {
+    await appAudioPlayer.playSound2('audio/accept_popup_sound.mp3');
+  }
+
+    Future<void> _playcancelSound() async {
+    await appAudioPlayer.playSound3('audio/cancel_sound.mp3');
+  }
+
   void hideInformativeText(int seconds) {
     Future.delayed(Duration(seconds: seconds), () {
       setState(() {
@@ -162,15 +452,15 @@ class MyWidgetState extends State<EncryptionScreen> {
     return Container(
         color: appColors.background,
         child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(12.0),
             child: SingleChildScrollView(
               child: Column(children: [
-                ElevatedButton(
+/*                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         minimumSize: const Size(380, 80),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                         backgroundColor: appColors.secondaryBtn,
-                        padding: const EdgeInsets.all(20.0)),
+                        padding: const EdgeInsets.all(10.0)),
                     onPressed: _backupMyData,
                     onLongPress: () => setState(() {
                           _showBackupTextBox = true;
@@ -181,11 +471,10 @@ class MyWidgetState extends State<EncryptionScreen> {
                           fontSize: 34.0,
                         ),
                         textAlign: TextAlign.center)),
-                const SizedBox(height: 16),
-                if (_showBackupTextBox)
+                const SizedBox(height: 8), */
+/*                 if (_showBackupTextBox)
                   Column(
                     children: [
-                      //Textbox de "Pegar datos de ticket a reclamar"
                       TextField(
                         controller: _backupDataTEC,
                         textAlign: TextAlign.center,
@@ -208,33 +497,105 @@ class MyWidgetState extends State<EncryptionScreen> {
                         onSubmitted: (value) => setState(() {_applyBackup(value);}),
                         onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
                     ],
-                  ),
+                  ), */
+/*                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(380, 80),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      backgroundColor: appColors.primaryBtn,
+                      padding: const EdgeInsets.all(10.0)),
+                  onPressed: () => _encryptImages(),
+                  child: Text(languageDataManager.getLabel('encrypt-files'),
+                      style: TextStyle(color: appColors.primaryText, fontSize: 34.0), textAlign: TextAlign.center),
+                ), */
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(380, 80),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      backgroundColor: const Color.fromARGB(255, 24, 110, 3),
+                      padding: const EdgeInsets.all(10.0),
+                      disabledBackgroundColor: const Color.fromARGB(255, 133, 133, 133)),
+                  onPressed: _isSignedIn ? null : () => _signInToGameServices(),
+                  child: Text(_isSignedIn ? 'Conectado' : 'Conectar con Google',
+                      style: TextStyle(
+                        color: appColors.primaryText, 
+                        fontSize: 34.0
+                      ), 
+                      textAlign: TextAlign.center),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(380, 80),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      backgroundColor: const Color.fromARGB(255, 207, 127, 23),
+                      padding: const EdgeInsets.all(10.0)),
+                  onPressed: _isSignedIn ? () => _showAchievements() : null,
+                  child: Text('View Achievements',
+                      style: TextStyle(color: _isSignedIn ? appColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(380, 80),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      backgroundColor: const Color.fromARGB(255, 156, 39, 176),
+                      padding: const EdgeInsets.all(10.0)),
+                  onPressed: _isSignedIn ? () => _showLeaderboards() : null,
+                  child: Text('View Leaderboards',
+                      style: TextStyle(color: _isSignedIn ? appColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
+                ),
+
+
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(380, 80),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      backgroundColor: const Color.fromARGB(255, 32, 105, 189),
+                      padding: const EdgeInsets.all(10.0)),
+                  onPressed: (_isSignedIn && userName != "NULLUSER")
+                      ? () async {
+                          _playInformativePopupSound();
+                          _saveGameData();
+                        }
+                      : null,
+                  child: Text('Save Data',
+                      style: TextStyle(color: (_isSignedIn && userName != "NULLUSER") ? appColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(380, 80),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      backgroundColor: const Color.fromARGB(255, 78, 24, 177),
+                      padding: const EdgeInsets.all(10.0)),
+                  onPressed: _isSignedIn 
+                    ? () async { 
+                     _playInformativePopupSound();
+                     _loadGameData(); 
+                    }
+                     : null,
+                  child: Text('Load Data',
+                      style: TextStyle(color: _isSignedIn ? appColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
+                ),
+/*                 const SizedBox(height: 8),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       minimumSize: const Size(380, 80),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                       backgroundColor: appColors.primaryBtn,
-                      padding: const EdgeInsets.all(20.0)),
+                      padding: const EdgeInsets.all(10.0)),
                   onPressed: () => _encryptImages(),
                   child: Text(languageDataManager.getLabel('encrypt-files'),
                       style: TextStyle(color: appColors.primaryText, fontSize: 34.0), textAlign: TextAlign.center),
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(380, 80),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                      backgroundColor: appColors.primaryBtn,
-                      padding: const EdgeInsets.all(20.0)),
-                  onPressed: () => _dencryptImages(),
-                  child: Text(languageDataManager.getLabel('decrypt-files'),
-                      style: TextStyle(color: appColors.primaryText, fontSize: 34.0), textAlign: TextAlign.center),
-                ),
-                const SizedBox(height: 16),
-                if (_isWorking) Image.asset('assets/images/working.gif'),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+                if (_isWorking) Image.asset('assets/images/working.gif'), */
+                const SizedBox(height: 8),
                 Text(_informativeText,
                     textAlign: TextAlign.center,
                     style: TextStyle(
