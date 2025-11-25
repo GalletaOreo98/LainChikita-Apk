@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:convert' show json, jsonDecode;
-import 'package:flutter/services.dart' show Clipboard, ClipboardData;
+//import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:games_services/games_services.dart';
 
 // My imports
 import '../functions/achievements_manager.dart';
+import '../functions/prefs_version_manager.dart';
 import '../global_vars.dart';
-import '../functions/encryption_functions.dart' show decryptFiles, encryptFiles, encryptData, decryptData;
+//import '../functions/encryption_functions.dart' show decryptFiles, encryptFiles, encryptData, decryptData;
 import '../private_keys.dart';
 
 const secretKey = SECRET_KEY;
@@ -22,11 +23,11 @@ class EncryptionScreen extends StatefulWidget {
 
 class MyWidgetState extends State<EncryptionScreen> {
   String _informativeText = '';
-  String _currentAction = '';
+  //String _currentAction = '';
   bool _isWorking = false;
-  bool _showBackupTextBox = false;
+  //bool _showBackupTextBox = false;
   bool _isSignedIn = false;
-  final TextEditingController _backupDataTEC = TextEditingController(text: '');
+  //final TextEditingController _backupDataTEC = TextEditingController(text: '');
 
   void _updateUI() {
     // Llamada a la función de callback
@@ -52,12 +53,12 @@ class MyWidgetState extends State<EncryptionScreen> {
     }
   }
 
-  void progressCallback(int i, int total) {
+/*   void progressCallback(int i, int total) {
     setState(() {
       _informativeText =
           "$_currentAction...\n${languageDataManager.getLabel('do-not-leave-the-application')}\n${languageDataManager.getLabel('progress')}: $i / $total";
     });
-  }
+  } */
 
 /*   void _encryptImages() {
     setState(() {
@@ -83,13 +84,13 @@ class MyWidgetState extends State<EncryptionScreen> {
     });
   } */
 
-  void _updateInfoTxt(String text) {
+/*   void _updateInfoTxt(String text) {
     setState(() {
       _informativeText = text;
     });
-  }
+  } */
 
-  void _backupMyData() {
+/*   void _backupMyData() {
     //Formateo de los inventarios a json
     final jsonInventory = json.encode(inventory);
     final jsonUnlockedInventory = json.encode(unlockedInventory);
@@ -113,9 +114,9 @@ class MyWidgetState extends State<EncryptionScreen> {
       _informativeText = "${languageDataManager.getLabel('clipboard-is-copied')}\n(${languageDataManager.getLabel('press-and-hold-button-to-see-more')})";
       hideInformativeText(2);
     });
-  }
+  } */
 
-  void _applyBackup(String backupData) async {
+/*   void _applyBackup(String backupData) async {
     String decryptedData;
     try {
       decryptedData = decryptData(backupData, secretKey);
@@ -169,19 +170,17 @@ class MyWidgetState extends State<EncryptionScreen> {
         _informativeText = languageDataManager.getLabel('error-invalid-data');
       });
     }
-  }
+  } */
 
   void _signInToGameServices() async {
     try {
-      final result = await GameAuth.signIn();
-      print(result);
+      await GameAuth.signIn();
       _checkSignInStatus(); // Actualizar el estado de sign-in
       setState(() {
         _informativeText = "${languageDataManager.getLabel('completed').toUpperCase()}: Game Services Sign In";
         hideInformativeText(3);
       });
     } catch (e) {
-      print('GameAuth.signIn() error: $e');
       setState(() {
         _informativeText = "Error: $e";
         hideInformativeText(5);
@@ -191,14 +190,19 @@ class MyWidgetState extends State<EncryptionScreen> {
 
   void _showAchievements() async {
     try {
+      setState(() {
+        _isWorking = true;
+        _informativeText = "${languageDataManager.getLabel('loading')}...";
+      });
       await Achievements.showAchievements();
       setState(() {
-        _informativeText = "${languageDataManager.getLabel('completed').toUpperCase()}: Show Achievements";
+        _isWorking = false;
+        //_informativeText = languageDataManager.getLabel('completed');
         hideInformativeText(3);
       });
     } catch (e) {
-      print('Achievements.showAchievements() error: $e');
       setState(() {
+        _isWorking = false;
         _informativeText = "Error: $e";
         hideInformativeText(5);
       });
@@ -207,14 +211,19 @@ class MyWidgetState extends State<EncryptionScreen> {
 
   void _showLeaderboards() async {
     try {
-      await Leaderboards.showLeaderboards(androidLeaderboardID: 'CgkI8NLzkooQEAIQDA');
       setState(() {
-        _informativeText = "${languageDataManager.getLabel('completed').toUpperCase()}: Show Leaderboards";
+        _isWorking = true;
+        _informativeText = "${languageDataManager.getLabel('loading')}...";
+      });
+      await Leaderboards.showLeaderboards(androidLeaderboardID: 'CgkI8NLzkooQEAIQDA'); // Cookies Leaderboard
+      setState(() {
+        _isWorking = false;
+        //_informativeText = languageDataManager.getLabel('completed');
         hideInformativeText(3);
       });
     } catch (e) {
-      print('Leaderboards.showLeaderboards() error: $e');
       setState(() {
+        _isWorking = false;
         _informativeText = "Error: $e";
         hideInformativeText(5);
       });
@@ -231,25 +240,25 @@ class MyWidgetState extends State<EncryptionScreen> {
         return AlertDialog(
           backgroundColor: appColors.background,
           title: Text(
-            'Confirm Save Data',
+            languageDataManager.getLabel('confirm-save-progress'),
             style: TextStyle(color: appColors.primaryText, fontSize: 24.0),
           ),
           content: Text(
-            'This will overwrite your current saved game with your current progress. Are you sure you want to continue?',
+            languageDataManager.getLabel('save-progress-overwrite-alert'),
             style: TextStyle(color: appColors.primaryText, fontSize: 24.0),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
               child: Text(
-                'Cancel',
+                languageDataManager.getLabel('cancel'),
                 style: TextStyle(color: appColors.primaryText, fontSize: 30.0),
               ),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               child: Text(
-                'Save Data',
+                languageDataManager.getLabel('save-progress'),
                 style: TextStyle(color: appColors.focusItem, fontSize: 30.0),
               ),
             ),
@@ -265,6 +274,10 @@ class MyWidgetState extends State<EncryptionScreen> {
 
     try {
       _playAcceptPopupSound();
+      setState(() {
+        _isWorking = true;
+        _informativeText = "${languageDataManager.getLabel('packing-data')}...";
+      });
       // Formateo de los inventarios a json
       final jsonInventory = json.encode(inventory);
       final jsonUnlockedInventory = json.encode(unlockedInventory);
@@ -283,20 +296,23 @@ class MyWidgetState extends State<EncryptionScreen> {
       };
       final data = json.encode(gameData);
       //print('Saving game data: $data');
-
-
+      setState(() {_informativeText = "${languageDataManager.getLabel('sending-data')}...";});
+      await GameAuth.signIn();
       
-      final result = await SaveGame.saveGame(data: data, name: "slot1");
-      //print('SaveGame.saveGame() result: $result');
-      unlockAchievementById("CgkI8NLzkooQEAIQBw"); // KeepYourLoveSafe achievement
-      
+      await SaveGame.saveGame(data: data, name: "slot1");
+
+      setState(() {_informativeText = languageDataManager.getLabel('data-sent');});
+
+      await unlockAchievementById("CgkI8NLzkooQEAIQBw"); // KeepYourLoveSafe achievement
+
       setState(() {
-        _informativeText = "${languageDataManager.getLabel('completed').toUpperCase()}: Save Game Data";
-        hideInformativeText(3);
+        _isWorking = false;
+        _informativeText = languageDataManager.getLabel('save-progress-successful');
+        hideInformativeText(4);
       });
     } catch (e) {
-      print('SaveGame.saveGame() error: $e');
       setState(() {
+        _isWorking = false;
         _informativeText = "Error saving data: $e";
         hideInformativeText(5);
       });
@@ -311,25 +327,25 @@ class MyWidgetState extends State<EncryptionScreen> {
         return AlertDialog(
           backgroundColor: appColors.background,
           title: Text(
-            'Confirm Load Data',
+            languageDataManager.getLabel('confirm-load-progress'),
             style: TextStyle(color: appColors.primaryText, fontSize: 24.0),
           ),
           content: Text(
-            'This will replace your current game data. Are you sure you want to continue?',
+            languageDataManager.getLabel('load-progress-overwrite-alert'),
             style: TextStyle(color: appColors.primaryText, fontSize: 24.0),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
               child: Text(
-                'Cancel',
+                languageDataManager.getLabel('cancel'),
                 style: TextStyle(color: appColors.primaryText, fontSize: 30.0),
               ),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               child: Text(
-                'Load Data',
+                languageDataManager.getLabel('load-progress'),
                 style: TextStyle(color: appColors.focusItem, fontSize: 30.0),
               ),
             ),
@@ -345,82 +361,98 @@ class MyWidgetState extends State<EncryptionScreen> {
 
     try {
       _playAcceptPopupSound();
-      final result = await SaveGame.getSavedGames();
-      print('SaveGame.getSavedGames() result: $result');
-      
-      if (result != null && result.isNotEmpty) {
-        // Buscar el slot1
-        final slot1 = result.firstWhere(
-          (save) => save.name == "slot1",
-          orElse: () => throw Exception("No save found with name 'slot1'"),
-        );
-        
-        final saveData = await SaveGame.loadGame(name: slot1.name);
-        print('SaveGame.loadGame() data: $saveData');
-        
-        if (saveData != null) {
-          Map<String, dynamic> gameData = Map<String, dynamic>.from(json.decode(saveData));
-          String userNameD = gameData['userName'] ?? '';
-          String userUuidD = gameData['userUuid'] ?? '';
-          int levelD = gameData['level'] ?? 0;
-          int progressD = gameData['progress'] ?? 0;
-          String userIvD = gameData['userIv'] ?? '';
-          String userSecretKeyD = gameData['userSecretKey'] ?? '';
-          String accessoryNameD = gameData['accessoryName'] ?? '';
-          int inventoryVersionD = gameData['inventoryVersion'] ?? 0;
-          List<Map<String, dynamic>> inventoryD =
-              List<Map<String, dynamic>>.from(jsonDecode(gameData['inventory'] ?? '[{}]'));
-          List<Map<String, dynamic>> unlockedInventoryD =
-              List<Map<String, dynamic>>.from(jsonDecode(gameData['unlockedInventory'] ?? '[{}]'));
-          
-          // Save all progress to SharedPreferences
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setInt('coins', 0);
-          await prefs.setString('userName', userNameD);
-          await prefs.setString('userUuid', userUuidD);
-          await prefs.setInt('level', levelD);
-          await prefs.setInt('progress', progressD);
-          await prefs.setString('userIv', userIvD);
-          await prefs.setString('userSecretKey', userSecretKeyD);
-          await prefs.setString('accessoryName', accessoryNameD);
-          await prefs.setInt('inventoryVersion', inventoryVersionD);
-
-          // Cargar achievements a la variable global
-          await loadAchievementsToGlobalVars();
-          
-          // Inventarios
-          final jsonInventory = json.encode(inventoryD);
-          await prefs.setString('inventory', jsonInventory);
-          final jsonUnlockedInventory = json.encode(unlockedInventoryD);
-          await prefs.setString('unlockedInventory', jsonUnlockedInventory);
-          unlockAchievementById("CgkI8NLzkooQEAIQCg"); // WelcomeToTheWired achievement
-          
-          // Actualizar UI
-          setState(() {
-            coins = 0;
-            userName = userNameD;
-            userUuid = userUuidD;
-            level = levelD;
-            progress = progressD;
-            userIv = userIvD;
-            userSecretKey = userSecretKeyD;
-            accessoryName = accessoryNameD;
-            inventoryVersion = inventoryVersionD;
-            inventory = inventoryD;
-            unlockedInventory = unlockedInventoryD;
-            _informativeText = "${languageDataManager.getLabel('completed').toUpperCase()}: Load Game Data\n${languageDataManager.getLabel('restart-your-app')}";
-            _updateUI();
-          });
-        }
-      } else {
-        setState(() {
-          _informativeText = "No saved games found";
-          hideInformativeText(3);
-        });
-      }
-    } catch (e) {
-      print('LoadGame error: $e');
       setState(() {
+        _isWorking = true;
+      });
+      await GameAuth.signIn();
+
+      
+      setState(() {_informativeText = "${languageDataManager.getLabel('receiving-data')}...";});
+        
+      final saveData = await SaveGame.loadGame(name: "slot1");
+      
+      setState(() {_informativeText = languageDataManager.getLabel('data-received');});
+        
+      if (saveData != null) {
+        setState(() {_informativeText = "${languageDataManager.getLabel('ordering-data')}...";});
+        Map<String, dynamic> gameData = Map<String, dynamic>.from(json.decode(saveData));
+        String userNameD = gameData['userName'] ?? '';
+        String userUuidD = gameData['userUuid'] ?? '';
+        int levelD = gameData['level'] ?? 0;
+        int progressD = gameData['progress'] ?? 0;
+        String userIvD = gameData['userIv'] ?? '';
+        String userSecretKeyD = gameData['userSecretKey'] ?? '';
+        String accessoryNameD = gameData['accessoryName'] ?? '';
+        int inventoryVersionD = gameData['inventoryVersion'] ?? 0;
+        List<Map<String, dynamic>> inventoryD =
+            List<Map<String, dynamic>>.from(jsonDecode(gameData['inventory'] ?? '[{}]'));
+        List<Map<String, dynamic>> unlockedInventoryD =
+            List<Map<String, dynamic>>.from(jsonDecode(gameData['unlockedInventory'] ?? '[{}]'));
+        
+        // Check inventory version and apply update if necessary
+        List<Map<String, dynamic>> appUnlockedInventory = unlockedInventory.toList();
+        if (inventoryVersion != inventoryVersionD) {
+          final thisUnlockedInventory = unlockedInventoryD.toList();
+          unlockedInventoryD = applyInventoryVerionUpdate(thisUnlockedInventory, appUnlockedInventory, inventoryD);
+          inventoryVersionD = inventoryVersion;
+        }
+        
+        setState(() {_informativeText = "${languageDataManager.getLabel('applying-data')}...";});
+
+        // Save all progress to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('coins', 0);
+        await prefs.setString('userName', userNameD);
+        await prefs.setString('userUuid', userUuidD);
+        await prefs.setInt('level', levelD);
+        await prefs.setInt('progress', progressD);
+        await prefs.setString('userIv', userIvD);
+        await prefs.setString('userSecretKey', userSecretKeyD);
+        await prefs.setString('accessoryName', accessoryNameD);
+        await prefs.setInt('inventoryVersion', inventoryVersionD);
+
+        setState(() {_informativeText = "${languageDataManager.getLabel('loading-achievements')}...";});
+
+        // Cargar achievements a la variable global
+        await loadAchievementsToGlobalVars();
+          
+        // Inventarios
+        final jsonInventory = json.encode(inventoryD);
+        await prefs.setString('inventory', jsonInventory);
+        final jsonUnlockedInventory = json.encode(unlockedInventoryD);
+        await prefs.setString('unlockedInventory', jsonUnlockedInventory);
+        
+        unlockAchievementById("CgkI8NLzkooQEAIQCg"); // WelcomeToTheWired achievement
+
+        setState(() {_informativeText = "${languageDataManager.getLabel('updating-ui')}...";});
+          
+        // Actualizar UI
+        setState(() {
+          coins = 0;
+          userName = userNameD;
+          userUuid = userUuidD;
+          level = levelD;
+          progress = progressD;
+          userIv = userIvD;
+          userSecretKey = userSecretKeyD;
+          accessoryName = accessoryNameD;
+          inventoryVersion = inventoryVersionD;
+          inventory = inventoryD;
+          unlockedInventory = unlockedInventoryD;
+          _isWorking = false;
+          _informativeText = "${languageDataManager.getLabel('load-progress-successful')}\n${languageDataManager.getLabel('restart-your-app')}";
+          _updateUI();
+        });
+        } else {
+          setState(() {
+            _isWorking = false;
+            _informativeText = "Error: No saved data found.";
+            hideInformativeText(5);
+          });
+        }    
+    } catch (e) {
+      setState(() {
+        _isWorking = false;
         _informativeText = "Error loading data: $e";
         hideInformativeText(5);
       });
@@ -519,7 +551,10 @@ class MyWidgetState extends State<EncryptionScreen> {
                       padding: const EdgeInsets.all(10.0),
                       disabledBackgroundColor: const Color.fromARGB(255, 133, 133, 133)),
                   onPressed: _isSignedIn ? null : () => _signInToGameServices(),
-                  child: Text(_isSignedIn ? 'Conectado' : 'Conectar con Google',
+                  child: Text(
+                      _isSignedIn 
+                        ? languageDataManager.getLabel('connected') 
+                        : languageDataManager.getLabel('connect-with-google'),
                       style: TextStyle(
                         color: appColors.primaryText, 
                         fontSize: 34.0
@@ -533,8 +568,11 @@ class MyWidgetState extends State<EncryptionScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                       backgroundColor: const Color.fromARGB(255, 207, 127, 23),
                       padding: const EdgeInsets.all(10.0)),
-                  onPressed: _isSignedIn ? () => _showAchievements() : null,
-                  child: Text('View Achievements',
+                  onPressed: _isSignedIn ? () async {
+                    _playInformativePopupSound();
+                    _showAchievements();
+                  } : null,
+                  child: Text( languageDataManager.getLabel('achievements'),
                       style: TextStyle(color: _isSignedIn ? appColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
                 ),
                 const SizedBox(height: 8),
@@ -544,8 +582,11 @@ class MyWidgetState extends State<EncryptionScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                       backgroundColor: const Color.fromARGB(255, 156, 39, 176),
                       padding: const EdgeInsets.all(10.0)),
-                  onPressed: _isSignedIn ? () => _showLeaderboards() : null,
-                  child: Text('View Leaderboards',
+                  onPressed: _isSignedIn ? () async {
+                    _playInformativePopupSound();
+                    _showLeaderboards();
+                  } : null,
+                  child: Text(languageDataManager.getLabel('leaderboards'),
                       style: TextStyle(color: _isSignedIn ? appColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
                 ),
 
@@ -563,7 +604,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                           _saveGameData();
                         }
                       : null,
-                  child: Text('Save Data',
+                  child: Text(languageDataManager.getLabel('save-progress'),
                       style: TextStyle(color: (_isSignedIn && userName != "NULLUSER") ? appColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
                 ),
                 const SizedBox(height: 8),
@@ -579,7 +620,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                      _loadGameData(); 
                     }
                      : null,
-                  child: Text('Load Data',
+                  child: Text(languageDataManager.getLabel('load-progress'),
                       style: TextStyle(color: _isSignedIn ? appColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
                 ),
 /*                 const SizedBox(height: 8),
@@ -593,8 +634,10 @@ class MyWidgetState extends State<EncryptionScreen> {
                   child: Text(languageDataManager.getLabel('encrypt-files'),
                       style: TextStyle(color: appColors.primaryText, fontSize: 34.0), textAlign: TextAlign.center),
                 ),
-                const SizedBox(height: 8),
-                if (_isWorking) Image.asset('assets/images/working.gif'), */
+                 */
+
+                const SizedBox(height: 16),
+                if (_isWorking) Image.asset('assets/images/working.gif'),
                 const SizedBox(height: 8),
                 Text(_informativeText,
                     textAlign: TextAlign.center,

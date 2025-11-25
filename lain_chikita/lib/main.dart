@@ -177,7 +177,8 @@ class _MyAppState extends State<MyApp> {
         'unlockedInventory': jsonUnlockedInventory,
       };
       final data = json.encode(gameData);
-      //print('Saving game data: $data');
+      
+      await GameAuth.signIn();
       await SaveGame.saveGame(data: data, name: "slot1");
     } catch (e) {
       print('Error saving game data to Google Play Games: $e');

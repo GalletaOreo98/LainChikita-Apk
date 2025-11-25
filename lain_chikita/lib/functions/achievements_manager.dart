@@ -8,6 +8,7 @@ List<AchievementItemData> globalAchievements = [];
 /// Loads achievements from Game Services and stores them in the global variable
 Future<bool> loadAchievementsToGlobalVars() async {
   try {
+    await GameAuth.signIn();
     final result = await Achievements.loadAchievements();
     if (result != null) {
       globalAchievements = result;
