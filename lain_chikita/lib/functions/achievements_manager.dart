@@ -12,37 +12,27 @@ Future<bool> loadAchievementsToGlobalVars() async {
     final result = await Achievements.loadAchievements();
     if (result != null) {
       globalAchievements = result;
-      print('Achievements loaded successfully: ${globalAchievements.length} achievements');
+      if (kDebugMode) debugPrint('Achievements loaded successfully: ${globalAchievements.length} achievements');
       return true;
     } else {
-      print('No achievements found');
+      if (kDebugMode) debugPrint('No achievements found');
       globalAchievements = [];
       return false;
     }
   } catch (e) {
-    print('Error loading achievements: $e');
+    if (kDebugMode) debugPrint('Error loading achievements: $e');
     globalAchievements = [];
     return false;
   }
-}
-
-/// Gets the current achievements list
-List<AchievementItemData> getAchievements() {
-  return globalAchievements;
-}
-
-/// Checks if achievements are loaded
-bool areAchievementsLoaded() {
-  return globalAchievements.isNotEmpty;
 }
 
 /// Step achievement increment progress updater
 Future<void> incrementAchievementsStepType() async {
   if(globalAchievements.isEmpty) return;
   
-  // Iterar a través de todos los logros
   for (final achievement in globalAchievements) {
     // Solo procesar logros con pasos (totalSteps > 0) y que no estén desbloqueados
+    // total steps > 0 indica que es un logro de tipo "pasos" (step achievement type)
     if (achievement.totalSteps > 0 && !achievement.unlocked) {
       try {
         await GameAuth.signIn();
@@ -54,9 +44,9 @@ Future<void> incrementAchievementsStepType() async {
           )
         );
         await loadAchievementsToGlobalVars(); // Actualizar la lista de logros después de la actualización
-        print('Achievement progress updated: ${achievement.name} - Steps: ${achievement.completedSteps}/${achievement.totalSteps}');
+        if (kDebugMode) debugPrint('Achievement progress updated: ${achievement.name} - Steps: ${achievement.completedSteps}/${achievement.totalSteps}');
       } catch (e) {
-        print('Error updating achievement ${achievement.name}: $e');
+        if (kDebugMode) debugPrint('Error updating achievement ${achievement.name}: $e');
       }
     }
   }
@@ -65,6 +55,7 @@ Future<void> incrementAchievementsStepType() async {
 /// Unlocks a specific achievement by its ID (percentage type achievement)
 Future<void> unlockAchievementById(String achievementId) async {
   try {
+    if(globalAchievements.isEmpty) return;
     //Checar si el usuario ya lo desbloqueó
     final achievement = globalAchievements.firstWhere((ach) => ach.id == achievementId);
     
@@ -80,9 +71,9 @@ Future<void> unlockAchievementById(String achievementId) async {
       ),
     );
     await loadAchievementsToGlobalVars(); // Actualizar la lista de logros después de desbloquear
-    print('Achievement unlocked: $achievementId');
+    if (kDebugMode) debugPrint('Achievement unlocked: $achievementId');
   } catch (e) {
-    print('Error unlocking achievement $achievementId: $e');
+    if (kDebugMode) debugPrint('Error unlocking achievement $achievementId: $e');
   }
 }
 
@@ -97,7 +88,6 @@ Future<void> saveCookiesScore() async {
       cloudData = await SaveGame.loadGame(name: "cookies_score");
     } catch (e) {
       if (kDebugMode) debugPrint('Error loading saved score: $e');
-      print("HALLOOOOOOOOOOOOOOOOOOOOOOOOOOO");
       cloudData = null;
     }
 
@@ -108,17 +98,16 @@ Future<void> saveCookiesScore() async {
       try {
         currentScore = int.parse(cloudData);
       } catch (e) {
-        print('Error parsing saved score, starting from 0: $e');
+        if (kDebugMode) debugPrint('Error parsing saved score, starting from 0: $e');
         currentScore = 0;
       }
     }
     
-    // Incrementar el score en 1
     int newScore = currentScore + 1;
     
     // Guardar el nuevo score en la nube
     await SaveGame.saveGame(data: newScore.toString(), name: "cookies_score");
-    print('Cookies score updated: $currentScore -> $newScore');
+    if (kDebugMode) debugPrint('Cookies score updated: $currentScore -> $newScore');
 
     // Submit score to leaderboard
     await Leaderboards.submitScore(
@@ -128,6 +117,6 @@ Future<void> saveCookiesScore() async {
       )
     );
   } catch (e) {
-    print('Error updating cookies score: $e');
+    if (kDebugMode) debugPrint('Error updating cookies score: $e');
   }
 }
