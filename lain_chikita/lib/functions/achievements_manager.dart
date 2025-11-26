@@ -1,5 +1,5 @@
 import 'package:games_services/games_services.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 
 
 /// Global variable to store personal user achievements

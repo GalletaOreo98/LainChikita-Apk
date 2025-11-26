@@ -32,7 +32,7 @@ String decryptData(String encryptedData, String secretKey) {
 
 String generateCryptoRngUuid() {
   Uuid uuid = const Uuid();
-  final v4Crypto = uuid.v4(config: V4Options(CryptoRNG().generate(), CryptoRNG()));
+  final v4Crypto = uuid.v4(config: V4Options(const CryptoRNG().generate(), const CryptoRNG()));
   return v4Crypto;
 }
 

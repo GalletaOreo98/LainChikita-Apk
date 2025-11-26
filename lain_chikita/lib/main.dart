@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'
     show SystemUiMode, SystemChrome, KeyEvent, KeyDownEvent, LogicalKeyboardKey;
@@ -181,7 +182,7 @@ class _MyAppState extends State<MyApp> {
       await GameAuth.signIn();
       await SaveGame.saveGame(data: data, name: "slot1");
     } catch (e) {
-      print('Error saving game data to Google Play Games: $e');
+      if (kDebugMode) debugPrint('Error saving game data to Google Play Games: $e');
     }
   }
 
