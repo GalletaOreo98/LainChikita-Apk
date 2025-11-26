@@ -27,6 +27,7 @@ List<Map<String, dynamic>> inventory = [
   {'name': 'sunglasses'},
 ];
 
+// en verdad es un not unlockedInventory pero me confundi al nombrarla xD
 List<Map<String, dynamic>> unlockedInventory = [
   {'name': 'sunglasses_circle'},
   {'name': 'sports_glasses'},

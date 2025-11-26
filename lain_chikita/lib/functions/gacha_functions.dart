@@ -19,7 +19,7 @@ int generateSecureRandom(int maxValue) {
 /// en otro caso agrega el item elegido al inventario y retorna true
 /// 
 /// Gasta el coin cuando se realiza exitosamente
-bool buyTicket() {
+bool buyAccessory() {
   if (gv.coins <= 0) return false;
   if (gv.unlockedInventory.isEmpty) return false;
   gv.coins--;
