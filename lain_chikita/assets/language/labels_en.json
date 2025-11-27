@@ -39,6 +39,8 @@
     "loading": "Loading",
     "achievements": "Achievements",
     "leaderboards": "Leaderboards",
+    "save": "Save",
+    "load": "Load",
     "save-progress": "Save Progress",
     "load-progress": "Load Progress",
     "connected": "Connected",

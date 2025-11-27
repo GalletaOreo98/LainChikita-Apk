@@ -258,7 +258,7 @@ class MyWidgetState extends State<EncryptionScreen> {
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               child: Text(
-                languageDataManager.getLabel('save-progress'),
+                languageDataManager.getLabel('save'),
                 style: TextStyle(color: appColors.focusItem, fontSize: 30.0),
               ),
             ),
@@ -345,7 +345,7 @@ class MyWidgetState extends State<EncryptionScreen> {
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               child: Text(
-                languageDataManager.getLabel('load-progress'),
+                languageDataManager.getLabel('load'),
                 style: TextStyle(color: appColors.focusItem, fontSize: 30.0),
               ),
             ),
