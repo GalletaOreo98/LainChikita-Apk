@@ -9,7 +9,7 @@ List<AchievementItemData> globalAchievements = [];
 Future<bool> loadAchievementsToGlobalVars() async {
   try {
     await GameAuth.signIn();
-    final result = await Achievements.loadAchievements();
+    final result = await Achievements.loadAchievements(forceRefresh: true);
     if (result != null) {
       globalAchievements = result;
       if (kDebugMode) debugPrint('Achievements loaded successfully: ${globalAchievements.length} achievements');
