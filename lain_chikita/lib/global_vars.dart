@@ -58,6 +58,40 @@ int coins = 0;
 
 //String accessoryModPath = "";
 
+/// Lista de codigos canjeables
+/// Estructura:
+/// { 'id': 'Id unico','type': 'RedeemableCodeType','value': String o numero }
+List<Map<String, dynamic>> redeemableCodes = [
+  {
+    'id': '26112025A',
+    'type': RedeemableCodeType.accessory.name, //.name para guardar el enum como string cuando se pasa a json
+    'value': 'christmas_cane',
+  },
+  {
+    'id': '26112025B',
+    'type': RedeemableCodeType.accessory.name,
+    'value': 'nerd_glasses',
+  },
+  {
+    'id': '26112025C',
+    'type': RedeemableCodeType.randomAccessory.name,
+    'value': 1,
+  },
+  {
+    'id': '26112025D',
+    'type': RedeemableCodeType.coin.name,
+    'value': 1,
+  },
+  {
+    'id': '26112025E',
+    'type': RedeemableCodeType.changeName.name,
+    'value': "NULLUSER",
+  }
+];
+
+//Mi lista de codigos canjeados
+List<String> redeemedCodes = [];
+
 //Preferencias y Configuraciones en general
 String accessoryPath = '';
 String language = 'en';
@@ -76,3 +110,16 @@ String _getPlatformName() {
   if (Platform.isLinux) return "linux";
   return "unknown";
 }
+
+//Tipos de codigos canjeables
+enum RedeemableCodeType {
+  accessory,
+  randomAccessory,
+  coin,
+  levelUp,
+  loveBoost,
+  message,
+  changeName,
+  unknown, // para manejar errores
+}
+

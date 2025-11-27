@@ -1,5 +1,4 @@
 import 'dart:math' show Random;
-import 'dart:convert' show json;
 
 //My imports
 import '../global_vars.dart' as gv;
@@ -29,19 +28,21 @@ bool buyAccessory() {
   return true;
 }
 
-/// Retorna empty (String vacio) si no se puede proceder,
-/// en otro caso retorna el item elegido aleatoriamente, 
-/// ejemplo: {"name":"item_name", "by": "This_is_just_an_example"}
-/// 
-/// El intem esta json.encode por lo que se puede json.decode para usar como Map<String, String>
-/// 
-/// Gasta el coin cuando se realiza exitosamente
-String buyTicketFor(List<Map<String, dynamic>> unlockedInventory){
-  if (gv.coins <= 0) return '';
-  if (unlockedInventory.isEmpty) return '';
-  gv.coins--;
-  int random = generateSecureRandom(unlockedInventory.length);
-  Map<String, dynamic> item = unlockedInventory[random];
-  String jsonItem = json.encode(item);
-  return jsonItem;
+bool unlockRandomAccessory() {
+  if (gv.unlockedInventory.isEmpty) return false;
+  int random = generateSecureRandom(gv.unlockedInventory.length);
+  gv.inventory.add(gv.unlockedInventory[random]);
+  gv.unlockedInventory.removeAt(random);
+  return true;
+}
+
+bool unlockAccessoryByName(String accessoryName) {
+  for (var accessory in gv.unlockedInventory) {
+    if (accessory['name'] == accessoryName) {
+      gv.inventory.add(accessory);
+      gv.unlockedInventory.remove(accessory);
+      return true;
+    }
+  }
+  return false;
 }
