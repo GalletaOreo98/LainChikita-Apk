@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 //My imports
+import '../classes/app_colors.dart';
 import '../functions/achievements_manager.dart';
 import '../functions/gacha_functions.dart';
 import '../functions/redeem_codes_functions.dart';
@@ -18,7 +19,7 @@ class GachaScreen extends StatefulWidget {
 class MyWidgetState extends State<GachaScreen> {
   /// Texto informativo sobre las acciones realizadas
   String _informativeText = '';
-  Color _informativeTextColor = appColors.informativeText;
+  Color _informativeTextColor = AppColors.informativeText;
   bool _showRedeemCode = false;
   final TextEditingController _redeemCodeTEC = TextEditingController(text: '');
 
@@ -27,19 +28,19 @@ class MyWidgetState extends State<GachaScreen> {
       bool isDone = buyAccessory();
       if (isDone) {
         _informativeText = languageDataManager.getLabel('accessory-purchased');
-        _informativeTextColor = appColors.informativeText;
+        _informativeTextColor = AppColors.informativeText;
         _saveInventories();
         _playAccessoryBoughtSound();
       } else {
         _informativeText = languageDataManager.getLabel('cannot-be-purchased');
-        _informativeTextColor = appColors.errorText;
+        _informativeTextColor = AppColors.errorText;
       }
     });
   }
 
   void _redeemCode(String code) async {
     setState(() {
-      _informativeTextColor = appColors.informativeText;
+      _informativeTextColor = AppColors.informativeText;
       _informativeText = "${languageDataManager.getLabel('processing-code')}...";
     });
     
@@ -48,23 +49,23 @@ class MyWidgetState extends State<GachaScreen> {
     setState(() {
       if (result.startsWith('accessory_unlocked')) {
         String unlockedAccessoryName = result.split(' ')[1];
-        _informativeTextColor = appColors.informativeText;
+        _informativeTextColor = AppColors.informativeText;
         _informativeText = '${languageDataManager.getLabel('accessory-unlocked')}: \n${languageDataManager.getAccessoryName(unlockedAccessoryName)}';
         _playRedeemCodeSound();
         _saveInventories();
       } else if (result.startsWith('accessory_already_unlocked')) {
         String accessoryName = result.split(' ')[1];
-        _informativeTextColor = appColors.errorText;
+        _informativeTextColor = AppColors.errorText;
         _informativeText = '${languageDataManager.getLabel('already-have-this-item')}: \n${languageDataManager.getAccessoryName(accessoryName)}';
       } else if (result == 'cannot_unlock_more_accessories') {
-        _informativeTextColor = appColors.errorText;
+        _informativeTextColor = AppColors.errorText;
         _informativeText = languageDataManager.getLabel('all-accessories-unlocked');
       } else if (result == 'invalid_code') {
-        _informativeTextColor = appColors.errorText;
+        _informativeTextColor = AppColors.errorText;
         _informativeText = languageDataManager.getLabel('error-invalid-data');
       }
       else if (result == 'already_redeemed') {
-        _informativeTextColor = appColors.errorText;
+        _informativeTextColor = AppColors.errorText;
         _informativeText = languageDataManager.getLabel('code-already-redeemed');
       }
       _showRedeemCode = false;
@@ -91,7 +92,7 @@ class MyWidgetState extends State<GachaScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        color: appColors.background,
+        color: AppColors.background,
         child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
@@ -113,9 +114,9 @@ class MyWidgetState extends State<GachaScreen> {
                           TableCell(
                               verticalAlignment: TableCellVerticalAlignment.middle,
                               child: Text(' x $coins',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 25.0,
-                                    color: appColors.primaryText,
+                                    color: AppColors.primaryText,
                                   )))
                         ],
                       ),
@@ -126,19 +127,19 @@ class MyWidgetState extends State<GachaScreen> {
                   ? '${languageDataManager.getLabel('locked-accessories')} x ${unlockedInventory.length}'
                   : languageDataManager.getLabel('all-accessories-unlocked'),
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 25.0,
-                      color: appColors.primaryText,
+                      color: AppColors.primaryText,
                     )),
                 const SizedBox(height: 32),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       minimumSize: const Size(380, 80),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                      backgroundColor: appColors.primaryBtn, padding: const EdgeInsets.all(20.0)),
+                      backgroundColor: AppColors.primaryBtn, padding: const EdgeInsets.all(20.0)),
                   onPressed: _buySkin,
                   child: Text(languageDataManager.getLabel('buy-accessory'), 
-                      style: TextStyle(color: appColors.primaryText, fontSize: 34.0), 
+                      style: const TextStyle(color: AppColors.primaryText, fontSize: 34.0), 
                       textAlign: TextAlign.center),
                 ),
                 const SizedBox(height: 16),
@@ -146,7 +147,7 @@ class MyWidgetState extends State<GachaScreen> {
                   style: ElevatedButton.styleFrom(
                       minimumSize: const Size(380, 80),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                      backgroundColor: appColors.secondaryBtn, padding: const EdgeInsets.all(20.0)),
+                      backgroundColor: AppColors.secondaryBtn, padding: const EdgeInsets.all(20.0)),
                   onPressed: () => setState(() {
                     _showRedeemCode = !_showRedeemCode;
                     if (!_showRedeemCode) {
@@ -155,7 +156,7 @@ class MyWidgetState extends State<GachaScreen> {
                     }
                   }),
                   child: Text(languageDataManager.getLabel('redeem-code'), 
-                      style: TextStyle(color: appColors.primaryText, fontSize: 34.0), 
+                      style: const TextStyle(color: AppColors.primaryText, fontSize: 34.0), 
                       textAlign: TextAlign.center),
                 ),
                 if (_showRedeemCode)
@@ -165,7 +166,7 @@ class MyWidgetState extends State<GachaScreen> {
                       TextField(
                         controller: _redeemCodeTEC,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: appColors.userInputText, fontSize: 35.0),
+                        style: const TextStyle(color: AppColors.userInputText, fontSize: 35.0),
                         decoration: InputDecoration(
                             suffixIcon: IconButton(
                               onPressed: () => {
@@ -174,14 +175,14 @@ class MyWidgetState extends State<GachaScreen> {
                                 FocusManager.instance.primaryFocus?.unfocus()
                               },
                               icon: const Icon(Icons.done),
-                              color: appColors.userInputText
+                              color: AppColors.userInputText
                             ),
                             labelText: languageDataManager.getLabel('enter-code'),
-                            labelStyle: TextStyle(color: appColors.primaryText, fontSize: 20),
+                            labelStyle: const TextStyle(color: AppColors.primaryText, fontSize: 20),
                             floatingLabelAlignment: FloatingLabelAlignment.center,
-                            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: appColors.focusItem)),
+                            focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.focusItem)),
                             enabledBorder:
-                                UnderlineInputBorder(borderSide: BorderSide(color: appColors.userInputText))),
+                                const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.userInputText))),
                         onSubmitted: (value) => _redeemCode(value),
                         onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
                       ),

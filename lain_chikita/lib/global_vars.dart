@@ -97,7 +97,7 @@ String accessoryPath = '';
 String language = 'en';
 LanguageDataManager languageDataManager = LanguageDataManager();
 AppAudioPlayer appAudioPlayer = AppAudioPlayer();
-AppColors appColors = AppColors();
+final AppColors appColors = AppColors();
 String platformName = _getPlatformName();
 Directory appDirectoryStorage = Directory.current; //Debes ser inicializado despues
 

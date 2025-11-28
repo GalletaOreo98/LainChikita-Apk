@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:games_services/games_services.dart';
 
 // My imports
+import '../classes/app_colors.dart';
 import '../functions/achievements_manager.dart';
 import '../functions/prefs_version_manager.dart';
 import '../global_vars.dart';
@@ -238,28 +239,28 @@ class MyWidgetState extends State<EncryptionScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: appColors.background,
+          backgroundColor: AppColors.background,
           title: Text(
             languageDataManager.getLabel('confirm-save-progress'),
-            style: TextStyle(color: appColors.primaryText, fontSize: 24.0),
+            style: const TextStyle(color: AppColors.primaryText, fontSize: 24.0),
           ),
           content: Text(
             languageDataManager.getLabel('save-progress-overwrite-alert'),
-            style: TextStyle(color: appColors.primaryText, fontSize: 24.0),
+            style: const TextStyle(color: AppColors.primaryText, fontSize: 24.0),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
               child: Text(
                 languageDataManager.getLabel('cancel'),
-                style: TextStyle(color: appColors.primaryText, fontSize: 30.0),
+                style: const TextStyle(color: AppColors.primaryText, fontSize: 30.0),
               ),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               child: Text(
                 languageDataManager.getLabel('save'),
-                style: TextStyle(color: appColors.focusItem, fontSize: 30.0),
+                style: const TextStyle(color: AppColors.focusItem, fontSize: 30.0),
               ),
             ),
           ],
@@ -325,28 +326,28 @@ class MyWidgetState extends State<EncryptionScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: appColors.background,
+          backgroundColor: AppColors.background,
           title: Text(
             languageDataManager.getLabel('confirm-load-progress'),
-            style: TextStyle(color: appColors.primaryText, fontSize: 24.0),
+            style: const TextStyle(color: AppColors.primaryText, fontSize: 24.0),
           ),
           content: Text(
             languageDataManager.getLabel('load-progress-overwrite-alert'),
-            style: TextStyle(color: appColors.primaryText, fontSize: 24.0),
+            style: const TextStyle(color: AppColors.primaryText, fontSize: 24.0),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
               child: Text(
                 languageDataManager.getLabel('cancel'),
-                style: TextStyle(color: appColors.primaryText, fontSize: 30.0),
+                style: const TextStyle(color: AppColors.primaryText, fontSize: 30.0),
               ),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               child: Text(
                 languageDataManager.getLabel('load'),
-                style: TextStyle(color: appColors.focusItem, fontSize: 30.0),
+                style: const TextStyle(color: AppColors.focusItem, fontSize: 30.0),
               ),
             ),
           ],
@@ -484,7 +485,7 @@ class MyWidgetState extends State<EncryptionScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        color: appColors.background,
+        color: AppColors.background,
         child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: SingleChildScrollView(
@@ -493,7 +494,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                     style: ElevatedButton.styleFrom(
                         minimumSize: const Size(380, 80),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                        backgroundColor: appColors.secondaryBtn,
+                        backgroundColor: AppColors.secondaryBtn,
                         padding: const EdgeInsets.all(10.0)),
                     onPressed: _backupMyData,
                     onLongPress: () => setState(() {
@@ -501,7 +502,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                         }),
                     child: Text(languageDataManager.getLabel('backup'),
                         style: TextStyle(
-                          color: appColors.primaryText,
+                          color: AppColors.primaryText,
                           fontSize: 34.0,
                         ),
                         textAlign: TextAlign.center)),
@@ -512,7 +513,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                       TextField(
                         controller: _backupDataTEC,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: appColors.userInputText, fontSize: 35.0),
+                        style: TextStyle(color: AppColors.userInputText, fontSize: 35.0),
                         decoration: InputDecoration(
                             suffixIcon: IconButton(
                                 onPressed: () => {
@@ -521,13 +522,13 @@ class MyWidgetState extends State<EncryptionScreen> {
                                       FocusManager.instance.primaryFocus?.unfocus()
                                     },
                                 icon: const Icon(Icons.done),
-                                color: appColors.userInputText),
+                                color: AppColors.userInputText),
                             labelText: languageDataManager.getLabel('paste-backup-data'),
-                            labelStyle: TextStyle(color: appColors.primaryText, fontSize: 20),
+                            labelStyle: TextStyle(color: AppColors.primaryText, fontSize: 20),
                             floatingLabelAlignment: FloatingLabelAlignment.center,
-                            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: appColors.focusItem)),
+                            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.focusItem)),
                             enabledBorder:
-                                UnderlineInputBorder(borderSide: BorderSide(color: appColors.userInputText))),
+                                UnderlineInputBorder(borderSide: BorderSide(color: AppColors.userInputText))),
                         onSubmitted: (value) => setState(() {_applyBackup(value);}),
                         onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
                       ),
@@ -538,11 +539,11 @@ class MyWidgetState extends State<EncryptionScreen> {
                   style: ElevatedButton.styleFrom(
                       minimumSize: const Size(380, 80),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                      backgroundColor: appColors.primaryBtn,
+                      backgroundColor: AppColors.primaryBtn,
                       padding: const EdgeInsets.all(10.0)),
                   onPressed: () => _encryptImages(),
                   child: Text(languageDataManager.getLabel('encrypt-files'),
-                      style: TextStyle(color: appColors.primaryText, fontSize: 34.0), textAlign: TextAlign.center),
+                      style: TextStyle(color: AppColors.primaryText, fontSize: 34.0), textAlign: TextAlign.center),
                 ), */
                 const SizedBox(height: 8),
                 ElevatedButton(
@@ -557,8 +558,8 @@ class MyWidgetState extends State<EncryptionScreen> {
                       _isSignedIn 
                         ? languageDataManager.getLabel('connected') 
                         : languageDataManager.getLabel('connect-with-google'),
-                      style: TextStyle(
-                        color: appColors.primaryText, 
+                      style: const TextStyle(
+                        color: AppColors.primaryText, 
                         fontSize: 34.0
                       ), 
                       textAlign: TextAlign.center),
@@ -575,7 +576,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                     _showAchievements();
                   } : null,
                   child: Text( languageDataManager.getLabel('achievements'),
-                      style: TextStyle(color: _isSignedIn ? appColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
+                      style: TextStyle(color: _isSignedIn ? AppColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
                 ),
                 const SizedBox(height: 8),
                 ElevatedButton(
@@ -589,7 +590,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                     _showLeaderboards();
                   } : null,
                   child: Text(languageDataManager.getLabel('leaderboards'),
-                      style: TextStyle(color: _isSignedIn ? appColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
+                      style: TextStyle(color: _isSignedIn ? AppColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
                 ),
 
 
@@ -607,7 +608,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                         }
                       : null,
                   child: Text(languageDataManager.getLabel('save-progress'),
-                      style: TextStyle(color: (_isSignedIn && userName != "NULLUSER") ? appColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
+                      style: TextStyle(color: (_isSignedIn && userName != "NULLUSER") ? AppColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
                 ),
                 const SizedBox(height: 8),
                 ElevatedButton(
@@ -623,18 +624,18 @@ class MyWidgetState extends State<EncryptionScreen> {
                     }
                      : null,
                   child: Text(languageDataManager.getLabel('load-progress'),
-                      style: TextStyle(color: _isSignedIn ? appColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
+                      style: TextStyle(color: _isSignedIn ? AppColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
                 ),
 /*                 const SizedBox(height: 8),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       minimumSize: const Size(380, 80),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                      backgroundColor: appColors.primaryBtn,
+                      backgroundColor: AppColors.primaryBtn,
                       padding: const EdgeInsets.all(10.0)),
                   onPressed: () => _encryptImages(),
                   child: Text(languageDataManager.getLabel('encrypt-files'),
-                      style: TextStyle(color: appColors.primaryText, fontSize: 34.0), textAlign: TextAlign.center),
+                      style: TextStyle(color: AppColors.primaryText, fontSize: 34.0), textAlign: TextAlign.center),
                 ),
                  */
 
@@ -643,9 +644,9 @@ class MyWidgetState extends State<EncryptionScreen> {
                 const SizedBox(height: 8),
                 Text(_informativeText,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 32.0,
-                      color: appColors.informativeText,
+                      color: AppColors.informativeText,
                     ))
               ]),
             )));

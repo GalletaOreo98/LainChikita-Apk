@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 //My imports
+import '../classes/app_colors.dart';
 import '../functions/achievements_manager.dart';
 import '../global_vars.dart';
 
@@ -27,7 +28,7 @@ class MyWidgetState extends State<InventoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: appColors.background,
+      color: AppColors.background,
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: ListView.builder(
@@ -46,8 +47,8 @@ class MyWidgetState extends State<InventoryScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: isCurrentAccessory 
-                      ? appColors.inventoryItemSelected
-                      : appColors.inventoryItem,
+                      ? AppColors.inventoryItemSelected
+                      : AppColors.inventoryItem,
                     borderRadius: BorderRadius.circular(5.0),
                   ),
                   child: Padding(
@@ -60,9 +61,9 @@ class MyWidgetState extends State<InventoryScreen> {
                         cursor: SystemMouseCursors.click,
                         child: Text(
                           languageDataManager.getAccessoryName(inventory[index]['name']),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 34.0,
-                            color: appColors.primaryText,
+                            color: AppColors.primaryText,
                             letterSpacing: 0.5,
                           ),
                         ),
