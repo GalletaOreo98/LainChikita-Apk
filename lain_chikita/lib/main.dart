@@ -52,6 +52,17 @@ class _MyAppState extends State<MyApp> {
   /// Cuando el usuario actualiza la aplicacion a una nueva versión de [inventoryVersion] se mostrará la animación
   bool wasUpdated = false;
 
+  // Anti-cheat variables
+  final List<int> _clickTimes = [];
+  int _lastClickTime = 0;
+  int _suspiciousClickCount = 0;
+  bool _isBlocked = false;
+  int _blockStartTime = 0; // Tiempo cuando comenzó el bloqueo
+  static const int _maxClicksPerSecond = 12; // Máximo 12 clics por segundo
+  static const int _minClickInterval = 80; // Mínimo 80ms entre clics (previene clic burst "picos especificos")
+  static const int _maxSuspiciousClicks = 20; // Después de 20 clics sospechosos, bloquear temporalmente
+  static const int _blockDurationMs = 10000; // 10 segundos de bloqueo
+
   @override
   void initState() {
     super.initState();
@@ -215,7 +226,87 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  /// Verifica si el clic es válido según las reglas anti-cheat
+  bool _isValidClick() {
+    final currentTime = DateTime.now().millisecondsSinceEpoch;
+    
+    // Si está bloqueado temporalmente, rechazar el clic
+    if (_isBlocked) {
+      // Desbloquear después del tiempo de bloqueo usando _blockStartTime
+      if (currentTime - _blockStartTime > _blockDurationMs) {
+        _isBlocked = false;
+        _suspiciousClickCount = 0;
+        _blockStartTime = 0;
+      } else {
+        return false;
+      }
+    }
+
+    // Verificar tiempo mínimo entre clics (50ms)
+    if (_lastClickTime > 0 && currentTime - _lastClickTime < _minClickInterval) {
+      _suspiciousClickCount++;
+      if (_suspiciousClickCount >= _maxSuspiciousClicks) {
+        _isBlocked = true;
+        _blockStartTime = currentTime; // Establecer cuándo comenzó el bloqueo
+        if (kDebugMode) debugPrint('Usuario bloqueado temporalmente por clics muy rápidos');
+      }
+      return false;
+    }
+
+    // Mantener historial de clics del último segundo
+    _clickTimes.removeWhere((time) => currentTime - time > 1000);
+    
+    // Verificar límite de clics por segundo
+    if (_clickTimes.length >= _maxClicksPerSecond) {
+      _suspiciousClickCount++;
+      if (_suspiciousClickCount >= _maxSuspiciousClicks) {
+        _isBlocked = true;
+        _blockStartTime = currentTime; // Establecer cuándo comenzó el bloqueo
+        if (kDebugMode) debugPrint('Usuario bloqueado temporalmente por demasiados clics por segundo');
+      }
+      return false;
+    }
+
+    // Detectar patrones de autoclicker (intervalos muy regulares)
+    if (_clickTimes.length >= 5) {
+      List<int> intervals = [];
+      for (int i = 1; i < _clickTimes.length; i++) {
+        intervals.add(_clickTimes[i] - _clickTimes[i - 1]);
+      }
+      
+      // Si todos los intervalos son muy similares (diferencia < 10ms), es sospechoso
+      final avgInterval = intervals.reduce((a, b) => a + b) / intervals.length;
+      final maxDeviation = intervals.map((interval) => (interval - avgInterval).abs()).reduce((a, b) => a > b ? a : b);
+      
+      if (maxDeviation < 10 && avgInterval < 200) {
+        _suspiciousClickCount += 2; // Penalizar más los patrones regulares
+        if (_suspiciousClickCount >= _maxSuspiciousClicks) {
+          _isBlocked = true;
+          _blockStartTime = currentTime; // Establecer cuándo comenzó el bloqueo
+          if (kDebugMode) debugPrint('Usuario bloqueado temporalmente por patrón de autoclicker detectado');
+        }
+        return false;
+      }
+    }
+
+    // Si el clic es válido, actualizar datos
+    _clickTimes.add(currentTime);
+    _lastClickTime = currentTime;
+    
+    // Reducir contador de clics sospechosos si el comportamiento es normal
+    if (_suspiciousClickCount > 0) {
+      _suspiciousClickCount--;
+    }
+    
+    return true;
+  }
+
   void _incrementProgress() {
+    // Verificar anti-cheat antes de procesar el clic
+    if (!_isValidClick()) {
+      return; // Rechazar el clic si no es válido
+    }
+    
     _playLoveBtnSound();
     setState(() {
       progress += 1;
