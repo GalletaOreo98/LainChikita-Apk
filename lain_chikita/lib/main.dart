@@ -277,6 +277,8 @@ class _MyAppState extends State<MyApp> {
         });
       }
     });
+    
+    unlockAchievementById("CgkI8NLzkooQEAIQBg"); // "God is Watching You" achievement
   }
 
   /// Verifica si el clic es válido según las reglas anti-cheat
