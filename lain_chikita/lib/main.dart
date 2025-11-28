@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart' show AudioPlayer, PlayerMode, ReleaseMode;
 import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'
@@ -9,6 +10,7 @@ import 'package:games_services/games_services.dart';
 
 
 //My imports
+import 'classes/app_colors.dart';
 import 'functions/achievements_manager.dart';
 import 'functions/prefs_version_manager.dart';
 import 'global_vars.dart';
@@ -44,6 +46,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late PageController _pageController;
   final focusNode = FocusNode();
+  static final AudioPlayer loveBtnLowLatencyPlayer = AudioPlayer(playerId: 'loveBtnLowLatencyPlayer');
+
   String _appBackground = 'background-night';
   /// Para mostrar decoraciones cuando haya fechas especiales
   bool _specialEvent = false;
@@ -57,11 +61,11 @@ class _MyAppState extends State<MyApp> {
   int _lastClickTime = 0;
   int _suspiciousClickCount = 0;
   bool _isBlocked = false;
-  int _blockStartTime = 0; // Tiempo cuando comenzó el bloqueo
   static const int _maxClicksPerSecond = 12; // Máximo 12 clics por segundo
   static const int _minClickInterval = 80; // Mínimo 80ms entre clics (previene clic burst "picos especificos")
   static const int _maxSuspiciousClicks = 20; // Después de 20 clics sospechosos, bloquear temporalmente
-  static const int _blockDurationMs = 10000; // 10 segundos de bloqueo
+  static const int _blockDurationMs = 30000; // 30 segundos de bloqueo
+  static const String _appBackgroundCheater = 'background-cheater';
 
   @override
   void initState() {
@@ -144,6 +148,8 @@ class _MyAppState extends State<MyApp> {
         writeAThankUTxt();
       }
     });
+    //Inicializa el reproductor de baja latencia
+    await _initLoveBtnLowLatencyPlayer();
   }
 
   //Funcion posible para optimizar dividiendola en varios tipos de save
@@ -197,8 +203,21 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  Future<void> _initLoveBtnLowLatencyPlayer() async {
+    // Configurar el reproductor de baja latencia
+    if (kDebugMode) debugPrint('Configuring loveBtnLowLatencyPlayer...');
+    await loveBtnLowLatencyPlayer.setPlayerMode(PlayerMode.lowLatency);
+    await loveBtnLowLatencyPlayer.setReleaseMode(ReleaseMode.stop);
+    await loveBtnLowLatencyPlayer.setSourceAsset('audio/btn_sound.mp3');
+  }
+
   Future<void> _playLoveBtnSound() async {
-    await appAudioPlayer.playSound('audio/btn_sound.mp3');
+    try {
+      await loveBtnLowLatencyPlayer.stop();
+      await loveBtnLowLatencyPlayer.resume();
+    } catch (e) {
+      return Future.value();
+    }
   }
 
   Future<void> _playLevelUpSound() async {
@@ -206,8 +225,14 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _playUpdatedSound() async {
-    if (wasUpdated) await appAudioPlayer.playSound('audio/updated_sound.mp3');
+    if (wasUpdated) await appAudioPlayer.playSound3('audio/updated_sound.mp3');
   }
+
+  Future<void> _playCheaterScreenSound() async {
+    await appAudioPlayer.playSound3('audio/cheater_screen_sound.mp3');
+  }
+
+  
 
   bool _isMoorning() {
     final hour = DateTime.now().hour;
@@ -226,28 +251,48 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  /// Muestra la pantalla de bloqueo anti-cheat
+  void _showAntiCheatBlock() {
+    _playCheaterScreenSound();
+    setState(() {
+      _appBackground = _appBackgroundCheater;
+      _isBlocked = true;
+    });
+    
+    // Auto-desbloquear después del tiempo de penalización
+    Future.delayed(const Duration(milliseconds: _blockDurationMs), () {
+      if (mounted) {
+        setState(() {
+          _isBlocked = false;
+          _suspiciousClickCount = 0;
+        });
+      }
+    });
+
+    // Restaurar el fondo original después del bloqueo + 16 segundos
+    Future.delayed(const Duration(milliseconds: _blockDurationMs + 16000), () {
+      if (mounted) {
+        setState(() {
+          _appBackground = _isMoorning() ? 'background-day' : 'background-night';
+        });
+      }
+    });
+  }
+
   /// Verifica si el clic es válido según las reglas anti-cheat
   bool _isValidClick() {
     final currentTime = DateTime.now().millisecondsSinceEpoch;
     
     // Si está bloqueado temporalmente, rechazar el clic
     if (_isBlocked) {
-      // Desbloquear después del tiempo de bloqueo usando _blockStartTime
-      if (currentTime - _blockStartTime > _blockDurationMs) {
-        _isBlocked = false;
-        _suspiciousClickCount = 0;
-        _blockStartTime = 0;
-      } else {
-        return false;
-      }
+      return false; // El auto-desbloqueo se maneja en _showAntiCheatBlock
     }
 
-    // Verificar tiempo mínimo entre clics (50ms)
+    // Verificar tiempo mínimo entre clics
     if (_lastClickTime > 0 && currentTime - _lastClickTime < _minClickInterval) {
       _suspiciousClickCount++;
       if (_suspiciousClickCount >= _maxSuspiciousClicks) {
-        _isBlocked = true;
-        _blockStartTime = currentTime; // Establecer cuándo comenzó el bloqueo
+        _showAntiCheatBlock();
         if (kDebugMode) debugPrint('Usuario bloqueado temporalmente por clics muy rápidos');
       }
       return false;
@@ -260,8 +305,7 @@ class _MyAppState extends State<MyApp> {
     if (_clickTimes.length >= _maxClicksPerSecond) {
       _suspiciousClickCount++;
       if (_suspiciousClickCount >= _maxSuspiciousClicks) {
-        _isBlocked = true;
-        _blockStartTime = currentTime; // Establecer cuándo comenzó el bloqueo
+        _showAntiCheatBlock();
         if (kDebugMode) debugPrint('Usuario bloqueado temporalmente por demasiados clics por segundo');
       }
       return false;
@@ -281,8 +325,7 @@ class _MyAppState extends State<MyApp> {
       if (maxDeviation < 10 && avgInterval < 200) {
         _suspiciousClickCount += 2; // Penalizar más los patrones regulares
         if (_suspiciousClickCount >= _maxSuspiciousClicks) {
-          _isBlocked = true;
-          _blockStartTime = currentTime; // Establecer cuándo comenzó el bloqueo
+          _showAntiCheatBlock();
           if (kDebugMode) debugPrint('Usuario bloqueado temporalmente por patrón de autoclicker detectado');
         }
         return false;
@@ -382,7 +425,7 @@ class _MyAppState extends State<MyApp> {
                             controller: _userNameTEC,
                             textAlign: TextAlign.center,
                             maxLength: 15,
-                            style: TextStyle(color: appColors.nameLabel, fontSize: 34.0),
+                            style: const TextStyle(color: AppColors.nameLabel, fontSize: 34.0),
                             decoration: InputDecoration(
                                 suffixIcon: IconButton(
                                     onPressed: () => setState(() {
@@ -392,13 +435,13 @@ class _MyAppState extends State<MyApp> {
                                           FocusManager.instance.primaryFocus?.unfocus();
                                         }),
                                     icon: const Icon(Icons.done),
-                                    color: appColors.focusItem),
+                                    color: AppColors.focusItem),
                                 labelText: languageDataManager.getLabel('new-user-name'),
-                                labelStyle: TextStyle(color: appColors.primaryText, fontSize: 34.0),
+                                labelStyle: const TextStyle(color: AppColors.primaryText, fontSize: 34.0),
                                 floatingLabelAlignment: FloatingLabelAlignment.center,
-                                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: appColors.focusItem)),
+                                focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.focusItem)),
                                 enabledBorder:
-                                    UnderlineInputBorder(borderSide: BorderSide(color: appColors.userInputText))),
+                                    const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.userInputText))),
                             onSubmitted: (value) =>
                                 setState(() {userName = value; _saveProgress(); writeAThankUTxt();}),
                             onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
@@ -413,9 +456,9 @@ class _MyAppState extends State<MyApp> {
                                 Text(
                                   userName,
                                   textAlign: TextAlign.start,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 48.0,
-                                    color: appColors.nameLabel,
+                                    color: AppColors.nameLabel,
                                   ),
                                 )
                               ],
@@ -475,33 +518,35 @@ class _MyAppState extends State<MyApp> {
                             children: [
                               Text(
                                 '${languageDataManager.getLabel('level')} $level',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 40.0,
-                                  color: appColors.primaryText,
+                                  color: AppColors.primaryText,
                                 ),
                               ),
-                              const SizedBox(height: 8.0),
-                              SizedBox(
-                                height: 16.0,
-                                width: 250.0,
-                                child: LinearProgressIndicator(
-                                  value: progress / _maxProgress,
-                                  backgroundColor: appColors.loveBarOpposite,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    appColors.loveBar,
+                              if (userName != "NULLUSER") ...[
+                                const SizedBox(height: 8.0),
+                                SizedBox(
+                                  height: 16.0,
+                                  width: 250.0,
+                                  child: LinearProgressIndicator(
+                                    value: progress / _maxProgress,
+                                    backgroundColor: AppColors.loveBarOpposite,
+                                    valueColor: const AlwaysStoppedAnimation<Color>(
+                                      AppColors.loveBar,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 8.0),
-                              FloatingActionButton(
-                                backgroundColor: appColors.loveBtn,
-                                onPressed: _incrementProgress,
-                                shape: const CircleBorder(),
-                                child: Icon(
-                                  Icons.favorite,
-                                  color: appColors.loveBtnOpposite,
+                                const SizedBox(height: 8.0),
+                                FloatingActionButton(
+                                  backgroundColor: AppColors.loveBtn,
+                                  onPressed: _incrementProgress,
+                                  shape: const CircleBorder(),
+                                  child: const Icon(
+                                    Icons.favorite,
+                                    color: AppColors.loveBtnOpposite,
+                                  ),
                                 ),
-                              ),
+                              ],
                             ],
                           ),
                         ),
@@ -520,9 +565,35 @@ class _MyAppState extends State<MyApp> {
             ignoring: true,
             child: Image.asset(
               'assets/images/snowing.gif',
-              fit: BoxFit.cover, // O ajusta según tus necesidades
+              fit: BoxFit.cover,
             ),
           ),
+          // Pantalla de bloqueo anti-cheat (debe ir al final para estar encima de todo)
+          if (_isBlocked)
+          Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/$_appBackgroundCheater.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+              child: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "God is watching you \n But you don't need to be afraid",
+                      style: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.errorText,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],)));
   }
 }

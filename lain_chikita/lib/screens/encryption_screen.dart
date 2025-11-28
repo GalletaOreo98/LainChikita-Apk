@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert' show json, jsonDecode;
+import 'dart:async';
 //import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:games_services/games_services.dart';
@@ -29,6 +30,7 @@ class MyWidgetState extends State<EncryptionScreen> {
   //bool _showBackupTextBox = false;
   bool _isSignedIn = false;
   //final TextEditingController _backupDataTEC = TextEditingController(text: '');
+  Timer? _hideTextTimer;
 
   void _updateUI() {
     // Llamada a la función de callback
@@ -44,13 +46,17 @@ class MyWidgetState extends State<EncryptionScreen> {
   void _checkSignInStatus() async {
     try {
       final isSignedIn = await GameAuth.isSignedIn;
-      setState(() {
-        _isSignedIn = isSignedIn;
-      });
+      if (mounted) {
+        setState(() {
+          _isSignedIn = isSignedIn;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _isSignedIn = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isSignedIn = false;
+        });
+      }
     }
   }
 
@@ -177,57 +183,73 @@ class MyWidgetState extends State<EncryptionScreen> {
     try {
       await GameAuth.signIn();
       _checkSignInStatus(); // Actualizar el estado de sign-in
-      setState(() {
-        _informativeText = "${languageDataManager.getLabel('completed').toUpperCase()}: Game Services Sign In";
-        hideInformativeText(3);
-      });
+      if (mounted) {
+        setState(() {
+          _informativeText = "${languageDataManager.getLabel('completed').toUpperCase()}: Game Services Sign In";
+          hideInformativeText(3);
+        });
+      }
     } catch (e) {
-      setState(() {
-        _informativeText = "Error: $e";
-        hideInformativeText(5);
-      });
+      if (mounted) {
+        setState(() {
+          _informativeText = "Error: $e";
+          hideInformativeText(5);
+        });
+      }
     }
   }
 
   void _showAchievements() async {
     try {
-      setState(() {
-        _isWorking = true;
-        _informativeText = "${languageDataManager.getLabel('loading')}...";
-      });
+      if (mounted) {
+        setState(() {
+          _isWorking = true;
+          _informativeText = "${languageDataManager.getLabel('loading')}...";
+        });
+      }
       await Achievements.showAchievements();
-      setState(() {
-        _isWorking = false;
-        //_informativeText = languageDataManager.getLabel('completed');
-        hideInformativeText(3);
-      });
+      if (mounted) {
+        setState(() {
+          _isWorking = false;
+          //_informativeText = languageDataManager.getLabel('completed');
+          hideInformativeText(3);
+        });
+      }
     } catch (e) {
-      setState(() {
-        _isWorking = false;
-        _informativeText = "Error: $e";
-        hideInformativeText(5);
-      });
+      if (mounted) {
+        setState(() {
+          _isWorking = false;
+          _informativeText = "Error: $e";
+          hideInformativeText(5);
+        });
+      }
     }
   }
 
   void _showLeaderboards() async {
     try {
-      setState(() {
-        _isWorking = true;
-        _informativeText = "${languageDataManager.getLabel('loading')}...";
-      });
+      if (mounted) {
+        setState(() {
+          _isWorking = true;
+          _informativeText = "${languageDataManager.getLabel('loading')}...";
+        });
+      }
       await Leaderboards.showLeaderboards(androidLeaderboardID: 'CgkI8NLzkooQEAIQDA'); // Cookies Leaderboard
-      setState(() {
-        _isWorking = false;
-        //_informativeText = languageDataManager.getLabel('completed');
-        hideInformativeText(3);
-      });
+      if (mounted) {
+        setState(() {
+          _isWorking = false;
+          //_informativeText = languageDataManager.getLabel('completed');
+          hideInformativeText(3);
+        });
+      }
     } catch (e) {
-      setState(() {
-        _isWorking = false;
-        _informativeText = "Error: $e";
-        hideInformativeText(5);
-      });
+      if (mounted) {
+        setState(() {
+          _isWorking = false;
+          _informativeText = "Error: $e";
+          hideInformativeText(5);
+        });
+      }
     }
   }
 
@@ -275,10 +297,12 @@ class MyWidgetState extends State<EncryptionScreen> {
 
     try {
       _playAcceptPopupSound();
-      setState(() {
-        _isWorking = true;
-        _informativeText = "${languageDataManager.getLabel('packing-data')}...";
-      });
+      if (mounted) {
+        setState(() {
+          _isWorking = true;
+          _informativeText = "${languageDataManager.getLabel('packing-data')}...";
+        });
+      }
       // Formateo de los inventarios a json
       final jsonInventory = json.encode(inventory);
       final jsonUnlockedInventory = json.encode(unlockedInventory);
@@ -297,26 +321,34 @@ class MyWidgetState extends State<EncryptionScreen> {
       };
       final data = json.encode(gameData);
       //print('Saving game data: $data');
-      setState(() {_informativeText = "${languageDataManager.getLabel('sending-data')}...";});
+      if (mounted) {
+        setState(() {_informativeText = "${languageDataManager.getLabel('sending-data')}...";});
+      }
       await GameAuth.signIn();
       
       await SaveGame.saveGame(data: data, name: "slot1");
 
-      setState(() {_informativeText = languageDataManager.getLabel('data-sent');});
+      if (mounted) {
+        setState(() {_informativeText = languageDataManager.getLabel('data-sent');});
+      }
 
       await unlockAchievementById("CgkI8NLzkooQEAIQBw"); // KeepYourLoveSafe achievement
 
-      setState(() {
-        _isWorking = false;
-        _informativeText = languageDataManager.getLabel('save-progress-successful');
-        hideInformativeText(4);
-      });
+      if (mounted) {
+        setState(() {
+          _isWorking = false;
+          _informativeText = languageDataManager.getLabel('save-progress-successful');
+          hideInformativeText(4);
+        });
+      }
     } catch (e) {
-      setState(() {
-        _isWorking = false;
-        _informativeText = "Error saving data: $e";
-        hideInformativeText(5);
-      });
+      if (mounted) {
+        setState(() {
+          _isWorking = false;
+          _informativeText = "Error saving data: $e";
+          hideInformativeText(5);
+        });
+      }
     }
   }
 
@@ -362,20 +394,28 @@ class MyWidgetState extends State<EncryptionScreen> {
 
     try {
       _playAcceptPopupSound();
-      setState(() {
-        _isWorking = true;
-      });
+      if (mounted) {
+        setState(() {
+          _isWorking = true;
+        });
+      }
       await GameAuth.signIn();
 
       
-      setState(() {_informativeText = "${languageDataManager.getLabel('receiving-data')}...";});
+      if (mounted) {
+        setState(() {_informativeText = "${languageDataManager.getLabel('receiving-data')}...";});
+      }
         
       final saveData = await SaveGame.loadGame(name: "slot1");
       
-      setState(() {_informativeText = languageDataManager.getLabel('data-received');});
+      if (mounted) {
+        setState(() {_informativeText = languageDataManager.getLabel('data-received');});
+      }
         
       if (saveData != null) {
-        setState(() {_informativeText = "${languageDataManager.getLabel('ordering-data')}...";});
+        if (mounted) {
+          setState(() {_informativeText = "${languageDataManager.getLabel('ordering-data')}...";});
+        }
         Map<String, dynamic> gameData = Map<String, dynamic>.from(json.decode(saveData));
         String userNameD = gameData['userName'] ?? '';
         String userUuidD = gameData['userUuid'] ?? '';
@@ -398,7 +438,9 @@ class MyWidgetState extends State<EncryptionScreen> {
           inventoryVersionD = inventoryVersion;
         }
         
-        setState(() {_informativeText = "${languageDataManager.getLabel('applying-data')}...";});
+        if (mounted) {
+          setState(() {_informativeText = "${languageDataManager.getLabel('applying-data')}...";});
+        }
 
         // Save all progress to SharedPreferences
         final prefs = await SharedPreferences.getInstance();
@@ -418,7 +460,9 @@ class MyWidgetState extends State<EncryptionScreen> {
         final jsonUnlockedInventory = json.encode(unlockedInventoryD);
         await prefs.setString('unlockedInventory', jsonUnlockedInventory);
 
-        setState(() {_informativeText = "${languageDataManager.getLabel('loading-achievements')}...";});
+        if (mounted) {
+          setState(() {_informativeText = "${languageDataManager.getLabel('loading-achievements')}...";});
+        }
 
         // Cargar achievements a la variable global
         await loadAchievementsToGlobalVars();
@@ -427,43 +471,51 @@ class MyWidgetState extends State<EncryptionScreen> {
 
         if (coins >= 1) await unlockAchievementById("CgkI8NLzkooQEAIQCw"); // "I have lost it all" achievement
 
-        setState(() {_informativeText = "${languageDataManager.getLabel('updating-ui')}...";});
+        if (mounted) {
+          setState(() {_informativeText = "${languageDataManager.getLabel('updating-ui')}...";});
+        }
           
         // Actualizar UI
-        setState(() {
-          coins = 0;
-          userName = userNameD;
-          userUuid = userUuidD;
-          level = levelD;
-          progress = progressD;
-          userIv = userIvD;
-          userSecretKey = userSecretKeyD;
-          accessoryName = accessoryNameD;
-          inventoryVersion = inventoryVersionD;
-          inventory = inventoryD;
-          unlockedInventory = unlockedInventoryD;
-          _isWorking = false;
-          _informativeText = "${languageDataManager.getLabel('load-progress-successful')}\n${languageDataManager.getLabel('restart-your-app')}";
-          _updateUI();
-        });
-        } else {
+        if (mounted) {
           setState(() {
+            coins = 0;
+            userName = userNameD;
+            userUuid = userUuidD;
+            level = levelD;
+            progress = progressD;
+            userIv = userIvD;
+            userSecretKey = userSecretKeyD;
+            accessoryName = accessoryNameD;
+            inventoryVersion = inventoryVersionD;
+            inventory = inventoryD;
+            unlockedInventory = unlockedInventoryD;
             _isWorking = false;
-            _informativeText = "Error: No saved data found.";
-            hideInformativeText(5);
+            _informativeText = "${languageDataManager.getLabel('load-progress-successful')}\n${languageDataManager.getLabel('restart-your-app')}";
+            _updateUI();
           });
+        }
+        } else {
+          if (mounted) {
+            setState(() {
+              _isWorking = false;
+              _informativeText = "Error: No saved data found.";
+              hideInformativeText(5);
+            });
+          }
         }    
     } catch (e) {
-      setState(() {
-        _isWorking = false;
-        _informativeText = "Error loading data: $e";
-        hideInformativeText(5);
-      });
+      if (mounted) {
+        setState(() {
+          _isWorking = false;
+          _informativeText = "Error loading data: $e";
+          hideInformativeText(5);
+        });
+      }
     }
   }
 
   Future<void> _playInformativePopupSound() async {
-    await appAudioPlayer.playSound('audio/informative_popup_sound.mp3');
+    await appAudioPlayer.playSound1('audio/informative_popup_sound.mp3');
   }
 
   Future<void> _playAcceptPopupSound() async {
@@ -475,11 +527,23 @@ class MyWidgetState extends State<EncryptionScreen> {
   }
 
   void hideInformativeText(int seconds) {
-    Future.delayed(Duration(seconds: seconds), () {
-      setState(() {
-        _informativeText = '';
-      });
+    // Cancel any existing timer
+    _hideTextTimer?.cancel();
+    
+    _hideTextTimer = Timer(Duration(seconds: seconds), () {
+      if (mounted) {
+        setState(() {
+          _informativeText = '';
+        });
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    // Cancel any pending timer to prevent setState() after dispose
+    _hideTextTimer?.cancel();
+    super.dispose();
   }
 
   @override
