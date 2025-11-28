@@ -410,19 +410,21 @@ class MyWidgetState extends State<EncryptionScreen> {
         await prefs.setString('userSecretKey', userSecretKeyD);
         await prefs.setString('accessoryName', accessoryNameD);
         await prefs.setInt('inventoryVersion', inventoryVersionD);
-
-        setState(() {_informativeText = "${languageDataManager.getLabel('loading-achievements')}...";});
-
-        // Cargar achievements a la variable global
-        await loadAchievementsToGlobalVars();
           
         // Inventarios
         final jsonInventory = json.encode(inventoryD);
         await prefs.setString('inventory', jsonInventory);
         final jsonUnlockedInventory = json.encode(unlockedInventoryD);
         await prefs.setString('unlockedInventory', jsonUnlockedInventory);
+
+        setState(() {_informativeText = "${languageDataManager.getLabel('loading-achievements')}...";});
+
+        // Cargar achievements a la variable global
+        await loadAchievementsToGlobalVars();
         
-        unlockAchievementById("CgkI8NLzkooQEAIQCg"); // WelcomeToTheWired achievement
+        await unlockAchievementById("CgkI8NLzkooQEAIQCg"); // WelcomeToTheWired achievement
+
+        if (coins >= 1) await unlockAchievementById("CgkI8NLzkooQEAIQCw"); // "I have lost it all" achievement
 
         setState(() {_informativeText = "${languageDataManager.getLabel('updating-ui')}...";});
           

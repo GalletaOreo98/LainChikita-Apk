@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 //My imports
+import '../functions/achievements_manager.dart';
 import '../functions/gacha_functions.dart';
 import '../functions/redeem_codes_functions.dart';
 import '../global_vars.dart';
@@ -68,6 +69,10 @@ class MyWidgetState extends State<GachaScreen> {
       }
       _showRedeemCode = false;
     });
+    
+    if (result.startsWith('accessory_unlocked')) {
+      await unlockAchievementById("CgkI8NLzkooQEAIQCA"); // "Let's All Love Lain" achievement
+    }
   }
 
   Future<void> _playAccessoryBoughtSound() async {
