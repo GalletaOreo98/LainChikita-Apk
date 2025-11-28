@@ -554,7 +554,7 @@ class _MyAppState extends State<MyApp> {
                     ],
                   ),
                 ),
-                InventoryScreen(callback: _updateAccessory),
+                InventoryScreen(callback: _updateAccessory, pageController: _pageController),
                 GachaScreen(callback: _saveInventaries),
                 EncryptionScreen(callback: _updateUI),
               ],

@@ -7,7 +7,8 @@ import '../global_vars.dart';
 
 class InventoryScreen extends StatefulWidget {
   final Function callback;
-  const InventoryScreen({super.key, required this.callback});
+  final PageController pageController;
+  const InventoryScreen({super.key, required this.callback, required this.pageController});
 
   @override
   MyWidgetState createState() => MyWidgetState();
@@ -18,6 +19,12 @@ class MyWidgetState extends State<InventoryScreen> {
     // Llamada a la función de callback
     unlockAchievementById("CgkI8NLzkooQEAIQCQ");
     widget.callback(newAccessoryName);
+    // Navegar automáticamente a la pantalla principal (índice 0)
+    widget.pageController.animateToPage(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.ease,
+    );
   }
 
   Future<void> playSelectAccessorySound() async {
