@@ -349,7 +349,8 @@ class _MyAppState extends State<MyApp> {
   void _incrementProgress() {
     // Verificar anti-cheat antes de procesar el clic
     if (!_isValidClick()) {
-      return; // Rechazar el clic si no es válido
+      if (kDebugMode) debugPrint('Clic inválido detectado y bloqueado por el sistema anti-cheat');
+      //return; // Return si quieres rechazar el clic si no es válido
     }
     
     _playLoveBtnSound();
