@@ -349,7 +349,7 @@ class _MyAppState extends State<MyApp> {
   void _incrementProgress() {
     // Verificar anti-cheat antes de procesar el clic
     if (!_isValidClick()) {
-      if (kDebugMode) debugPrint('Clic inválido detectado y bloqueado por el sistema anti-cheat');
+      if (kDebugMode) debugPrint('Clic inválido detectado y bloqueado por el sistema anti-cheat $_suspiciousClickCount');
       //return; // Return si quieres rechazar el clic si no es válido
     }
     
@@ -539,16 +539,7 @@ class _MyAppState extends State<MyApp> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 8.0),
-                                FloatingActionButton(
-                                  backgroundColor: AppColors.loveBtn,
-                                  onPressed: _incrementProgress,
-                                  shape: const CircleBorder(),
-                                  child: const Icon(
-                                    Icons.favorite,
-                                    color: AppColors.loveBtnOpposite,
-                                  ),
-                                ),
+                                const SizedBox(height: 32.0),
                               ],
                             ],
                           ),
