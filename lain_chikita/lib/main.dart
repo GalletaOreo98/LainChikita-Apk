@@ -540,7 +540,7 @@ class _MyAppState extends State<MyApp> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 32.0),
+                                const SizedBox(height: 34.0),
                               ],
                             ],
                           ),
