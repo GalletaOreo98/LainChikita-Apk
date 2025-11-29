@@ -326,6 +326,7 @@ class _MyAppState extends State<MyApp> {
       
       if (maxDeviation < 10 && avgInterval < 200) {
         _suspiciousClickCount += 2; // Penalizar más los patrones regulares
+        //if (kDebugMode) debugPrint("Average Interval: $avgInterval ms, Max Deviation: $maxDeviation ms");
         if (_suspiciousClickCount >= _maxSuspiciousClicks) {
           _showAntiCheatBlock();
           if (kDebugMode) debugPrint('Usuario bloqueado temporalmente por patrón de autoclicker detectado');
