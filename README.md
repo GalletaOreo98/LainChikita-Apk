@@ -21,4 +21,5 @@ You need to create "key.properties" and "private_keys.dart" files; the folder "k
 2. **flutter build apk --release** or **flutter build appbundle --release**
      *build the .apk*
 
-// C:\Users\<user>\Downloads\flutter_windows_3.7.12-stable\flutter\packages\flutter_tools\gradle\src\main\groovy\flutter.groovy
+## Privacy and policy
+https://lain-chikita.exo-machinepills.com/demo/privacy_policy/privacy_policy_en.html
