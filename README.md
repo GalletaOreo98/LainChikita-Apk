@@ -22,4 +22,4 @@ You need to create "key.properties" and "private_keys.dart" files; the folder "k
      *build the .apk*
 
 ## Privacy and policy
-https://lain-chikita.exo-machinepills.com/demo/privacy_policy/privacy_policy_en.html
+[Read Privacy and policy](https://lain-chikita.exo-machinepills.com/demo/privacy_policy/privacy_policy_en.html)
