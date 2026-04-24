@@ -383,7 +383,7 @@ class _MyHomePageState extends State<MyHomePage> {
         level += 1;
         // Solo trackear el evento de acción si no es Android, porque en Android los logros se manejan con Google Play Games Services
         if (!Platform.isAndroid) {
-          achievementController.trackEvent('user_action');
+          achievementController.trackEvent('level_up');
         }
         if (level % 50 == 0) {
           incrementAchievementsStepType();
