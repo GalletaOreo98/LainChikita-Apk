@@ -29,6 +29,9 @@ class MyWidgetState extends State<InventoryScreen> {
 
   Future<void> playSelectAccessorySound() async {
     await appAudioPlayer.playSound3("audio/select_accessory_sound.mp3");
+    if (accessoryName == "nyan_cat") {
+      await appAudioPlayer.playSound3("audio/nyan_cat_music.mp3");
+    }
   }
 
 
