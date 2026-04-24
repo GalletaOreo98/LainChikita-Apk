@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'dart:convert' show json, jsonDecode;
 import 'dart:async';
@@ -44,6 +46,14 @@ class MyWidgetState extends State<EncryptionScreen> {
   }
 
   void _checkSignInStatus() async {
+    // Si la plataforma no es Android, no intentamos verificar el estado de inicio de sesión
+    if (!Platform.isAndroid) {
+      setState(() {
+        _isSignedIn = false;
+      });
+      return;
+    }
+    // Si es Android, intentamos verificar el estado de inicio de sesión
     try {
       final isSignedIn = await GameAuth.isSignedIn;
       if (mounted) {
@@ -180,6 +190,14 @@ class MyWidgetState extends State<EncryptionScreen> {
   } */
 
   void _signInToGameServices() async {
+    // Si la plataforma no es Android, no intentamos iniciar sesión
+    if (!Platform.isAndroid) {
+      setState(() {
+        _isSignedIn = false;
+      });
+      return;
+    }
+    // Si es Android, intentamos iniciar sesión
     try {
       await GameAuth.signIn();
       _checkSignInStatus(); // Actualizar el estado de sign-in

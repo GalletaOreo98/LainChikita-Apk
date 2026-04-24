@@ -79,7 +79,11 @@ class MyWidgetState extends State<GachaScreen> {
       });
     }
     
-    if (result.startsWith('accessory_unlocked')) {
+    if (
+      result.startsWith('accessory_unlocked') || 
+      result.startsWith('accessory_already_unlocked') || 
+      result.startsWith('cannot_unlock_more_accessories')
+      ) {
       await unlockAchievementById("CgkI8NLzkooQEAIQCA"); // "Let's All Love Lain" achievement
     }
   }

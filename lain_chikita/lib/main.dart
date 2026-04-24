@@ -1,13 +1,13 @@
+import 'dart:io' show Platform;
+
 import 'package:audioplayers/audioplayers.dart' show AudioPlayer, PlayerMode, ReleaseMode;
 import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'
-    show SystemUiMode, SystemChrome, KeyEvent, KeyDownEvent, LogicalKeyboardKey;
+import 'package:flutter/services.dart' show SystemUiMode, SystemChrome, KeyEvent, KeyDownEvent, LogicalKeyboardKey;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert' show json, jsonDecode;
 import 'dart:ui' show PlatformDispatcher;
 import 'package:games_services/games_services.dart';
-
 
 //My imports
 import 'classes/app_colors.dart';
@@ -23,11 +23,13 @@ import 'functions/gacha_functions.dart' show generateSecureRandom;
 //screens
 import 'screens/inventory_screen.dart';
 import 'screens/gacha_screen.dart';
-import 'screens/encryption_screen.dart';
+import 'screens/game_data_screen.dart';
 
 //App vars
 const int _maxProgress = 20;
 const secretKey = SECRET_KEY;
+
+final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   //Lo pongo asi nada mas para asegurar, por si acaso... pero funciona con == 'es'
@@ -36,19 +38,32 @@ void main() {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: navigatorKey,
+      home: const MyHomePage(),
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
   late PageController _pageController;
   final focusNode = FocusNode();
   static final AudioPlayer loveBtnLowLatencyPlayer = AudioPlayer(playerId: 'loveBtnLowLatencyPlayer');
 
   String _appBackground = 'background-night';
+
   /// Para mostrar decoraciones cuando haya fechas especiales
   bool _specialEvent = false;
   final TextEditingController _userNameTEC = TextEditingController(text: 'NULLUSER');
@@ -71,6 +86,10 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: 0);
+    // Asignar el contexto global para los logros
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      appContext = context;
+    });
     _loadProgress();
   }
 
@@ -175,6 +194,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _saveProgressOnGooglePlayGames() async {
+    // Si la plataforma no es Android, no intentamos guardar el progreso en Google Play Games
+    if (!Platform.isAndroid) return;
     try {
       final isSignedIn = await GameAuth.isSignedIn;
       if (!isSignedIn) return;
@@ -195,7 +216,7 @@ class _MyAppState extends State<MyApp> {
         'unlockedInventory': jsonUnlockedInventory,
       };
       final data = json.encode(gameData);
-      
+
       await GameAuth.signIn();
       await SaveGame.saveGame(data: data, name: "slot1");
     } catch (e) {
@@ -232,8 +253,6 @@ class _MyAppState extends State<MyApp> {
     await appAudioPlayer.playSound3('audio/cheater_screen_sound.mp3');
   }
 
-  
-
   bool _isMoorning() {
     final hour = DateTime.now().hour;
     if (hour >= 5 && hour < 18) return true;
@@ -258,7 +277,7 @@ class _MyAppState extends State<MyApp> {
       _appBackground = _appBackgroundCheater;
       _isBlocked = true;
     });
-    
+
     // Auto-desbloquear después del tiempo de penalización
     Future.delayed(const Duration(milliseconds: _blockDurationMs), () {
       if (mounted) {
@@ -277,14 +296,14 @@ class _MyAppState extends State<MyApp> {
         });
       }
     });
-    
+
     unlockAchievementById("CgkI8NLzkooQEAIQBg"); // "God is Watching You" achievement
   }
 
   /// Verifica si el clic es válido según las reglas anti-cheat
   bool _isValidClick() {
     final currentTime = DateTime.now().millisecondsSinceEpoch;
-    
+
     // Si está bloqueado temporalmente, rechazar el clic
     if (_isBlocked) {
       return false; // El auto-desbloqueo se maneja en _showAntiCheatBlock
@@ -302,7 +321,7 @@ class _MyAppState extends State<MyApp> {
 
     // Mantener historial de clics del último segundo
     _clickTimes.removeWhere((time) => currentTime - time > 1000);
-    
+
     // Verificar límite de clics por segundo
     if (_clickTimes.length >= _maxClicksPerSecond) {
       _suspiciousClickCount++;
@@ -319,11 +338,11 @@ class _MyAppState extends State<MyApp> {
       for (int i = 1; i < _clickTimes.length; i++) {
         intervals.add(_clickTimes[i] - _clickTimes[i - 1]);
       }
-      
+
       // Si todos los intervalos son muy similares (diferencia < 10ms), es sospechoso
       final avgInterval = intervals.reduce((a, b) => a + b) / intervals.length;
       final maxDeviation = intervals.map((interval) => (interval - avgInterval).abs()).reduce((a, b) => a > b ? a : b);
-      
+
       if (maxDeviation < 10 && avgInterval < 200) {
         _suspiciousClickCount += 2; // Penalizar más los patrones regulares
         //if (kDebugMode) debugPrint("Average Interval: $avgInterval ms, Max Deviation: $maxDeviation ms");
@@ -338,28 +357,34 @@ class _MyAppState extends State<MyApp> {
     // Si el clic es válido, actualizar datos
     _clickTimes.add(currentTime);
     _lastClickTime = currentTime;
-    
+
     // Reducir contador de clics sospechosos si el comportamiento es normal
     if (_suspiciousClickCount > 0) {
       _suspiciousClickCount--;
     }
-    
+
     return true;
   }
 
   void _incrementProgress() {
     // Verificar anti-cheat antes de procesar el clic
     if (!_isValidClick()) {
-      if (kDebugMode) debugPrint('Clic inválido detectado y bloqueado por el sistema anti-cheat $_suspiciousClickCount');
+      if (kDebugMode) {
+        debugPrint('Clic inválido detectado y bloqueado por el sistema anti-cheat $_suspiciousClickCount');
+      }
       //return; // Return si quieres rechazar el clic si no es válido
     }
-    
+
     _playLoveBtnSound();
     setState(() {
       progress += 1;
       if (progress >= _maxProgress) {
         progress = 0;
         level += 1;
+        // Solo trackear el evento de acción si no es Android, porque en Android los logros se manejan con Google Play Games Services
+        if (!Platform.isAndroid) {
+          achievementController.trackEvent('user_action');
+        }
         if (level % 50 == 0) {
           incrementAchievementsStepType();
         }
@@ -382,13 +407,12 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _updateUI() {
-    setState(() {
-    });
+    setState(() {});
   }
 
   void _handleKeyEvent(KeyEvent event) {
     if (event.runtimeType == KeyDownEvent) {
-      if (event.logicalKey == LogicalKeyboardKey.arrowRight ) {
+      if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
         // Cambiar a la siguiente pantalla
         _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
       } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
@@ -404,191 +428,196 @@ class _MyAppState extends State<MyApp> {
         title: 'Lain Chikita',
         theme: ThemeData(fontFamily: 'monogram'),
         home: Scaffold(
-          body: Stack(
-            fit: StackFit.expand,
-        children: [
-          KeyboardListener(
-            focusNode: focusNode,
-            onKeyEvent: _handleKeyEvent,
-            child: PageView(
-              controller: _pageController,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/$_appBackground.png'),
-                      fit: BoxFit.cover,
+            body: Stack(
+          fit: StackFit.expand,
+          children: [
+            KeyboardListener(
+              focusNode: focusNode,
+              onKeyEvent: _handleKeyEvent,
+              child: PageView(
+                controller: _pageController,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/images/$_appBackground.png'),
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ),
-                  child: Stack(
-                    children: [
-                      if (userName == "NULLUSER")
-                        Column(mainAxisSize: MainAxisSize.min, children: [
-                          const SizedBox(height: 16),
-                          TextField(
-                            controller: _userNameTEC,
-                            textAlign: TextAlign.center,
-                            maxLength: 15,
-                            style: const TextStyle(color: AppColors.nameLabel, fontSize: 34.0),
-                            decoration: InputDecoration(
-                                suffixIcon: IconButton(
-                                    onPressed: () => setState(() {
-                                          userName = _userNameTEC.text;
-                                          _saveProgress();
-                                          writeAThankUTxt();
-                                          FocusManager.instance.primaryFocus?.unfocus();
-                                        }),
-                                    icon: const Icon(Icons.done),
-                                    color: AppColors.focusItem),
-                                labelText: languageDataManager.getLabel('new-user-name'),
-                                labelStyle: const TextStyle(color: AppColors.primaryText, fontSize: 34.0),
-                                floatingLabelAlignment: FloatingLabelAlignment.center,
-                                focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.focusItem)),
-                                enabledBorder:
-                                    const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.userInputText))),
-                            onSubmitted: (value) =>
-                                setState(() {userName = value; _saveProgress(); writeAThankUTxt();}),
-                            onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
-                          )
-                        ])
-                      else
-                        Align(
-                            alignment: Alignment.topCenter,
-                            child: Column(
-                              children: [
-                                const SizedBox(height: 16),
-                                Text(
-                                  userName,
-                                  textAlign: TextAlign.start,
-                                  style: const TextStyle(
-                                    fontSize: 48.0,
-                                    color: AppColors.nameLabel,
-                                  ),
-                                )
-                              ],
-                            )),
-                      if (userName != "NULLUSER")
-                        Center(
-                          child: Container(
-                            margin: const EdgeInsets.only(top: 30), // Ajuste del margen superior
-                            child: Transform.translate(
-                              offset: const Offset(0, -30), // Ajuste de la posición vertical main character image
-                              child: Image.asset(
-                                'assets/images/lain_chikita.png',
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ),
+                    child: Stack(
+                      children: [
+                        if (userName == "NULLUSER")
+                          Column(mainAxisSize: MainAxisSize.min, children: [
+                            const SizedBox(height: 16),
+                            TextField(
+                              controller: _userNameTEC,
+                              textAlign: TextAlign.center,
+                              maxLength: 15,
+                              style: const TextStyle(color: AppColors.nameLabel, fontSize: 34.0),
+                              decoration: InputDecoration(
+                                  suffixIcon: IconButton(
+                                      onPressed: () => setState(() {
+                                            userName = _userNameTEC.text;
+                                            _saveProgress();
+                                            writeAThankUTxt();
+                                            FocusManager.instance.primaryFocus?.unfocus();
+                                          }),
+                                      icon: const Icon(Icons.done),
+                                      color: AppColors.focusItem),
+                                  labelText: languageDataManager.getLabel('new-user-name'),
+                                  labelStyle: const TextStyle(color: AppColors.primaryText, fontSize: 34.0),
+                                  floatingLabelAlignment: FloatingLabelAlignment.center,
+                                  focusedBorder:
+                                      const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.focusItem)),
+                                  enabledBorder: const UnderlineInputBorder(
+                                      borderSide: BorderSide(color: AppColors.userInputText))),
+                              onSubmitted: (value) => setState(() {
+                                userName = value;
+                                _saveProgress();
+                                writeAThankUTxt();
+                              }),
+                              onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
+                            )
+                          ])
+                        else
+                          Align(
+                              alignment: Alignment.topCenter,
+                              child: Column(
+                                children: [
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    userName,
+                                    textAlign: TextAlign.start,
+                                    style: const TextStyle(
+                                      fontSize: 48.0,
+                                      color: AppColors.nameLabel,
+                                    ),
+                                  )
+                                ],
+                              )),
                         if (userName != "NULLUSER")
-                        Positioned(
-                          child: Center(
-                          child: MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: GestureDetector(
-                            onTap: _incrementProgress,
+                          Center(
                             child: Container(
-                              margin: const EdgeInsets.only(top: 30),
+                              margin: const EdgeInsets.only(top: 30), // Ajuste del margen superior
                               child: Transform.translate(
-                                offset: const Offset(0, -30),
+                                offset: const Offset(0, -30), // Ajuste de la posición vertical main character image
                                 child: Image.asset(
-                                  'assets/images/accessories/$accessoryName.png',
+                                  'assets/images/lain_chikita.png',
                                   fit: BoxFit.cover,
                                 ),
                               ),
                             ),
-                            ),
                           ),
-                          ),
-                        ),
-                      if (wasUpdated)
-                        Positioned(
-                          child: Center(
-                            child: GestureDetector(
-                              onTap: _incrementProgress,
-                              child: Image.asset(
-                                'assets/images/updated.gif',
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.05),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '${languageDataManager.getLabel('level')} $level',
-                                style: const TextStyle(
-                                  fontSize: 40.0,
-                                  color: AppColors.primaryText,
-                                ),
-                              ),
-                              if (userName != "NULLUSER") ...[
-                                const SizedBox(height: 8.0),
-                                SizedBox(
-                                  height: 16.0,
-                                  width: 250.0,
-                                  child: LinearProgressIndicator(
-                                    value: progress / _maxProgress,
-                                    backgroundColor: AppColors.loveBarOpposite,
-                                    valueColor: const AlwaysStoppedAnimation<Color>(
-                                      AppColors.loveBar,
+                        if (userName != "NULLUSER")
+                          Positioned(
+                            child: Center(
+                              child: MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  onTap: _incrementProgress,
+                                  child: Container(
+                                    margin: const EdgeInsets.only(top: 30),
+                                    child: Transform.translate(
+                                      offset: const Offset(0, -30),
+                                      child: Image.asset(
+                                        'assets/images/accessories/$accessoryName.png',
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 34.0),
+                              ),
+                            ),
+                          ),
+                        if (wasUpdated)
+                          Positioned(
+                            child: Center(
+                              child: GestureDetector(
+                                onTap: _incrementProgress,
+                                child: Image.asset(
+                                  'assets/images/updated.gif',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.05),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '${languageDataManager.getLabel('level')} $level',
+                                  style: const TextStyle(
+                                    fontSize: 40.0,
+                                    color: AppColors.primaryText,
+                                  ),
+                                ),
+                                if (userName != "NULLUSER") ...[
+                                  const SizedBox(height: 8.0),
+                                  SizedBox(
+                                    height: 16.0,
+                                    width: 250.0,
+                                    child: LinearProgressIndicator(
+                                      value: progress / _maxProgress,
+                                      backgroundColor: AppColors.loveBarOpposite,
+                                      valueColor: const AlwaysStoppedAnimation<Color>(
+                                        AppColors.loveBar,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 34.0),
+                                ],
                               ],
-                            ],
+                            ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                  InventoryScreen(callback: _updateAccessory, pageController: _pageController),
+                  GachaScreen(callback: _saveInventaries),
+                  EncryptionScreen(callback: _updateUI),
+                ],
+              ),
+            ),
+            if (_specialEvent)
+              IgnorePointer(
+                ignoring: true,
+                child: Image.asset(
+                  'assets/images/snowing.gif',
+                  fit: BoxFit.cover,
+                ),
+              ),
+            // Pantalla de bloqueo anti-cheat (debe ir al final para estar encima de todo)
+            if (_isBlocked)
+              Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/$_appBackgroundCheater.png'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "God is watching you \n But you don't need to be afraid",
+                        style: TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.errorText,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
                 ),
-                InventoryScreen(callback: _updateAccessory, pageController: _pageController),
-                GachaScreen(callback: _saveInventaries),
-                EncryptionScreen(callback: _updateUI),
-              ],
-            ),
-          ), 
-          if (_specialEvent)
-          IgnorePointer(
-            ignoring: true,
-            child: Image.asset(
-              'assets/images/snowing.gif',
-              fit: BoxFit.cover,
-            ),
-          ),
-          // Pantalla de bloqueo anti-cheat (debe ir al final para estar encima de todo)
-          if (_isBlocked)
-          Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/$_appBackgroundCheater.png'),
-                  fit: BoxFit.cover,
-                ),
               ),
-              child: const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "God is watching you \n But you don't need to be afraid",
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.errorText,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-        ],)));
+          ],
+        )));
   }
 }
