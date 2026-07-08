@@ -8,6 +8,7 @@ const List<fifty.Achievement> achievementList = [
     description: 'This is just the beginning',
     condition: fifty.CountCondition('level_up', target: 1), // 1 level up to unlock
     rarity: fifty.AchievementRarity.common,
+    points: 50,
   ),
   fifty.Achievement(
     id: 'love_is_in_the_air',
@@ -15,6 +16,7 @@ const List<fifty.Achievement> achievementList = [
     description: 'Love is in the air',
     condition: fifty.CountCondition('level_up', target: 50),
     rarity: fifty.AchievementRarity.uncommon,
+    points: 100,
   ),
   fifty.Achievement(
     id: 'lain_chikita_lover',
@@ -22,6 +24,7 @@ const List<fifty.Achievement> achievementList = [
     description: "Let's All Love Lain Chikita",
     condition: fifty.CountCondition('level_up', target: 100),
     rarity: fifty.AchievementRarity.rare,
+    points: 200,
   ),
   fifty.Achievement(
     id: 'cereal_enjoyer',
@@ -29,6 +32,7 @@ const List<fifty.Achievement> achievementList = [
     description: "You really love cereal, don't you?",
     condition: fifty.CountCondition('level_up', target: 1000),
     rarity: fifty.AchievementRarity.epic,
+    points: 500,
   ),
   fifty.Achievement(
     id: 'love_miner',
@@ -36,6 +40,7 @@ const List<fifty.Achievement> achievementList = [
     description: "You really love mining, don't you?",
     condition: fifty.CountCondition('level_up', target: 5000),
     rarity: fifty.AchievementRarity.legendary,
+    points: 1000,
   ),
 
   // --- DESBLOQUEABLES 1 VEZ (EventCondition) ---
@@ -45,6 +50,8 @@ const List<fifty.Achievement> achievementList = [
     description: "God is watching you, but you don't need to be afraid",
     condition: fifty.EventCondition('god_is_watching_you'),
     rarity: fifty.AchievementRarity.legendary,
+    points: 1000,
+    hidden: true,
   ),
   fifty.Achievement(
     id: 'keep_your_love_safe',
@@ -52,6 +59,7 @@ const List<fifty.Achievement> achievementList = [
     description: 'Save your progress',
     condition: fifty.EventCondition('keep_your_love_safe'),
     rarity: fifty.AchievementRarity.common,
+    points: 100,
   ),
   fifty.Achievement(
     id: 'welcome_to_the_wired',
@@ -59,6 +67,7 @@ const List<fifty.Achievement> achievementList = [
     description: 'Load your progress',
     condition: fifty.EventCondition('welcome_to_the_wired'),
     rarity: fifty.AchievementRarity.uncommon,
+    points: 200,
   ),
   fifty.Achievement(
     id: 'lets_all_love_lain',
@@ -66,6 +75,8 @@ const List<fifty.Achievement> achievementList = [
     description: "Let's All Love Lain",
     condition: fifty.EventCondition('lets_all_love_lain'),
     rarity: fifty.AchievementRarity.legendary,
+    points: 1000,
+    hidden: true,
   ),
   fifty.Achievement(
     id: 'pretty_girl',
@@ -73,6 +84,7 @@ const List<fifty.Achievement> achievementList = [
     description: "You're so pretty",
     condition: fifty.EventCondition('pretty_girl'),
     rarity: fifty.AchievementRarity.rare,
+    points: 200,
   ),
   fifty.Achievement(
     id: 'i_have_lost_it_all',
@@ -80,5 +92,7 @@ const List<fifty.Achievement> achievementList = [
     description: 'Oops! you lost your money',
     condition: fifty.EventCondition('i_have_lost_it_all'),
     rarity: fifty.AchievementRarity.legendary,
+    points: 1000,
+    hidden: true,
   ),
 ];
