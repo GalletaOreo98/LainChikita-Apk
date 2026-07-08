@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 
 //My imports
@@ -17,7 +19,10 @@ class InventoryScreen extends StatefulWidget {
 class MyWidgetState extends State<InventoryScreen> {
   void changeAccessory(String newAccessoryName) {
     // Llamada a la función de callback
-    unlockAchievementById("CgkI8NLzkooQEAIQCQ");
+    if (!Platform.isAndroid) {
+      achievementController.trackEvent('pretty_girl');  // Unlock local achievement
+    }
+    unlockAchievementById("CgkI8NLzkooQEAIQCQ"); // "Pretty girl" achievement
     widget.callback(newAccessoryName);
     // Navegar automáticamente a la pantalla principal (índice 0)
     widget.pageController.animateToPage(

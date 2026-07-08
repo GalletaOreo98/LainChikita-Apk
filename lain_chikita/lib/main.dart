@@ -143,7 +143,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     if (global_vars.inventoryVersion != thisInventoryVersion) {
       final thisUnlockedInventory = global_vars.unlockedInventory.toList();
-      global_vars.unlockedInventory = applyInventoryVerionUpdate(thisUnlockedInventory, appUnlockedInventory, global_vars.inventory);
+      global_vars.unlockedInventory =
+          applyInventoryVerionUpdate(thisUnlockedInventory, appUnlockedInventory, global_vars.inventory);
       await prefs.setInt('inventoryVersion', global_vars.inventoryVersion);
       final jsonUnlockedInventoryToSet = json.encode(global_vars.unlockedInventory);
       await prefs.setString('unlockedInventory', jsonUnlockedInventoryToSet);
@@ -297,6 +298,9 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
 
+    if (!Platform.isAndroid) {
+      achievementController.trackEvent('god_is_watching_you');  // Unlock local achievement
+    }
     unlockAchievementById("CgkI8NLzkooQEAIQBg"); // "God is Watching You" achievement
   }
 

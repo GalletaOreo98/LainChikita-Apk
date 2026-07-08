@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -84,6 +86,9 @@ class MyWidgetState extends State<GachaScreen> {
       result.startsWith('accessory_already_unlocked') || 
       result.startsWith('cannot_unlock_more_accessories')
       ) {
+      if (!Platform.isAndroid) {
+        achievementController.trackEvent('lets_all_love_lain');  // Unlock local achievement
+      }
       await unlockAchievementById("CgkI8NLzkooQEAIQCA"); // "Let's All Love Lain" achievement
     }
   }

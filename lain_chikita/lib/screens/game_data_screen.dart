@@ -350,6 +350,9 @@ class MyWidgetState extends State<EncryptionScreen> {
         setState(() {_informativeText = global_vars.languageDataManager.getLabel('data-sent');});
       }
 
+      if (!Platform.isAndroid) {
+        achievementController.trackEvent('keep_your_love_safe');  // Unlock local achievement
+      }
       await unlockAchievementById("CgkI8NLzkooQEAIQBw"); // KeepYourLoveSafe achievement
 
       if (mounted) {
@@ -485,9 +488,17 @@ class MyWidgetState extends State<EncryptionScreen> {
         // Cargar achievements a la variable global
         await loadAchievementsToGlobalVars();
         
+        if (!Platform.isAndroid) {
+          achievementController.trackEvent('welcome_to_the_wired');  // Unlock local achievement
+        }
         await unlockAchievementById("CgkI8NLzkooQEAIQCg"); // WelcomeToTheWired achievement
 
-        if (global_vars.coins >= 1) await unlockAchievementById("CgkI8NLzkooQEAIQCw"); // "I have lost it all" achievement
+        if (global_vars.coins >= 1) {
+          if (!Platform.isAndroid) {
+            achievementController.trackEvent('i_have_lost_it_all');  // Unlock local achievement
+          }
+          await unlockAchievementById("CgkI8NLzkooQEAIQCw"); // "I have lost it all" achievement
+        }
 
         if (mounted) {
           setState(() {_informativeText = "${global_vars.languageDataManager.getLabel('updating-ui')}...";});
@@ -628,6 +639,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                       style: TextStyle(color: AppColors.primaryText, fontSize: 34.0), textAlign: TextAlign.center),
                 ), */
                 const SizedBox(height: 8),
+                if (Platform.isAndroid)
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       minimumSize: const Size(380, 80),
@@ -661,6 +673,7 @@ class MyWidgetState extends State<EncryptionScreen> {
                       style: TextStyle(color: _isSignedIn ? AppColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
                 ),
                 const SizedBox(height: 8),
+                if (Platform.isAndroid)
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       minimumSize: const Size(380, 80),
