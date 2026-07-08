@@ -20,7 +20,7 @@ class MyWidgetState extends State<InventoryScreen> {
   void changeAccessory(String newAccessoryName) {
     // Llamada a la función de callback
     if (!Platform.isAndroid) {
-      achievementController.trackEvent('pretty_girl');  // Unlock local achievement
+      achievementController.forceUnlock('pretty_girl');  // Unlock local achievement
     }
     unlockAchievementById("CgkI8NLzkooQEAIQCQ"); // "Pretty girl" achievement
     widget.callback(newAccessoryName);

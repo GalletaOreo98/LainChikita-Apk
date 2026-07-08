@@ -1,7 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
-import 'dart:convert' show json, jsonDecode;
+import 'dart:convert' show json, jsonDecode, jsonEncode;
 import 'dart:async';
 //import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -273,6 +273,11 @@ class MyWidgetState extends State<EncryptionScreen> {
 
 
 
+  Future<void> saveAchievementsProgressToSharedPreferences(String achievementData) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('achievement_progress_engine_data', achievementData);
+  }
+
   void _saveGameData() async {
     // Show confirmation dialog
     bool? confirmed = await showDialog<bool>(
@@ -321,6 +326,33 @@ class MyWidgetState extends State<EncryptionScreen> {
           _informativeText = "${global_vars.languageDataManager.getLabel('packing-data')}...";
         });
       }
+
+      if (!Platform.isAndroid) {
+        achievementController.forceUnlock('welcome_to_the_wired');  // Unlock local achievement
+        achievementController.forceUnlock('keep_your_love_safe');  // Unlock local achievement
+
+        if (global_vars.coins >= 1) {
+          // Reset coins to 0 when saving progress hehe UwU
+          global_vars.coins = 0;
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setInt('coins', 0);
+          achievementController.forceUnlock('i_have_lost_it_all');  // Unlock local achievement
+        }
+
+        // Export all progress data
+        final progressJson = achievementController.exportProgress();
+        await saveAchievementsProgressToSharedPreferences(jsonEncode(progressJson));
+
+        if (mounted) {
+          setState(() {
+            _isWorking = false;
+            _informativeText = global_vars.languageDataManager.getLabel('save-progress-successful');
+            hideInformativeText(4);
+          });
+        }
+
+        return; // Exit the function after saving progress data for non-Android platforms
+      }
       // Formateo de los inventarios a json
       final jsonInventory = json.encode(global_vars.inventory);
       final jsonUnlockedInventory = json.encode(global_vars.unlockedInventory);
@@ -350,9 +382,6 @@ class MyWidgetState extends State<EncryptionScreen> {
         setState(() {_informativeText = global_vars.languageDataManager.getLabel('data-sent');});
       }
 
-      if (!Platform.isAndroid) {
-        achievementController.trackEvent('keep_your_love_safe');  // Unlock local achievement
-      }
       await unlockAchievementById("CgkI8NLzkooQEAIQBw"); // KeepYourLoveSafe achievement
 
       if (mounted) {
@@ -488,15 +517,9 @@ class MyWidgetState extends State<EncryptionScreen> {
         // Cargar achievements a la variable global
         await loadAchievementsToGlobalVars();
         
-        if (!Platform.isAndroid) {
-          achievementController.trackEvent('welcome_to_the_wired');  // Unlock local achievement
-        }
         await unlockAchievementById("CgkI8NLzkooQEAIQCg"); // WelcomeToTheWired achievement
 
         if (global_vars.coins >= 1) {
-          if (!Platform.isAndroid) {
-            achievementController.trackEvent('i_have_lost_it_all');  // Unlock local achievement
-          }
           await unlockAchievementById("CgkI8NLzkooQEAIQCw"); // "I have lost it all" achievement
         }
 
@@ -696,16 +719,17 @@ class MyWidgetState extends State<EncryptionScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                       backgroundColor: const Color.fromARGB(255, 32, 105, 189),
                       padding: const EdgeInsets.all(10.0)),
-                  onPressed: (_isSignedIn && global_vars.userName != "NULLUSER")
+                  onPressed: ( (_isSignedIn && global_vars.userName != "NULLUSER") || (!Platform.isAndroid && global_vars.userName != "NULLUSER") )
                       ? () async {
                           _playInformativePopupSound();
                           _saveGameData();
                         }
                       : null,
                   child: Text(global_vars.languageDataManager.getLabel('save-progress'),
-                      style: TextStyle(color: (_isSignedIn && global_vars.userName != "NULLUSER") ? AppColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
+                      style: TextStyle(color: ( (_isSignedIn && global_vars.userName != "NULLUSER") || (!Platform.isAndroid && global_vars.userName != "NULLUSER") ) ? AppColors.primaryText : const Color.fromARGB(255, 170, 170, 170), fontSize: 34.0), textAlign: TextAlign.center),
                 ),
                 const SizedBox(height: 8),
+                if (Platform.isAndroid)
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       minimumSize: const Size(380, 80),

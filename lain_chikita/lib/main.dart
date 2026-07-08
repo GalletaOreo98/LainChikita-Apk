@@ -161,8 +161,15 @@ class _MyHomePageState extends State<MyHomePage> {
       global_vars.userName = prefs.getString('userName') ?? "NULLUSER";
       global_vars.accessoryName = prefs.getString('accessoryName') ?? "null";
       global_vars.coins = prefs.getInt('coins') ?? 0;
+
       //Carga logros a variables globales
       loadAchievementsToGlobalVars();
+      // Para modo logros sin Google Play Games Services
+      final savedAchievementsEngineData = prefs.getString('achievement_progress_engine_data') ?? '';
+      if (savedAchievementsEngineData.isNotEmpty) {
+        final savedAchievementsEngineDataJson = jsonDecode(savedAchievementsEngineData) as Map<String, dynamic>;
+        if (savedAchievementsEngineDataJson.isNotEmpty) achievementController.importProgress(savedAchievementsEngineDataJson);
+      }
 
       if (global_vars.userName != "NULLUSER") {
         writeAThankUTxt();
@@ -299,7 +306,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     if (!Platform.isAndroid) {
-      achievementController.trackEvent('god_is_watching_you');  // Unlock local achievement
+      achievementController.forceUnlock('god_is_watching_you');  // Unlock local achievement
     }
     unlockAchievementById("CgkI8NLzkooQEAIQBg"); // "God is Watching You" achievement
   }
@@ -387,7 +394,8 @@ class _MyHomePageState extends State<MyHomePage> {
         global_vars.level += 1;
         // Solo trackear el evento de acción si no es Android, porque en Android los logros se manejan con Google Play Games Services
         if (!Platform.isAndroid) {
-          achievementController.trackEvent('level_up');
+          achievementController.incrementStat('level_up', 1);
+          saveEngineAchievementsProgressToSharedPreferences();
         }
         if (global_vars.level % 50 == 0) {
           incrementAchievementsStepType();

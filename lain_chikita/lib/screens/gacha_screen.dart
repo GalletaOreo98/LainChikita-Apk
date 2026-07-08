@@ -87,7 +87,7 @@ class MyWidgetState extends State<GachaScreen> {
       result.startsWith('cannot_unlock_more_accessories')
       ) {
       if (!Platform.isAndroid) {
-        achievementController.trackEvent('lets_all_love_lain');  // Unlock local achievement
+        achievementController.forceUnlock('lets_all_love_lain');  // Unlock local achievement
       }
       await unlockAchievementById("CgkI8NLzkooQEAIQCA"); // "Let's All Love Lain" achievement
     }

@@ -1,9 +1,11 @@
+import 'dart:convert' show jsonEncode;
 import 'dart:io' show Platform;
 import 'package:games_services/games_services.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:flutter/material.dart';
 
 import 'package:fifty_achievement_engine/fifty_achievement_engine.dart' as fifty;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/game_achievements.dart';
 
@@ -11,11 +13,19 @@ import '../data/game_achievements.dart';
 // Para el popup de logros de Fifty Achievement Engine
 BuildContext? appContext;
 
+saveEngineAchievementsProgressToSharedPreferences() async {
+  final progressJson = achievementController.exportProgress();
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('achievement_progress_engine_data', jsonEncode(progressJson));
+}
+
 // Controlador de logros de Fifty Achievement Engine (Local/OFFLINE)
 final achievementController = fifty.AchievementController<void>(
   achievements: achievementList,
   onUnlock: (achievement) {
     if (kDebugMode) debugPrint('¡Desbloqueado!: ${achievement.name}');
+    // Guardar progreso de logros en SharedPreferences
+    saveEngineAchievementsProgressToSharedPreferences();
     final overlay = Overlay.of(appContext!);
     late OverlayEntry entry;
     entry = OverlayEntry(
