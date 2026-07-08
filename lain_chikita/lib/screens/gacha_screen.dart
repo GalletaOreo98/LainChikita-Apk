@@ -6,7 +6,7 @@ import '../classes/app_colors.dart';
 import '../functions/achievements_manager.dart';
 import '../functions/gacha_functions.dart';
 import '../functions/redeem_codes_functions.dart';
-import '../global_vars.dart';
+import '../global_vars.dart' as global_vars;
 
 class GachaScreen extends StatefulWidget {
   final Function callback;
@@ -30,12 +30,12 @@ class MyWidgetState extends State<GachaScreen> {
       setState(() {
         bool isDone = buyAccessory();
         if (isDone) {
-          _informativeText = languageDataManager.getLabel('accessory-purchased');
+          _informativeText = global_vars.languageDataManager.getLabel('accessory-purchased');
           _informativeTextColor = AppColors.informativeText;
           _saveInventories();
           _playAccessoryBoughtSound();
         } else {
-          _informativeText = languageDataManager.getLabel('cannot-be-purchased');
+          _informativeText = global_vars.languageDataManager.getLabel('cannot-be-purchased');
           _informativeTextColor = AppColors.errorText;
         }
       });
@@ -46,7 +46,7 @@ class MyWidgetState extends State<GachaScreen> {
     if (mounted) {
       setState(() {
         _informativeTextColor = AppColors.informativeText;
-        _informativeText = "${languageDataManager.getLabel('processing-code')}...";
+        _informativeText = "${global_vars.languageDataManager.getLabel('processing-code')}...";
       });
     }
     
@@ -57,23 +57,23 @@ class MyWidgetState extends State<GachaScreen> {
         if (result.startsWith('accessory_unlocked')) {
           String unlockedAccessoryName = result.split(' ')[1];
           _informativeTextColor = AppColors.informativeText;
-          _informativeText = '${languageDataManager.getLabel('accessory-unlocked')}: \n${languageDataManager.getAccessoryName(unlockedAccessoryName)}';
+          _informativeText = '${global_vars.languageDataManager.getLabel('accessory-unlocked')}: \n${global_vars.languageDataManager.getAccessoryName(unlockedAccessoryName)}';
           _playRedeemCodeSound();
           _saveInventories();
         } else if (result.startsWith('accessory_already_unlocked')) {
           String accessoryName = result.split(' ')[1];
           _informativeTextColor = AppColors.errorText;
-          _informativeText = '${languageDataManager.getLabel('already-have-this-item')}: \n${languageDataManager.getAccessoryName(accessoryName)}';
+          _informativeText = '${global_vars.languageDataManager.getLabel('already-have-this-item')}: \n${global_vars.languageDataManager.getAccessoryName(accessoryName)}';
         } else if (result == 'cannot_unlock_more_accessories') {
           _informativeTextColor = AppColors.errorText;
-          _informativeText = languageDataManager.getLabel('all-accessories-unlocked');
+          _informativeText = global_vars.languageDataManager.getLabel('all-accessories-unlocked');
         } else if (result == 'invalid_code') {
           _informativeTextColor = AppColors.errorText;
-          _informativeText = languageDataManager.getLabel('error-invalid-data');
+          _informativeText = global_vars.languageDataManager.getLabel('error-invalid-data');
         }
         else if (result == 'already_redeemed') {
           _informativeTextColor = AppColors.errorText;
-          _informativeText = languageDataManager.getLabel('code-already-redeemed');
+          _informativeText = global_vars.languageDataManager.getLabel('code-already-redeemed');
         }
         _showRedeemCode = false;
       });
@@ -89,11 +89,11 @@ class MyWidgetState extends State<GachaScreen> {
   }
 
   Future<void> _playAccessoryBoughtSound() async {
-    await appAudioPlayer.playSound1('audio/accessory_bought_sound.mp3');
+    await global_vars.appAudioPlayer.playSound1('audio/accessory_bought_sound.mp3');
   }
 
   Future<void> _playRedeemCodeSound() async {
-    await appAudioPlayer.playSound2('audio/redeem_code_success_sound.mp3');
+    await global_vars.appAudioPlayer.playSound2('audio/redeem_code_success_sound.mp3');
   }
 
   void _saveInventories() {
@@ -134,7 +134,7 @@ class MyWidgetState extends State<GachaScreen> {
                           ),
                           TableCell(
                               verticalAlignment: TableCellVerticalAlignment.middle,
-                              child: Text(' x $coins',
+                              child: Text(' x ${global_vars.coins}',
                                   style: const TextStyle(
                                     fontSize: 25.0,
                                     color: AppColors.primaryText,
@@ -144,9 +144,9 @@ class MyWidgetState extends State<GachaScreen> {
                     ]),
                 const SizedBox(height: 16),
                 Text(
-                  (unlockedInventory.isNotEmpty) 
-                  ? '${languageDataManager.getLabel('locked-accessories')} x ${unlockedInventory.length}'
-                  : languageDataManager.getLabel('all-accessories-unlocked'),
+                  (global_vars.unlockedInventory.isNotEmpty) 
+                  ? '${global_vars.languageDataManager.getLabel('locked-accessories')} x ${global_vars.unlockedInventory.length}'
+                  : global_vars.languageDataManager.getLabel('all-accessories-unlocked'),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 25.0,
@@ -159,7 +159,7 @@ class MyWidgetState extends State<GachaScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                       backgroundColor: AppColors.primaryBtn, padding: const EdgeInsets.all(20.0)),
                   onPressed: _buySkin,
-                  child: Text(languageDataManager.getLabel('buy-accessory'), 
+                  child: Text(global_vars.languageDataManager.getLabel('buy-accessory'), 
                       style: const TextStyle(color: AppColors.primaryText, fontSize: 34.0), 
                       textAlign: TextAlign.center),
                 ),
@@ -180,7 +180,7 @@ class MyWidgetState extends State<GachaScreen> {
                       });
                     }
                   },
-                  child: Text(languageDataManager.getLabel('redeem-code'), 
+                  child: Text(global_vars.languageDataManager.getLabel('redeem-code'), 
                       style: const TextStyle(color: AppColors.primaryText, fontSize: 34.0), 
                       textAlign: TextAlign.center),
                 ),
@@ -202,7 +202,7 @@ class MyWidgetState extends State<GachaScreen> {
                               icon: const Icon(Icons.done),
                               color: AppColors.userInputText
                             ),
-                            labelText: languageDataManager.getLabel('enter-code'),
+                            labelText: global_vars.languageDataManager.getLabel('enter-code'),
                             labelStyle: const TextStyle(color: AppColors.primaryText, fontSize: 20),
                             floatingLabelAlignment: FloatingLabelAlignment.center,
                             focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.focusItem)),

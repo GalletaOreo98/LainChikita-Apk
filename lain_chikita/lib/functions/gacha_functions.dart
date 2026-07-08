@@ -1,7 +1,7 @@
 import 'dart:math' show Random;
 
 //My imports
-import '../global_vars.dart' as gv;
+import '../global_vars.dart' as global_vars;
 
 /// Crea un numero Random secureRandom
 ///
@@ -19,28 +19,28 @@ int generateSecureRandom(int maxValue) {
 /// 
 /// Gasta el coin cuando se realiza exitosamente
 bool buyAccessory() {
-  if (gv.coins <= 0) return false;
-  if (gv.unlockedInventory.isEmpty) return false;
-  gv.coins--;
-  int random = generateSecureRandom(gv.unlockedInventory.length);
-  gv.inventory.add(gv.unlockedInventory[random]);
-  gv.unlockedInventory.removeAt(random);
+  if (global_vars.coins <= 0) return false;
+  if (global_vars.unlockedInventory.isEmpty) return false;
+  global_vars.coins--;
+  int random = generateSecureRandom(global_vars.unlockedInventory.length);
+  global_vars.inventory.add(global_vars.unlockedInventory[random]);
+  global_vars.unlockedInventory.removeAt(random);
   return true;
 }
 
 bool unlockRandomAccessory() {
-  if (gv.unlockedInventory.isEmpty) return false;
-  int random = generateSecureRandom(gv.unlockedInventory.length);
-  gv.inventory.add(gv.unlockedInventory[random]);
-  gv.unlockedInventory.removeAt(random);
+  if (global_vars.unlockedInventory.isEmpty) return false;
+  int random = generateSecureRandom(global_vars.unlockedInventory.length);
+  global_vars.inventory.add(global_vars.unlockedInventory[random]);
+  global_vars.unlockedInventory.removeAt(random);
   return true;
 }
 
 bool unlockAccessoryByName(String accessoryName) {
-  for (var accessory in gv.unlockedInventory) {
+  for (var accessory in global_vars.unlockedInventory) {
     if (accessory['name'] == accessoryName) {
-      gv.inventory.add(accessory);
-      gv.unlockedInventory.remove(accessory);
+      global_vars.inventory.add(accessory);
+      global_vars.unlockedInventory.remove(accessory);
       return true;
     }
   }

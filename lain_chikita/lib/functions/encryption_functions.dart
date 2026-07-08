@@ -9,7 +9,7 @@ import 'dart:isolate';
 
 //My imports
 import '../functions/directory_path_provider.dart' show AppFolders;
-import '../global_vars.dart';
+import '../global_vars.dart' as global_vars show appDirectoryStorage, userSecretKey;
 
 String encryptData(String jsonData, String secretKey) {
   final key = encrypt.Key.fromUtf8(secretKey);
@@ -126,25 +126,25 @@ int decryptFilesWithIsolate(List<dynamic> args) {
 }
 
 Future<void> encryptFiles(void Function(int, int) callback) async {
-  final userFilesList = await Directory('${appDirectoryStorage.path}/${AppFolders.imagesToEncrypt}').list().toList();
+  final userFilesList = await Directory('${global_vars.appDirectoryStorage.path}/${AppFolders.imagesToEncrypt}').list().toList();
   int totalIterations = userFilesList.length;
   for (var i = 0; i < totalIterations; i++) {
     callback(i + 1, totalIterations);
     String filePath = userFilesList[i].path;
     String fileBasename = p.basename(filePath); //nombre + la extension, ejemplo: my_archivo.png
-    String outPath = "${appDirectoryStorage.path}/${AppFolders.encryptedImages}/$fileBasename";
-    await useIsolateEncryption(filePath, outPath, userSecretKey);
+    String outPath = "${global_vars.appDirectoryStorage.path}/${AppFolders.encryptedImages}/$fileBasename";
+    await useIsolateEncryption(filePath, outPath, global_vars.userSecretKey);
   }
 }
 
 Future<void> decryptFiles(void Function(int, int) callback) async {
-  final userFilesList = await Directory('${appDirectoryStorage.path}/${AppFolders.encryptedImages}').list().toList();
+  final userFilesList = await Directory('${global_vars.appDirectoryStorage.path}/${AppFolders.encryptedImages}').list().toList();
   int totalIterations = userFilesList.length;
   for (var i = 0; i < totalIterations; i++) {
     callback(i + 1, totalIterations);
     String filePath = userFilesList[i].path;
     String fileBasename = p.basename(filePath);
-    String outPath = "${appDirectoryStorage.path}/${AppFolders.decryptedImages}/$fileBasename";
-    await useIsolateDecryption(filePath, outPath, userSecretKey);
+    String outPath = "${global_vars.appDirectoryStorage.path}/${AppFolders.decryptedImages}/$fileBasename";
+    await useIsolateDecryption(filePath, outPath, global_vars.userSecretKey);
   }
 }

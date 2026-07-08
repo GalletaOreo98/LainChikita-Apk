@@ -2,7 +2,7 @@ import 'dart:io' show Directory;
 import 'package:path_provider/path_provider.dart' show getApplicationDocumentsDirectory, getExternalStorageDirectory;
 
 //My imports
-import '../global_vars.dart' show platformName;
+import '../global_vars.dart' as global_vars show platformName;
 
 class AppFolders {
   static String imagesToEncrypt = 'FILES_TO_ENCRYPT';
@@ -16,7 +16,7 @@ class AppFolders {
 /// Example: user/0/com.oreodev.lain_chikita/files
 Future<Directory> getAppDirectoryStorage() async{
   Directory? directory;
-  if (platformName == "android") {
+  if (global_vars.platformName == "android") {
     directory = await getExternalStorageDirectory();
   } else {
     directory = await getApplicationDocumentsDirectory();

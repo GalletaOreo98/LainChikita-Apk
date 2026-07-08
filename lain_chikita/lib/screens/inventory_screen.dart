@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 //My imports
 import '../classes/app_colors.dart';
 import '../functions/achievements_manager.dart';
-import '../global_vars.dart';
+import '../global_vars.dart' as global_vars;
 
 class InventoryScreen extends StatefulWidget {
   final Function callback;
@@ -28,9 +28,9 @@ class MyWidgetState extends State<InventoryScreen> {
   }
 
   Future<void> playSelectAccessorySound() async {
-    await appAudioPlayer.playSound3("audio/select_accessory_sound.mp3");
-    if (accessoryName == "nyan_cat") {
-      await appAudioPlayer.playSound3("audio/nyan_cat_music.mp3");
+    await global_vars.appAudioPlayer.playSound3("audio/select_accessory_sound.mp3");
+    if (global_vars.accessoryName == "nyan_cat") {
+      await global_vars.appAudioPlayer.playSound3("audio/nyan_cat_music.mp3");
     }
   }
 
@@ -42,15 +42,15 @@ class MyWidgetState extends State<InventoryScreen> {
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: ListView.builder(
-          itemCount: inventory.length,
+          itemCount: global_vars.inventory.length,
           itemBuilder: (BuildContext context, int index) {
-            bool isCurrentAccessory = inventory[index]['name'] == accessoryName;
+            bool isCurrentAccessory = global_vars.inventory[index]['name'] == global_vars.accessoryName;
             
             return Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
               child: InkWell(
                 onTap: () {
-                  changeAccessory(inventory[index]['name']);
+                  changeAccessory(global_vars.inventory[index]['name']);
                   playSelectAccessorySound();
                 },
                 borderRadius: BorderRadius.circular(5.0),
@@ -70,7 +70,7 @@ class MyWidgetState extends State<InventoryScreen> {
                       child: MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: Text(
-                          languageDataManager.getAccessoryName(inventory[index]['name']),
+                          global_vars.languageDataManager.getAccessoryName(global_vars.inventory[index]['name']),
                           style: const TextStyle(
                             fontSize: 34.0,
                             color: AppColors.primaryText,

@@ -13,7 +13,7 @@ import 'package:games_services/games_services.dart';
 import 'classes/app_colors.dart';
 import 'functions/achievements_manager.dart';
 import 'functions/prefs_version_manager.dart';
-import 'global_vars.dart';
+import 'global_vars.dart' as global_vars;
 import 'private_keys.dart';
 import 'functions/encryption_functions.dart';
 import 'functions/write_read_files_functions.dart';
@@ -33,7 +33,7 @@ final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   //Lo pongo asi nada mas para asegurar, por si acaso... pero funciona con == 'es'
-  if (PlatformDispatcher.instance.locale.languageCode.toLowerCase().contains('es')) language = 'es';
+  if (PlatformDispatcher.instance.locale.languageCode.toLowerCase().contains('es')) global_vars.language = 'es';
   runApp(const MyApp());
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
 }
@@ -104,66 +104,66 @@ class _MyHomePageState extends State<MyHomePage> {
     if (_isMoorning()) _appBackground = 'background-day';
     if (generateSecureRandom(10) == 3) _specialEvent = true;
     //Carga directorios de la app y crea los folders si es necesario
-    appDirectoryStorage = await getAppDirectoryStorage();
+    global_vars.appDirectoryStorage = await getAppDirectoryStorage();
     await createEncryptionFolders();
     //Revisa si el usuario tiene userUuid
     final prefs = await SharedPreferences.getInstance();
-    userUuid = prefs.getString("userUuid") ?? "";
-    if (userUuid.isEmpty) {
-      userUuid = generateCryptoRngUuid();
-      await prefs.setString('userUuid', userUuid);
+    global_vars.userUuid = prefs.getString("userUuid") ?? "";
+    if (global_vars.userUuid.isEmpty) {
+      global_vars.userUuid = generateCryptoRngUuid();
+      await prefs.setString('userUuid', global_vars.userUuid);
     }
     //Revisa si el usuario tiene su userSecretKey Y su userIV
-    userSecretKey = prefs.getString("userSecretKey") ?? "";
-    if (userSecretKey.isEmpty) {
-      userSecretKey = generateUserSecretKey(32);
-      await prefs.setString('userSecretKey', userSecretKey);
+    global_vars.userSecretKey = prefs.getString("userSecretKey") ?? "";
+    if (global_vars.userSecretKey.isEmpty) {
+      global_vars.userSecretKey = generateUserSecretKey(32);
+      await prefs.setString('userSecretKey', global_vars.userSecretKey);
     }
-    userIv = prefs.getString("userIv") ?? "";
-    if (userIv.isEmpty) {
-      userIv = generateUserIV(16);
-      await prefs.setString('userIv', userIv);
+    global_vars.userIv = prefs.getString("userIv") ?? "";
+    if (global_vars.userIv.isEmpty) {
+      global_vars.userIv = generateUserIV(16);
+      await prefs.setString('userIv', global_vars.userIv);
     }
     int thisInventoryVersion = prefs.getInt('inventoryVersion') ?? 1;
     if (thisInventoryVersion == 1) {
-      await prefs.setInt('inventoryVersion', inventoryVersion);
+      await prefs.setInt('inventoryVersion', global_vars.inventoryVersion);
       //thisInventoryVersion = inventoryVersion;
     }
     //Inventarios
     final jsonInventory = prefs.getString('inventory') ?? '';
     if (jsonInventory.isNotEmpty) {
-      inventory = List<Map<String, dynamic>>.from(jsonDecode(jsonInventory));
+      global_vars.inventory = List<Map<String, dynamic>>.from(jsonDecode(jsonInventory));
     }
     //Check unlockedInventory version
     //(Se podria optimizar...)
-    List<Map<String, dynamic>> appUnlockedInventory = unlockedInventory.toList();
+    List<Map<String, dynamic>> appUnlockedInventory = global_vars.unlockedInventory.toList();
     final jsonUnlockedInventory = prefs.getString('unlockedInventory') ?? '';
     if (jsonUnlockedInventory.isNotEmpty) {
-      unlockedInventory = List<Map<String, dynamic>>.from(jsonDecode(jsonUnlockedInventory));
+      global_vars.unlockedInventory = List<Map<String, dynamic>>.from(jsonDecode(jsonUnlockedInventory));
     }
-    if (inventoryVersion != thisInventoryVersion) {
-      final thisUnlockedInventory = unlockedInventory.toList();
-      unlockedInventory = applyInventoryVerionUpdate(thisUnlockedInventory, appUnlockedInventory, inventory);
-      await prefs.setInt('inventoryVersion', inventoryVersion);
-      final jsonUnlockedInventoryToSet = json.encode(unlockedInventory);
+    if (global_vars.inventoryVersion != thisInventoryVersion) {
+      final thisUnlockedInventory = global_vars.unlockedInventory.toList();
+      global_vars.unlockedInventory = applyInventoryVerionUpdate(thisUnlockedInventory, appUnlockedInventory, global_vars.inventory);
+      await prefs.setInt('inventoryVersion', global_vars.inventoryVersion);
+      final jsonUnlockedInventoryToSet = json.encode(global_vars.unlockedInventory);
       await prefs.setString('unlockedInventory', jsonUnlockedInventoryToSet);
       runUpdateAnimation(5); //En esta funcion se hace el wasUpdated = true;
       _playUpdatedSound();
     }
     //Carga los nombres de los items del inventario segun el lenguaje del dispositivo
-    await languageDataManager.loadAccessoryNames(language);
-    await languageDataManager.loadLabels(language);
+    await global_vars.languageDataManager.loadAccessoryNames(global_vars.language);
+    await global_vars.languageDataManager.loadLabels(global_vars.language);
     //Carga los datos guardados en SharedPreferences
     setState(() {
-      level = prefs.getInt('level') ?? 0;
-      progress = prefs.getInt('progress') ?? 0;
-      userName = prefs.getString('userName') ?? "NULLUSER";
-      accessoryName = prefs.getString('accessoryName') ?? "null";
-      coins = prefs.getInt('coins') ?? 0;
+      global_vars.level = prefs.getInt('level') ?? 0;
+      global_vars.progress = prefs.getInt('progress') ?? 0;
+      global_vars.userName = prefs.getString('userName') ?? "NULLUSER";
+      global_vars.accessoryName = prefs.getString('accessoryName') ?? "null";
+      global_vars.coins = prefs.getInt('coins') ?? 0;
       //Carga logros a variables globales
       loadAchievementsToGlobalVars();
 
-      if (userName != "NULLUSER") {
+      if (global_vars.userName != "NULLUSER") {
         writeAThankUTxt();
       }
     });
@@ -174,23 +174,23 @@ class _MyHomePageState extends State<MyHomePage> {
   //Funcion posible para optimizar dividiendola en varios tipos de save
   Future<void> _saveProgress() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('level', level);
-    await prefs.setInt('progress', progress);
-    await prefs.setString('userName', userName);
-    await prefs.setInt('coins', coins);
+    await prefs.setInt('level', global_vars.level);
+    await prefs.setInt('progress', global_vars.progress);
+    await prefs.setString('userName', global_vars.userName);
+    await prefs.setInt('coins', global_vars.coins);
   }
 
   Future<void> _saveInventaries() async {
     final prefs = await SharedPreferences.getInstance();
-    final jsonInventory = json.encode(inventory);
+    final jsonInventory = json.encode(global_vars.inventory);
     await prefs.setString('inventory', jsonInventory);
-    final jsonUnlockedInventory = json.encode(unlockedInventory);
+    final jsonUnlockedInventory = json.encode(global_vars.unlockedInventory);
     await prefs.setString('unlockedInventory', jsonUnlockedInventory);
   }
 
   Future<void> _saveAccesorrySelection() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('accessoryName', accessoryName);
+    await prefs.setString('accessoryName', global_vars.accessoryName);
   }
 
   Future<void> _saveProgressOnGooglePlayGames() async {
@@ -200,18 +200,18 @@ class _MyHomePageState extends State<MyHomePage> {
       final isSignedIn = await GameAuth.isSignedIn;
       if (!isSignedIn) return;
       // Formateo de los inventarios a json
-      final jsonInventory = json.encode(inventory);
-      final jsonUnlockedInventory = json.encode(unlockedInventory);
+      final jsonInventory = json.encode(global_vars.inventory);
+      final jsonUnlockedInventory = json.encode(global_vars.unlockedInventory);
       // Formateo de la data del juego (sin encriptar)
       final gameData = {
-        'userName': userName,
-        'userUuid': userUuid,
-        'level': level,
-        'progress': progress,
-        'userIv': userIv,
-        'userSecretKey': userSecretKey,
-        'accessoryName': accessoryName,
-        'inventoryVersion': inventoryVersion,
+        'userName': global_vars.userName,
+        'userUuid': global_vars.userUuid,
+        'level': global_vars.level,
+        'progress': global_vars.progress,
+        'userIv': global_vars.userIv,
+        'userSecretKey': global_vars.userSecretKey,
+        'accessoryName': global_vars.accessoryName,
+        'inventoryVersion': global_vars.inventoryVersion,
         'inventory': jsonInventory,
         'unlockedInventory': jsonUnlockedInventory,
       };
@@ -242,15 +242,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _playLevelUpSound() async {
-    await appAudioPlayer.playSound2('audio/level_up_sound.mp3');
+    await global_vars.appAudioPlayer.playSound2('audio/level_up_sound.mp3');
   }
 
   Future<void> _playUpdatedSound() async {
-    if (wasUpdated) await appAudioPlayer.playSound3('audio/updated_sound.mp3');
+    if (wasUpdated) await global_vars.appAudioPlayer.playSound3('audio/updated_sound.mp3');
   }
 
   Future<void> _playCheaterScreenSound() async {
-    await appAudioPlayer.playSound3('audio/cheater_screen_sound.mp3');
+    await global_vars.appAudioPlayer.playSound3('audio/cheater_screen_sound.mp3');
   }
 
   bool _isMoorning() {
@@ -377,19 +377,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
     _playLoveBtnSound();
     setState(() {
-      progress += 1;
-      if (progress >= _maxProgress) {
-        progress = 0;
-        level += 1;
+      global_vars.progress += 1;
+      if (global_vars.progress >= _maxProgress) {
+        global_vars.progress = 0;
+        global_vars.level += 1;
         // Solo trackear el evento de acción si no es Android, porque en Android los logros se manejan con Google Play Games Services
         if (!Platform.isAndroid) {
           achievementController.trackEvent('level_up');
         }
-        if (level % 50 == 0) {
+        if (global_vars.level % 50 == 0) {
           incrementAchievementsStepType();
         }
-        if (level % 100 == 0) {
-          coins++;
+        if (global_vars.level % 100 == 0) {
+          global_vars.coins++;
           _playLevelUpSound();
           saveCookiesScore();
           _saveProgressOnGooglePlayGames();
@@ -401,7 +401,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _updateAccessory(String newAccessoryName) {
     setState(() {
-      accessoryName = newAccessoryName;
+      global_vars.accessoryName = newAccessoryName;
       _saveAccesorrySelection();
     });
   }
@@ -446,7 +446,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     child: Stack(
                       children: [
-                        if (userName == "NULLUSER")
+                        if (global_vars.userName == "NULLUSER")
                           Column(mainAxisSize: MainAxisSize.min, children: [
                             const SizedBox(height: 16),
                             TextField(
@@ -457,14 +457,14 @@ class _MyHomePageState extends State<MyHomePage> {
                               decoration: InputDecoration(
                                   suffixIcon: IconButton(
                                       onPressed: () => setState(() {
-                                            userName = _userNameTEC.text;
+                                            global_vars.userName = _userNameTEC.text;
                                             _saveProgress();
                                             writeAThankUTxt();
                                             FocusManager.instance.primaryFocus?.unfocus();
                                           }),
                                       icon: const Icon(Icons.done),
                                       color: AppColors.focusItem),
-                                  labelText: languageDataManager.getLabel('new-user-name'),
+                                  labelText: global_vars.languageDataManager.getLabel('new-user-name'),
                                   labelStyle: const TextStyle(color: AppColors.primaryText, fontSize: 34.0),
                                   floatingLabelAlignment: FloatingLabelAlignment.center,
                                   focusedBorder:
@@ -472,7 +472,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   enabledBorder: const UnderlineInputBorder(
                                       borderSide: BorderSide(color: AppColors.userInputText))),
                               onSubmitted: (value) => setState(() {
-                                userName = value;
+                                global_vars.userName = value;
                                 _saveProgress();
                                 writeAThankUTxt();
                               }),
@@ -486,7 +486,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 children: [
                                   const SizedBox(height: 16),
                                   Text(
-                                    userName,
+                                    global_vars.userName,
                                     textAlign: TextAlign.start,
                                     style: const TextStyle(
                                       fontSize: 48.0,
@@ -495,7 +495,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   )
                                 ],
                               )),
-                        if (userName != "NULLUSER")
+                        if (global_vars.userName != "NULLUSER")
                           Center(
                             child: Container(
                               margin: const EdgeInsets.only(top: 30), // Ajuste del margen superior
@@ -508,7 +508,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                           ),
-                        if (userName != "NULLUSER")
+                        if (global_vars.userName != "NULLUSER")
                           Positioned(
                             child: Center(
                               child: MouseRegion(
@@ -520,7 +520,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     child: Transform.translate(
                                       offset: const Offset(0, -30),
                                       child: Image.asset(
-                                        'assets/images/accessories/$accessoryName.png',
+                                        'assets/images/accessories/${global_vars.accessoryName}.png',
                                         fit: BoxFit.cover,
                                       ),
                                     ),
@@ -549,19 +549,19 @@ class _MyHomePageState extends State<MyHomePage> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  '${languageDataManager.getLabel('level')} $level',
+                                  '${global_vars.languageDataManager.getLabel('level')} ${global_vars.level}',
                                   style: const TextStyle(
                                     fontSize: 40.0,
                                     color: AppColors.primaryText,
                                   ),
                                 ),
-                                if (userName != "NULLUSER") ...[
+                                if (global_vars.userName != "NULLUSER") ...[
                                   const SizedBox(height: 8.0),
                                   SizedBox(
                                     height: 16.0,
                                     width: 250.0,
                                     child: LinearProgressIndicator(
-                                      value: progress / _maxProgress,
+                                      value: global_vars.progress / _maxProgress,
                                       backgroundColor: AppColors.loveBarOpposite,
                                       valueColor: const AlwaysStoppedAnimation<Color>(
                                         AppColors.loveBar,
