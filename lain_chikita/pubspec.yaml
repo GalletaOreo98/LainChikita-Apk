@@ -45,6 +45,7 @@ dependencies:
   path_provider: ^2.1.6
   games_services: ^5.0.0
   fifty_achievement_engine: ^0.2.2
+  file_selector: ^1.1.0
 
 # jni 1.1.0 (transitiva de path_provider_android) quitó el cast a (void**) en AttachCurrentThread
 # y no compila en Linux/desktop (-Wincompatible-pointer-types). Quitar cuando se publique un fix.

@@ -39,6 +39,7 @@ flutter build linux --release
   - `AudioService` plays sounds.
   - `Translations` (with the `tr('key')` shortcut) holds UI text.
   - `RedeemCodeService` redeems codes.
+  - `SaveFileService` handles `.save` backups (Linux/Windows only).
   - `crypto.dart` and `user_files.dart` are helpers.
 - `logic/` holds pure, unit-tested code: `ClickGuard` (anti-cheat) and the inventory merge and JSON codec.
 - `data/` holds static catalogs (accessories, redeem codes, achievements). `models/` holds `GameSaveData` and the sealed `RedeemResult`.
@@ -49,6 +50,13 @@ Leveling works like this: there are 20 clicks per level (`GameState.lovePerLevel
 ### Persistence: formats must stay backward compatible
 - Local: `SharedPreferencesAsync` in `GameStorage`. It has no cache, so every getter is `await`ed, and it uses DataStore on Android. Key names live in `PrefsKeys` and must never be renamed. That includes `unlockedInventory`, which actually stores the **locked** accessories. The legacy `SharedPreferences` API is only used by `migrateLegacyIfNecessary()`, keyed by `legacyPrefsMigrationCompleted`.
 - Cloud (Android only): Play Games slots `slot1` (`GameSaveData` JSON, where the inventories are JSON strings inside the JSON), `cookies_score` and `redeemed_codes` (`SaveSlots`).
+- `.save` files (Linux/Windows only, user-chosen location via `file_selector`): `SaveFileData` is a `GameSaveData` plus the local achievements export, wrapped in `{format, formatVersion, savedAt}` and AES-encrypted with `SECRET_KEY`. If the structure changes, bump `SaveFileData.formatVersion` and keep reading older versions.
+- Neither cloud saves nor `.save` files include coins: loading resets them to 0, which unlocks "I have lost it all" if the user had any.
+
+### Platforms
+- **Android**: Google Play Games for achievements, leaderboard, cloud save and redeem codes. Local data is stored in preferences.
+- **Linux/Windows**: local achievements (`fifty_achievement_engine`, viewable in `LocalAchievementsScreen`) and `.save` backup/restore. Redeem codes need Play Games, so here "Let's All Love Lain" unlocks just by tapping the redeem button. `AchievementsService.syncLevel` raises the `level_up` stat to at least the current level, because the local engine was added after players already had levels.
+- macOS/iOS aren't distributed.
 - Accessory lists are stored as `[{"name": "<id>"}]` (`encodeAccessoryList`) but handled in memory as `List<String>`.
 
 ### Adding things

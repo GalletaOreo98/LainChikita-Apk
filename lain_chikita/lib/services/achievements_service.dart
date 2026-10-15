@@ -27,6 +27,9 @@ class AchievementsService {
 
   bool get _usePlayGames => _playGames.isAvailable;
 
+  /// Motor de logros local, para mostrar la lista de logros (solo tiene sentido fuera de Android)
+  fifty.AchievementController<void> get localEngine => _localEngine;
+
   /// Carga el progreso guardado del motor local
   Future<void> restoreLocalProgress() async {
     final progress = await _storage.loadLocalAchievements();
@@ -34,6 +37,28 @@ class AchievementsService {
   }
 
   Future<void> saveLocalProgress() => _storage.saveLocalAchievements(_localEngine.exportProgress());
+
+  Map<String, dynamic> exportLocalProgress() => _localEngine.exportProgress();
+
+  /// Reemplaza todo el progreso local por [progress] (al cargar un archivo .save). Con null queda vacío
+  Future<void> replaceLocalProgress(Map<String, dynamic>? progress) async {
+    if (progress != null) {
+      _localEngine.importProgress(progress);
+    } else {
+      _localEngine.reset();
+    }
+    await saveLocalProgress();
+  }
+
+  /// Asegura que la stat de subidas de nivel no vaya por detrás del nivel actual.
+  /// Hace falta porque el motor local llegó después que los niveles: sin esto, un usuario que ya
+  /// era nivel 3000 tendría que subir 1000 niveles más para "Cereal enjoyer". Nunca baja la stat.
+  Future<void> syncLevel(int level) async {
+    if (_usePlayGames) return;
+    if (_localEngine.getStat(levelUpStat) >= level) return;
+    _localEngine.updateStat(levelUpStat, level);
+    await saveLocalProgress();
+  }
 
   /// Recarga los logros de Play Games (no hace nada fuera de Android)
   Future<void> refreshPlayGamesAchievements() => _playGames.refreshAchievements();

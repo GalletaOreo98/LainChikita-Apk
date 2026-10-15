@@ -6,6 +6,7 @@ import '../data/achievements_catalog.dart';
 import '../models/redeem_result.dart';
 import '../services/achievements_service.dart';
 import '../services/audio_service.dart';
+import '../services/play_games_service.dart';
 import '../services/redeem_code_service.dart';
 import '../services/translations.dart';
 import '../state/game_state.dart';
@@ -55,6 +56,11 @@ class _GachaScreenState extends State<GachaScreen> {
   }
 
   void _toggleRedeemCodeInput() {
+    // Sin Google Play Games no se pueden canjear códigos (la lista de canjeados vive en la nube),
+    // así que el logro se da con solo tocar el botón
+    if (!PlayGamesService.instance.isAvailable) {
+      AchievementsService.instance.unlock(GameAchievement.letsAllLoveLain);
+    }
     setState(() {
       _showRedeemCodeInput = !_showRedeemCodeInput;
       if (!_showRedeemCodeInput) {

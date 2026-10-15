@@ -56,6 +56,10 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     if (widget.catalogWasUpdated) _startUpdatedAnimation();
     unawaited(AchievementsService.instance.refreshPlayGamesAchievements());
+    // Después del primer frame para que se vean los popups de los logros de nivel que se desbloqueen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(AchievementsService.instance.syncLevel(widget.game.level));
+    });
   }
 
   @override

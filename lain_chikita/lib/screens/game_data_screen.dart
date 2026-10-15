@@ -6,18 +6,21 @@ import '../core/app_assets.dart';
 import '../core/app_colors.dart';
 import '../data/achievements_catalog.dart';
 import '../models/game_save_data.dart';
+import '../models/save_file_data.dart';
 import '../services/achievements_service.dart';
 import '../services/audio_service.dart';
 import '../services/play_games_service.dart';
+import '../services/save_file_service.dart';
 import '../services/translations.dart';
 import '../state/game_state.dart';
 import '../widgets/confirm_dialog.dart';
 import '../widgets/menu_button.dart';
+import 'local_achievements_screen.dart';
 
-/// Pantalla de Google Play Games (sesión, logros, leaderboard) y de guardar/cargar progreso.
+/// Pantalla de logros y de guardar/cargar progreso.
 ///
-/// En Android el progreso se guarda/carga de la nube. En las demás plataformas no hay nube:
-/// "guardar" solo desbloquea los logros locales correspondientes y guarda su progreso.
+/// - Android: Google Play Games (sesión, logros, leaderboard y guardado en la nube).
+/// - Linux y Windows: logros locales y respaldo en un archivo .save que el usuario guarda donde quiera.
 class GameDataScreen extends StatefulWidget {
   const GameDataScreen({super.key, required this.game});
 
@@ -29,6 +32,7 @@ class GameDataScreen extends StatefulWidget {
 
 class _GameDataScreenState extends State<GameDataScreen> {
   final _playGames = PlayGamesService.instance;
+  final _saveFiles = SaveFileService.instance;
   final _achievements = AchievementsService.instance;
   final _audio = AudioService.instance;
 
@@ -106,7 +110,16 @@ class _GameDataScreenState extends State<GameDataScreen> {
     return confirmed;
   }
 
-  Future<void> _saveProgress() async {
+  void _openLocalAchievements() {
+    _audio.playInformativePopup();
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LocalAchievementsScreen()));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Android: nube de Google Play Games
+  // ---------------------------------------------------------------------------
+
+  Future<void> _saveProgressToCloud() async {
     final confirmed = await _confirm(
       title: tr('confirm-save-progress'),
       message: tr('save-progress-overwrite-alert'),
@@ -116,37 +129,18 @@ class _GameDataScreenState extends State<GameDataScreen> {
 
     try {
       _showMessage('${tr('packing-data')}...', working: true);
-      if (_playGames.isAvailable) {
-        await _saveProgressToCloud();
-      } else {
-        await _saveProgressLocally();
-      }
+      final data = _game.toSaveData().encode();
+      _showMessage('${tr('sending-data')}...');
+      await _playGames.saveToSlot(SaveSlots.gameData, data);
+      _showMessage(tr('data-sent'));
+      await _achievements.unlock(GameAchievement.keepYourLoveSafe);
       _showMessage(tr('save-progress-successful'), working: false, hideAfterSeconds: 4);
     } catch (e) {
       _showError('Error saving data: $e');
     }
   }
 
-  Future<void> _saveProgressToCloud() async {
-    final data = _game.toSaveData().encode();
-    _showMessage('${tr('sending-data')}...');
-    await _playGames.saveToSlot(SaveSlots.gameData, data);
-    _showMessage(tr('data-sent'));
-    await _achievements.unlock(GameAchievement.keepYourLoveSafe);
-  }
-
-  /// Sin nube no hay nada que guardar, solo se dan los logros (y se pierden las monedas, como al cargar en Android)
-  Future<void> _saveProgressLocally() async {
-    await _achievements.unlock(GameAchievement.welcomeToTheWired);
-    await _achievements.unlock(GameAchievement.keepYourLoveSafe);
-    if (_game.coins >= 1) {
-      await _game.resetCoins();
-      await _achievements.unlock(GameAchievement.iHaveLostItAll);
-    }
-    await _achievements.saveLocalProgress();
-  }
-
-  Future<void> _loadProgress() async {
+  Future<void> _loadProgressFromCloud() async {
     final confirmed = await _confirm(
       title: tr('confirm-load-progress'),
       message: tr('load-progress-overwrite-alert'),
@@ -181,9 +175,87 @@ class _GameDataScreenState extends State<GameDataScreen> {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Linux y Windows: respaldo en archivo .save
+  // ---------------------------------------------------------------------------
+
+  Future<void> _saveProgressToFile() async {
+    _audio.playInformativePopup();
+    final String? path;
+    try {
+      path = await _saveFiles.pickSaveLocation();
+    } catch (e) {
+      _showError('Error: $e');
+      return;
+    }
+    if (path == null) {
+      _audio.playCancel();
+      return;
+    }
+    _audio.playAcceptPopup();
+
+    try {
+      _showMessage('${tr('packing-data')}...', working: true);
+      // Se desbloquea antes de escribir para que el logro también quede dentro del respaldo
+      await _achievements.unlock(GameAchievement.keepYourLoveSafe);
+      await _saveFiles.write(
+        path,
+        SaveFileData(
+          game: _game.toSaveData(),
+          localAchievements: _achievements.exportLocalProgress(),
+          savedAt: DateTime.now(),
+        ),
+      );
+      _showMessage(tr('save-progress-successful'), working: false, hideAfterSeconds: 4);
+    } catch (e) {
+      _showError('Error saving data: $e');
+    }
+  }
+
+  Future<void> _loadProgressFromFile() async {
+    final confirmed = await _confirm(
+      title: tr('confirm-load-progress'),
+      message: tr('load-from-file-overwrite-alert'),
+      confirmLabel: tr('load'),
+    );
+    if (!confirmed) return;
+
+    final SaveFileData? saveFile;
+    try {
+      saveFile = await _saveFiles.pickAndRead();
+    } on FormatException {
+      _showError(tr('invalid-save-file'));
+      return;
+    } catch (e) {
+      _showError('Error loading data: $e');
+      return;
+    }
+    if (saveFile == null) {
+      _audio.playCancel();
+      return;
+    }
+
+    try {
+      _showMessage('${tr('applying-data')}...', working: true);
+      final hadCoins = _game.coins >= 1;
+      await _game.applySaveData(saveFile.game);
+
+      _showMessage('${tr('loading-achievements')}...');
+      await _achievements.replaceLocalProgress(saveFile.localAchievements);
+      await _achievements.syncLevel(_game.level);
+      await _achievements.unlock(GameAchievement.welcomeToTheWired);
+      if (hadCoins) await _achievements.unlock(GameAchievement.iHaveLostItAll);
+
+      _showMessage(tr('load-progress-successful'), working: false, hideAfterSeconds: 4);
+    } catch (e) {
+      _showError('Error loading data: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cloudAvailable = _playGames.isAvailable;
+    final fileBackupAvailable = !cloudAvailable && _saveFiles.isAvailable;
 
     return Container(
       color: AppColors.background,
@@ -192,8 +264,7 @@ class _GameDataScreenState extends State<GameDataScreen> {
         child: ListenableBuilder(
           listenable: _game,
           builder: (context, _) {
-            // Sin nube (no Android) se puede "guardar" sin sesión
-            final canSave = _game.hasUserName && (_isSignedIn || !cloudAvailable);
+            final hasUserName = _game.hasUserName;
 
             return Column(
               children: [
@@ -210,7 +281,9 @@ class _GameDataScreenState extends State<GameDataScreen> {
                 const SizedBox(height: 8),
                 MenuButton(
                   label: tr('achievements'),
-                  onPressed: _isSignedIn ? () => _openPlayGamesUi(_playGames.showAchievements) : null,
+                  onPressed: cloudAvailable
+                      ? (_isSignedIn ? () => _openPlayGamesUi(_playGames.showAchievements) : null)
+                      : _openLocalAchievements,
                   color: AppColors.achievementsBtn,
                 ),
                 if (cloudAvailable) ...[
@@ -221,17 +294,22 @@ class _GameDataScreenState extends State<GameDataScreen> {
                     color: AppColors.leaderboardsBtn,
                   ),
                 ],
-                const SizedBox(height: 8),
-                MenuButton(
-                  label: tr('save-progress'),
-                  onPressed: canSave ? _saveProgress : null,
-                  color: AppColors.saveProgressBtn,
-                ),
-                if (cloudAvailable) ...[
+                if (cloudAvailable || fileBackupAvailable) ...[
+                  const SizedBox(height: 8),
+                  MenuButton(
+                    label: tr('save-progress'),
+                    onPressed: !hasUserName
+                        ? null
+                        : cloudAvailable
+                            ? (_isSignedIn ? _saveProgressToCloud : null)
+                            : _saveProgressToFile,
+                    color: AppColors.saveProgressBtn,
+                  ),
                   const SizedBox(height: 8),
                   MenuButton(
                     label: tr('load-progress'),
-                    onPressed: _isSignedIn ? _loadProgress : null,
+                    // Cargar un .save no pide nombre: es justo lo que hace alguien que reinstaló la app
+                    onPressed: cloudAvailable ? (_isSignedIn ? _loadProgressFromCloud : null) : _loadProgressFromFile,
                     color: AppColors.loadProgressBtn,
                   ),
                 ],

@@ -60,6 +60,7 @@
     "updating-ui": "Updating UI",
     "confirm-save-progress": "Confirm Save Progress",
     "cancel": "Cancel",
-    "confirm-load-progress": "Confirm Load Progress"
-
+    "confirm-load-progress": "Confirm Load Progress",
+    "load-from-file-overwrite-alert": "Your current progress and achievements will be replaced by the ones in the save file. Coins are not included in save files. Are you sure you want to continue?",
+    "invalid-save-file": "Invalid or damaged save file"
 }

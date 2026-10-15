@@ -60,5 +60,7 @@
     "updating-ui": "Actualizando interfaz",
     "confirm-save-progress": "Confirma Guardar Progreso",
     "cancel": "Cancelar",
-    "confirm-load-progress": "Confirma Cargar Progreso"
+    "confirm-load-progress": "Confirma Cargar Progreso",
+    "load-from-file-overwrite-alert": "Tu progreso y logros actuales serán reemplazados por los del archivo de guardado. Las monedas no se incluyen en los archivos de guardado. ¿Seguro que quieres continuar?",
+    "invalid-save-file": "Archivo de guardado inválido o dañado"
 }
