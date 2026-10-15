@@ -1,15 +1,15 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
-import 'dart:convert' show json, jsonDecode, jsonEncode;
+import 'dart:convert' show json, jsonDecode;
 import 'dart:async';
 //import 'package:flutter/services.dart' show Clipboard, ClipboardData;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:games_services/games_services.dart';
 
 // My imports
 import '../classes/app_colors.dart';
 import '../functions/achievements_manager.dart';
+import '../functions/prefs_storage.dart';
 import '../functions/prefs_version_manager.dart';
 import '../global_vars.dart' as global_vars;
 //import '../functions/encryption_functions.dart' show decryptFiles, encryptFiles, encryptData, decryptData;
@@ -151,21 +151,20 @@ class MyWidgetState extends State<EncryptionScreen> {
       List<Map<String, dynamic>> unlockedInventoryD =
           List<Map<String, dynamic>>.from(jsonDecode(decryptedDataMap['unlockedInventory'] ?? '[{}]'));
       //Apply Save all progress
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('coins', 0);
-      await prefs.setString('userName', userNameD);
-      await prefs.setString('userUuid', userUuidD);
-      await prefs.setInt('level', levelD);
-      await prefs.setInt('progress', progressD);
-      await prefs.setString('userIv', userIvD);
-      await prefs.setString('userSecretKey', userSecretKeyD);
-      await prefs.setString('accessoryName', accessoryNameD);
-      await prefs.setInt('inventoryVersion', inventoryVersionD);
+      await appPrefs.setInt('coins', 0);
+      await appPrefs.setString('userName', userNameD);
+      await appPrefs.setString('userUuid', userUuidD);
+      await appPrefs.setInt('level', levelD);
+      await appPrefs.setInt('progress', progressD);
+      await appPrefs.setString('userIv', userIvD);
+      await appPrefs.setString('userSecretKey', userSecretKeyD);
+      await appPrefs.setString('accessoryName', accessoryNameD);
+      await appPrefs.setInt('inventoryVersion', inventoryVersionD);
       //Inventarios
       final jsonInventory = json.encode(inventoryD);
-      await prefs.setString('inventory', jsonInventory);
+      await appPrefs.setString('inventory', jsonInventory);
       final jsonUnlockedInventory = json.encode(unlockedInventoryD);
-      await prefs.setString('unlockedInventory', jsonUnlockedInventory);
+      await appPrefs.setString('unlockedInventory', jsonUnlockedInventory);
       //Actualizar UI
       setState(() {
         coins = 0;
@@ -273,11 +272,6 @@ class MyWidgetState extends State<EncryptionScreen> {
 
 
 
-  Future<void> saveAchievementsProgressToSharedPreferences(String achievementData) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('achievement_progress_engine_data', achievementData);
-  }
-
   void _saveGameData() async {
     // Show confirmation dialog
     bool? confirmed = await showDialog<bool>(
@@ -334,14 +328,12 @@ class MyWidgetState extends State<EncryptionScreen> {
         if (global_vars.coins >= 1) {
           // Reset coins to 0 when saving progress hehe UwU
           global_vars.coins = 0;
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setInt('coins', 0);
+          await appPrefs.setInt('coins', 0);
           achievementController.forceUnlock('i_have_lost_it_all');  // Unlock local achievement
         }
 
         // Export all progress data
-        final progressJson = achievementController.exportProgress();
-        await saveAchievementsProgressToSharedPreferences(jsonEncode(progressJson));
+        await saveEngineAchievementsProgressToSharedPreferences();
 
         if (mounted) {
           setState(() {
@@ -492,23 +484,22 @@ class MyWidgetState extends State<EncryptionScreen> {
           setState(() {_informativeText = "${global_vars.languageDataManager.getLabel('applying-data')}...";});
         }
 
-        // Save all progress to SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setInt('coins', 0);
-        await prefs.setString('userName', userNameD);
-        await prefs.setString('userUuid', userUuidD);
-        await prefs.setInt('level', levelD);
-        await prefs.setInt('progress', progressD);
-        await prefs.setString('userIv', userIvD);
-        await prefs.setString('userSecretKey', userSecretKeyD);
-        await prefs.setString('accessoryName', accessoryNameD);
-        await prefs.setInt('inventoryVersion', inventoryVersionD);
+        // Save all progress to preferences
+          await appPrefs.setInt('coins', 0);
+        await appPrefs.setString('userName', userNameD);
+        await appPrefs.setString('userUuid', userUuidD);
+        await appPrefs.setInt('level', levelD);
+        await appPrefs.setInt('progress', progressD);
+        await appPrefs.setString('userIv', userIvD);
+        await appPrefs.setString('userSecretKey', userSecretKeyD);
+        await appPrefs.setString('accessoryName', accessoryNameD);
+        await appPrefs.setInt('inventoryVersion', inventoryVersionD);
           
         // Inventarios
         final jsonInventory = json.encode(inventoryD);
-        await prefs.setString('inventory', jsonInventory);
+        await appPrefs.setString('inventory', jsonInventory);
         final jsonUnlockedInventory = json.encode(unlockedInventoryD);
-        await prefs.setString('unlockedInventory', jsonUnlockedInventory);
+        await appPrefs.setString('unlockedInventory', jsonUnlockedInventory);
 
         if (mounted) {
           setState(() {_informativeText = "${global_vars.languageDataManager.getLabel('loading-achievements')}...";});

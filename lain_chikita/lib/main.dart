@@ -4,7 +4,6 @@ import 'package:audioplayers/audioplayers.dart' show AudioPlayer, PlayerMode, Re
 import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemUiMode, SystemChrome, KeyEvent, KeyDownEvent, LogicalKeyboardKey;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert' show json, jsonDecode;
 import 'dart:ui' show PlatformDispatcher;
 import 'package:games_services/games_services.dart';
@@ -12,6 +11,7 @@ import 'package:games_services/games_services.dart';
 //My imports
 import 'classes/app_colors.dart';
 import 'functions/achievements_manager.dart';
+import 'functions/prefs_storage.dart';
 import 'functions/prefs_version_manager.dart';
 import 'global_vars.dart' as global_vars;
 import 'private_keys.dart';
@@ -106,38 +106,39 @@ class _MyHomePageState extends State<MyHomePage> {
     //Carga directorios de la app y crea los folders si es necesario
     global_vars.appDirectoryStorage = await getAppDirectoryStorage();
     await createEncryptionFolders();
+    //Migra los datos del SharedPreferences legacy (solo la primera vez)
+    await migrateLegacyPrefsIfNecessary();
     //Revisa si el usuario tiene userUuid
-    final prefs = await SharedPreferences.getInstance();
-    global_vars.userUuid = prefs.getString("userUuid") ?? "";
+    global_vars.userUuid = await appPrefs.getString("userUuid") ?? "";
     if (global_vars.userUuid.isEmpty) {
       global_vars.userUuid = generateCryptoRngUuid();
-      await prefs.setString('userUuid', global_vars.userUuid);
+      await appPrefs.setString('userUuid', global_vars.userUuid);
     }
     //Revisa si el usuario tiene su userSecretKey Y su userIV
-    global_vars.userSecretKey = prefs.getString("userSecretKey") ?? "";
+    global_vars.userSecretKey = await appPrefs.getString("userSecretKey") ?? "";
     if (global_vars.userSecretKey.isEmpty) {
       global_vars.userSecretKey = generateUserSecretKey(32);
-      await prefs.setString('userSecretKey', global_vars.userSecretKey);
+      await appPrefs.setString('userSecretKey', global_vars.userSecretKey);
     }
-    global_vars.userIv = prefs.getString("userIv") ?? "";
+    global_vars.userIv = await appPrefs.getString("userIv") ?? "";
     if (global_vars.userIv.isEmpty) {
       global_vars.userIv = generateUserIV(16);
-      await prefs.setString('userIv', global_vars.userIv);
+      await appPrefs.setString('userIv', global_vars.userIv);
     }
-    int thisInventoryVersion = prefs.getInt('inventoryVersion') ?? 1;
+    int thisInventoryVersion = await appPrefs.getInt('inventoryVersion') ?? 1;
     if (thisInventoryVersion == 1) {
-      await prefs.setInt('inventoryVersion', global_vars.inventoryVersion);
+      await appPrefs.setInt('inventoryVersion', global_vars.inventoryVersion);
       //thisInventoryVersion = inventoryVersion;
     }
     //Inventarios
-    final jsonInventory = prefs.getString('inventory') ?? '';
+    final jsonInventory = await appPrefs.getString('inventory') ?? '';
     if (jsonInventory.isNotEmpty) {
       global_vars.inventory = List<Map<String, dynamic>>.from(jsonDecode(jsonInventory));
     }
     //Check unlockedInventory version
     //(Se podria optimizar...)
     List<Map<String, dynamic>> appUnlockedInventory = global_vars.unlockedInventory.toList();
-    final jsonUnlockedInventory = prefs.getString('unlockedInventory') ?? '';
+    final jsonUnlockedInventory = await appPrefs.getString('unlockedInventory') ?? '';
     if (jsonUnlockedInventory.isNotEmpty) {
       global_vars.unlockedInventory = List<Map<String, dynamic>>.from(jsonDecode(jsonUnlockedInventory));
     }
@@ -145,27 +146,32 @@ class _MyHomePageState extends State<MyHomePage> {
       final thisUnlockedInventory = global_vars.unlockedInventory.toList();
       global_vars.unlockedInventory =
           applyInventoryVerionUpdate(thisUnlockedInventory, appUnlockedInventory, global_vars.inventory);
-      await prefs.setInt('inventoryVersion', global_vars.inventoryVersion);
+      await appPrefs.setInt('inventoryVersion', global_vars.inventoryVersion);
       final jsonUnlockedInventoryToSet = json.encode(global_vars.unlockedInventory);
-      await prefs.setString('unlockedInventory', jsonUnlockedInventoryToSet);
+      await appPrefs.setString('unlockedInventory', jsonUnlockedInventoryToSet);
       runUpdateAnimation(5); //En esta funcion se hace el wasUpdated = true;
       _playUpdatedSound();
     }
     //Carga los nombres de los items del inventario segun el lenguaje del dispositivo
     await global_vars.languageDataManager.loadAccessoryNames(global_vars.language);
     await global_vars.languageDataManager.loadLabels(global_vars.language);
-    //Carga los datos guardados en SharedPreferences
+    //Carga los datos guardados en las preferencias
+    final level = await appPrefs.getInt('level') ?? 0;
+    final progress = await appPrefs.getInt('progress') ?? 0;
+    final userName = await appPrefs.getString('userName') ?? "NULLUSER";
+    final accessoryName = await appPrefs.getString('accessoryName') ?? "null";
+    final coins = await appPrefs.getInt('coins') ?? 0;
+    final savedAchievementsEngineData = await appPrefs.getString('achievement_progress_engine_data') ?? '';
     setState(() {
-      global_vars.level = prefs.getInt('level') ?? 0;
-      global_vars.progress = prefs.getInt('progress') ?? 0;
-      global_vars.userName = prefs.getString('userName') ?? "NULLUSER";
-      global_vars.accessoryName = prefs.getString('accessoryName') ?? "null";
-      global_vars.coins = prefs.getInt('coins') ?? 0;
+      global_vars.level = level;
+      global_vars.progress = progress;
+      global_vars.userName = userName;
+      global_vars.accessoryName = accessoryName;
+      global_vars.coins = coins;
 
       //Carga logros a variables globales
       loadAchievementsToGlobalVars();
       // Para modo logros sin Google Play Games Services
-      final savedAchievementsEngineData = prefs.getString('achievement_progress_engine_data') ?? '';
       if (savedAchievementsEngineData.isNotEmpty) {
         final savedAchievementsEngineDataJson = jsonDecode(savedAchievementsEngineData) as Map<String, dynamic>;
         if (savedAchievementsEngineDataJson.isNotEmpty) achievementController.importProgress(savedAchievementsEngineDataJson);
@@ -181,24 +187,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   //Funcion posible para optimizar dividiendola en varios tipos de save
   Future<void> _saveProgress() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('level', global_vars.level);
-    await prefs.setInt('progress', global_vars.progress);
-    await prefs.setString('userName', global_vars.userName);
-    await prefs.setInt('coins', global_vars.coins);
+    await appPrefs.setInt('level', global_vars.level);
+    await appPrefs.setInt('progress', global_vars.progress);
+    await appPrefs.setString('userName', global_vars.userName);
+    await appPrefs.setInt('coins', global_vars.coins);
   }
 
   Future<void> _saveInventaries() async {
-    final prefs = await SharedPreferences.getInstance();
     final jsonInventory = json.encode(global_vars.inventory);
-    await prefs.setString('inventory', jsonInventory);
+    await appPrefs.setString('inventory', jsonInventory);
     final jsonUnlockedInventory = json.encode(global_vars.unlockedInventory);
-    await prefs.setString('unlockedInventory', jsonUnlockedInventory);
+    await appPrefs.setString('unlockedInventory', jsonUnlockedInventory);
   }
 
   Future<void> _saveAccesorrySelection() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('accessoryName', global_vars.accessoryName);
+    await appPrefs.setString('accessoryName', global_vars.accessoryName);
   }
 
   Future<void> _saveProgressOnGooglePlayGames() async {
