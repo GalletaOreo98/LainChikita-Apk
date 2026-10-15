@@ -21,6 +21,33 @@ void main() {
     });
   });
 
+  group('moveAccessory (índices de ReorderableListView.onReorder)', () {
+    const list = ['a', 'b', 'c', 'd'];
+
+    test('mover hacia abajo: newIndex cuenta la posición antes de quitar el elemento', () {
+      // Arrastrar 'a' hasta debajo de 'c' llega como (0, 3)
+      expect(moveAccessory(list, 0, 3), ['b', 'c', 'a', 'd']);
+      // Hasta el final llega como (0, length)
+      expect(moveAccessory(list, 0, 4), ['b', 'c', 'd', 'a']);
+    });
+
+    test('mover hacia arriba', () {
+      expect(moveAccessory(list, 3, 0), ['d', 'a', 'b', 'c']);
+      expect(moveAccessory(list, 2, 1), ['a', 'c', 'b', 'd']);
+    });
+
+    test('soltar en el mismo lugar no cambia nada', () {
+      expect(moveAccessory(list, 1, 1), list);
+      expect(moveAccessory(list, 1, 2), list);
+    });
+
+    test('no modifica la lista original', () {
+      final original = ['a', 'b', 'c'];
+      moveAccessory(original, 0, 3);
+      expect(original, ['a', 'b', 'c']);
+    });
+  });
+
   group('lista de accesorios en JSON', () {
     test('mantiene el formato histórico [{"name": id}]', () {
       expect(encodeAccessoryList(['null', 'sunglasses']), '[{"name":"null"},{"name":"sunglasses"}]');

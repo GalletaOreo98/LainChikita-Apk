@@ -11,6 +11,17 @@ List<String> mergeNewCatalogAccessories({
   return [...locked, ...newAccessories];
 }
 
+/// Mueve el accesorio de [oldIndex] a [newIndex] y devuelve una lista nueva (no modifica [list]).
+///
+/// Los índices son los que da `ReorderableListView.onReorder`: [newIndex] es la posición
+/// *antes* de quitar el elemento, por eso al mover hacia abajo hay que restarle 1.
+List<String> moveAccessory(List<String> list, int oldIndex, int newIndex) {
+  final result = [...list];
+  final targetIndex = newIndex > oldIndex ? newIndex - 1 : newIndex;
+  result.insert(targetIndex, result.removeAt(oldIndex));
+  return result;
+}
+
 /// Los inventarios se guardan como JSON `[{"name": "<id>"}, ...]` (formato histórico de la app,
 /// tanto en las preferencias como en el guardado en la nube). No cambiar el formato.
 String encodeAccessoryList(List<String> accessoryIds) {

@@ -70,5 +70,6 @@
     "rarity-uncommon": "Uncommon",
     "rarity-rare": "Rare",
     "rarity-epic": "Epic",
-    "rarity-legendary": "Legendary"
+    "rarity-legendary": "Legendary",
+    "inventory-reorder-hint": "Press and hold an accessory to move it"
 }

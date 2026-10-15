@@ -146,6 +146,14 @@ class GameState extends ChangeNotifier {
     await _storage.saveAccessory(accessoryId);
   }
 
+  /// Cambia el orden del inventario (el usuario arrastra los accesorios para poner sus favoritos arriba).
+  /// Los índices son los de `ReorderableListView.onReorder`
+  Future<void> reorderInventory(int oldIndex, int newIndex) async {
+    _inventory = moveAccessory(_inventory, oldIndex, newIndex);
+    notifyListeners();
+    await _saveInventories();
+  }
+
   /// Gasta una moneda en un accesorio aleatorio. Devuelve false si no hay monedas o no quedan accesorios
   Future<bool> buyRandomAccessory() async {
     if (_coins <= 0 || _lockedAccessories.isEmpty) return false;

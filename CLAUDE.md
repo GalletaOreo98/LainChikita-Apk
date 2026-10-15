@@ -57,7 +57,7 @@ Leveling works like this: there are 20 clicks per level (`GameState.lovePerLevel
 - **Android**: Google Play Games for achievements, leaderboard, cloud save and redeem codes. Local data is stored in preferences.
 - **Linux/Windows**: local achievements (`fifty_achievement_engine`, viewable in `LocalAchievementsScreen`) and `.save` backup/restore. Redeem codes need Play Games, so here "Let's All Love Lain" unlocks just by tapping the redeem button. `AchievementsService.syncLevel` raises the `level_up` stat to at least the current level, because the local engine was added after players already had levels.
 - macOS/iOS aren't distributed.
-- Accessory lists are stored as `[{"name": "<id>"}]` (`encodeAccessoryList`) but handled in memory as `List<String>`.
+- Accessory lists are stored as `[{"name": "<id>"}]` (`encodeAccessoryList`) but handled in memory as `List<String>`. The inventory order is user-chosen (press and hold to drag in `InventoryScreen`, via `GameState.reorderInventory`) and persisted as-is. New accessories are appended at the end.
 
 ### Adding things
 - **Accessory**:

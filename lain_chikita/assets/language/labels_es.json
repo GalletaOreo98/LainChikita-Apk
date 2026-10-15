@@ -70,5 +70,6 @@
     "rarity-uncommon": "Poco común",
     "rarity-rare": "Raro",
     "rarity-epic": "Épico",
-    "rarity-legendary": "Legendario"
+    "rarity-legendary": "Legendario",
+    "inventory-reorder-hint": "Mantén presionado un accesorio para moverlo"
 }
