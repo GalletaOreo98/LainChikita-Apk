@@ -62,5 +62,13 @@
     "cancel": "Cancelar",
     "confirm-load-progress": "Confirma Cargar Progreso",
     "load-from-file-overwrite-alert": "Tu progreso y logros actuales serán reemplazados por los del archivo de guardado. Las monedas no se incluyen en los archivos de guardado. ¿Seguro que quieres continuar?",
-    "invalid-save-file": "Archivo de guardado inválido o dañado"
+    "invalid-save-file": "Archivo de guardado inválido o dañado",
+    "achievement-unlocked": "Logro desbloqueado",
+    "unlocked": "Desbloqueados",
+    "hidden-achievement": "Logro oculto",
+    "rarity-common": "Común",
+    "rarity-uncommon": "Poco común",
+    "rarity-rare": "Raro",
+    "rarity-epic": "Épico",
+    "rarity-legendary": "Legendario"
 }

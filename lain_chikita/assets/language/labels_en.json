@@ -62,5 +62,13 @@
     "cancel": "Cancel",
     "confirm-load-progress": "Confirm Load Progress",
     "load-from-file-overwrite-alert": "Your current progress and achievements will be replaced by the ones in the save file. Coins are not included in save files. Are you sure you want to continue?",
-    "invalid-save-file": "Invalid or damaged save file"
+    "invalid-save-file": "Invalid or damaged save file",
+    "achievement-unlocked": "Achievement unlocked",
+    "unlocked": "Unlocked",
+    "hidden-achievement": "Hidden achievement",
+    "rarity-common": "Common",
+    "rarity-uncommon": "Uncommon",
+    "rarity-rare": "Rare",
+    "rarity-epic": "Epic",
+    "rarity-legendary": "Legendary"
 }

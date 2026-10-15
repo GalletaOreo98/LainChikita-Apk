@@ -64,7 +64,7 @@ Leveling works like this: there are 20 clicks per level (`GameState.lovePerLevel
   1. Add its id to `unlockableAccessories` in `data/accessories_catalog.dart` and **increment `inventoryVersion`**. On startup, a changed version merges new catalog items into the user's locked list and plays the "updated" animation.
   2. Add `assets/images/accessories/<id>.png`.
   3. Add its name to `assets/language/items_name_en.json` and `items_name_es.json`.
-- **Event achievement**: add a value to the `GameAchievement` enum (local id + Play Console id), add a matching `fifty.Achievement` to `localAchievements`, and call `AchievementsService.instance.unlock(...)`. The service picks Play Games on Android and the local `fifty_achievement_engine` elsewhere.
+- **Event achievement**: add a value to the `GameAchievement` enum (local id + Play Console id), add a matching `fifty.Achievement` to `localAchievements`, and call `AchievementsService.instance.unlock(...)`. The service picks Play Games on Android and the local `fifty_achievement_engine` elsewhere. Add its pixel-art icon as `assets/images/achievements/<local id>.png`. Icons are 32x32 native, downscaled losslessly from the 512x512 Play Console icons in `demo/achievements/512x512/`, and drawn with `FilterQuality.none`.
 - **Redeem code**: add it to `redeemableCodes` (`data/redeemable_codes.dart`). The user-facing code is `encryptData('{"id":"<id>"}', SECRET_KEY)` from `services/crypto.dart`. Redeeming requires a Play Games sign-in.
 - **UI text**: add the key to both `assets/language/labels_en.json` and `labels_es.json`. `tr()` falls back to the key itself.
 - Assets must be declared in `pubspec.yaml`. Paths are centralized in `core/app_assets.dart`, and colors in `core/app_colors.dart`.

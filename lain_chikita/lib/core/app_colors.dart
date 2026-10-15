@@ -23,4 +23,11 @@ abstract final class AppColors {
   static const leaderboardsBtn = Color.fromARGB(255, 156, 39, 176);
   static const saveProgressBtn = Color.fromARGB(255, 32, 105, 189);
   static const loadProgressBtn = Color.fromARGB(255, 78, 24, 177);
+
+  // Rareza de los logros
+  static const rarityCommon = Color.fromARGB(255, 158, 158, 158);
+  static const rarityUncommon = Color.fromARGB(255, 102, 187, 106);
+  static const rarityRare = Color.fromARGB(255, 91, 139, 212);
+  static const rarityEpic = Color.fromARGB(255, 155, 89, 182);
+  static const rarityLegendary = Color.fromARGB(255, 230, 126, 34);
 }

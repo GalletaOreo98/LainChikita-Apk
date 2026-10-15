@@ -10,6 +10,9 @@ abstract final class AppImages {
   static const snowing = 'assets/images/snowing.gif';
 
   static String accessory(String accessoryId) => 'assets/images/accessories/$accessoryId.png';
+
+  /// Ícono pixel art 32x32 de un logro, nombrado con su id local (ver achievements_catalog.dart)
+  static String achievement(String achievementId) => 'assets/images/achievements/$achievementId.png';
 }
 
 /// Rutas de audio (relativas a assets/, que es como las espera AssetSource de audioplayers)

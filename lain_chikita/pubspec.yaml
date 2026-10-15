@@ -88,6 +88,7 @@ flutter:
     
     #Accessories
     - assets/images/accessories/
+    - assets/images/achievements/
 
     #Audio
     - assets/audio/

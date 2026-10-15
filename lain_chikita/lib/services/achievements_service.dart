@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 
 import '../core/navigation.dart';
 import '../data/achievements_catalog.dart';
+import '../widgets/achievement_popup_content.dart';
 import 'game_storage.dart';
 import 'play_games_service.dart';
 
@@ -96,6 +97,7 @@ class AchievementsService {
       builder: (context) => fifty.AchievementPopup(
         achievement: achievement,
         onDismiss: () => entry.remove(),
+        contentBuilder: (achievement, _, _) => AchievementPopupContent(achievement: achievement),
       ),
     );
     overlay.insert(entry);
