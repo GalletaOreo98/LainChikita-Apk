@@ -1,12 +1,39 @@
 import 'package:fifty_achievement_engine/fifty_achievement_engine.dart' as fifty;
 
-const List<fifty.Achievement> achievementList = [
+/// Logros que se desbloquean por un evento puntual.
+/// Cada uno existe en los dos sistemas: el motor local (no Android) y Google Play Games (Android).
+enum GameAchievement {
+  godIsWatchingYou('god_is_watching_you', 'CgkI8NLzkooQEAIQBg'),
+  keepYourLoveSafe('keep_your_love_safe', 'CgkI8NLzkooQEAIQBw'),
+  letsAllLoveLain('lets_all_love_lain', 'CgkI8NLzkooQEAIQCA'),
+  prettyGirl('pretty_girl', 'CgkI8NLzkooQEAIQCQ'),
+  welcomeToTheWired('welcome_to_the_wired', 'CgkI8NLzkooQEAIQCg'),
+  iHaveLostItAll('i_have_lost_it_all', 'CgkI8NLzkooQEAIQCw');
+
+  const GameAchievement(this.localId, this.playGamesId);
+
+  /// Id en [localAchievements] (fifty_achievement_engine)
+  final String localId;
+
+  /// Id en la Play Console
+  final String playGamesId;
+}
+
+/// Leaderboard de "cookies" en la Play Console
+const String cookiesLeaderboardId = 'CgkI8NLzkooQEAIQDA';
+
+/// Stat del motor local que se incrementa en cada subida de nivel
+const String levelUpStat = 'level_up';
+
+/// Definición de logros para el motor local (plataformas sin Google Play Games Services).
+/// Los logros incrementales de Android se definen en la Play Console.
+const List<fifty.Achievement> localAchievements = [
   // --- INCREMENTALES (CountCondition) ---
   fifty.Achievement(
     id: 'beginner',
     name: 'Beginner',
     description: 'This is just the beginning',
-    condition: fifty.ThresholdCondition('level_up', target: 1, operator: fifty.ThresholdOperator.greaterOrEqual),
+    condition: fifty.ThresholdCondition(levelUpStat, target: 1, operator: fifty.ThresholdOperator.greaterOrEqual),
     rarity: fifty.AchievementRarity.common,
     points: 50,
   ),
@@ -14,7 +41,7 @@ const List<fifty.Achievement> achievementList = [
     id: 'love_is_in_the_air',
     name: 'Love is in the air',
     description: 'Love is in the air',
-    condition: fifty.ThresholdCondition('level_up', target: 2, operator: fifty.ThresholdOperator.greaterOrEqual),
+    condition: fifty.ThresholdCondition(levelUpStat, target: 2, operator: fifty.ThresholdOperator.greaterOrEqual),
     rarity: fifty.AchievementRarity.uncommon,
     points: 100,
   ),
@@ -22,7 +49,7 @@ const List<fifty.Achievement> achievementList = [
     id: 'lain_chikita_lover',
     name: 'Lain Chikita lover',
     description: "Let's All Love Lain Chikita",
-    condition: fifty.ThresholdCondition('level_up', target: 100, operator: fifty.ThresholdOperator.greaterOrEqual),
+    condition: fifty.ThresholdCondition(levelUpStat, target: 100, operator: fifty.ThresholdOperator.greaterOrEqual),
     rarity: fifty.AchievementRarity.rare,
     points: 200,
   ),
@@ -30,7 +57,7 @@ const List<fifty.Achievement> achievementList = [
     id: 'cereal_enjoyer',
     name: 'Cereal enjoyer',
     description: "You really love cereal, don't you?",
-    condition: fifty.ThresholdCondition('level_up', target: 1000, operator: fifty.ThresholdOperator.greaterOrEqual),
+    condition: fifty.ThresholdCondition(levelUpStat, target: 1000, operator: fifty.ThresholdOperator.greaterOrEqual),
     rarity: fifty.AchievementRarity.epic,
     points: 500,
   ),
@@ -38,7 +65,7 @@ const List<fifty.Achievement> achievementList = [
     id: 'love_miner',
     name: 'Love miner',
     description: "You really love mining, don't you?",
-    condition: fifty.ThresholdCondition('level_up', target: 5000, operator: fifty.ThresholdOperator.greaterOrEqual),
+    condition: fifty.ThresholdCondition(levelUpStat, target: 5000, operator: fifty.ThresholdOperator.greaterOrEqual),
     rarity: fifty.AchievementRarity.legendary,
     points: 1000,
   ),

@@ -14,52 +14,49 @@ Run everything from `lain_chikita/`:
 flutter pub get
 flutter run                       # debug run
 flutter analyze                   # lint (flutter_lints, see analysis_options.yaml)
-flutter test                      # tests
-flutter test test/widget_test.dart
+flutter test                      # unit tests (pure logic in lib/logic and lib/models)
+flutter test test/click_guard_test.dart
 flutter build apk --release
 flutter build appbundle --release
+flutter build linux --release
 ```
 
-`test/widget_test.dart` is still the default Flutter counter template and does not reflect the app; it asserts a counter UI that doesn't exist, so expect it to fail.
+`pubspec.yaml` has `dependency_overrides` pinning `jni` 1.0.0 / `jni_flutter` 1.0.1, because `jni` 1.1.0 doesn't compile on Linux desktop. Remove the overrides once upstream fixes it.
 
 ### Required private files (gitignored)
 
-- `lain_chikita/lib/private_keys.dart` defines `const SECRET_KEY` (AES key used for backups and redeem codes). The app won't compile without it.
+- `lain_chikita/lib/private_keys.dart` defines `const SECRET_KEY` (AES key for redeem codes). The app won't compile without it.
 - `lain_chikita/android/key.properties` and `key/keystore.jks` hold the release signing config. **Debug builds also use the release signing config** (`android/app/build.gradle.kts`), because Google Play Games Services needs the release SHA.
 
-## Architecture
+## Architecture (`lain_chikita/lib/`)
 
-### Global state
-There is no state-management library. All game state lives as top-level mutable variables in `lib/global_vars.dart` (level, progress, coins, userName, inventories, language, singletons like `languageDataManager`, `appAudioPlayer`). Import it as `import '../global_vars.dart' as global_vars;` (optionally with `show ...`). Screens mutate these globals directly and call `setState`.
+- `main.dart` loads everything before `runApp`: translations, then `GameState.load()` (which first runs the legacy-prefs migration), local achievements and audio.
+- `state/game_state.dart`: `GameState` is a `ChangeNotifier` and the single source of truth for game data. Every mutation goes through its methods (`addLove`, `buyRandomAccessory`, `selectAccessory`, `applySaveData`, ...), which persist and call `notifyListeners()`. There's no state-management package: `GameState` is created in `main` and passed down by constructor, and widgets rebuild with `ListenableBuilder`.
+- `services/` are singletons (`X.instance`):
+  - `GameStorage` wraps preferences.
+  - `PlayGamesService` wraps `games_services`. It's Android-only; on other platforms its methods are no-ops or return false/null, so callers don't check `Platform`.
+  - `AchievementsService` handles achievements.
+  - `AudioService` plays sounds.
+  - `Translations` (with the `tr('key')` shortcut) holds UI text.
+  - `RedeemCodeService` redeems codes.
+  - `crypto.dart` and `user_files.dart` are helpers.
+- `logic/` holds pure, unit-tested code: `ClickGuard` (anti-cheat) and the inventory merge and JSON codec.
+- `data/` holds static catalogs (accessories, redeem codes, achievements). `models/` holds `GameSaveData` and the sealed `RedeemResult`.
+- `screens/home_screen.dart` is the `PageView` shell (love → inventory → gacha → game data). It also owns the anti-cheat block screen, the snow event and the "updated" animation. `widgets/` holds the shared `MenuButton` and `showConfirmDialog`.
 
-`lib/main.dart` holds `_MyHomePageState`, which does most of the work: `_loadProgress()` bootstraps everything from `SharedPreferences` on startup, and it also contains save functions, the anti-cheat click limiter, and the level-up loop. Leveling works like this: `_maxProgress` = 20 clicks per level, every 50 levels advances the step achievements, and every 100 levels awards a coin, increments the cloud "cookies" leaderboard score and saves to the cloud. The other screens (`inventory_screen`, `gacha_screen`, `game_data_screen`) are pages in a `PageView`.
+Leveling works like this: there are 20 clicks per level (`GameState.lovePerLevel`). Every 50 levels advances the Play Games step achievements. Every 100 levels awards a coin, increments the cloud "cookies" leaderboard score and auto-saves to the cloud if signed in. Suspicious clicks still count; the anti-cheat only shows a 30 s block screen.
 
-### Persistence
-- Local: `SharedPreferencesAsync` through the global `appPrefs` in `functions/prefs_storage.dart`. It has no cache, so every getter is `await`ed, and it uses DataStore on Android. Don't use the legacy `SharedPreferences` API. Its only remaining use is `migrateLegacyPrefsIfNecessary()`, which runs at the start of `_loadProgress()` to copy data from older app versions, keyed by `legacyPrefsMigrationCompleted`. Never rename or delete that key. Keys used: (`level`, `progress`, `userName`, `coins`, `accessoryName`, `inventory`, `unlockedInventory`, `inventoryVersion`, `userUuid`, `userSecretKey`, `userIv`, `achievement_progress_engine_data`).
-- Cloud (Android only): Google Play Games `SaveGame` slots `slot1` (full game data JSON), `cookies_score`, and `redeemed_codes`.
+### Persistence: formats must stay backward compatible
+- Local: `SharedPreferencesAsync` in `GameStorage`. It has no cache, so every getter is `await`ed, and it uses DataStore on Android. Key names live in `PrefsKeys` and must never be renamed. That includes `unlockedInventory`, which actually stores the **locked** accessories. The legacy `SharedPreferences` API is only used by `migrateLegacyIfNecessary()`, keyed by `legacyPrefsMigrationCompleted`.
+- Cloud (Android only): Play Games slots `slot1` (`GameSaveData` JSON, where the inventories are JSON strings inside the JSON), `cookies_score` and `redeemed_codes` (`SaveSlots`).
+- Accessory lists are stored as `[{"name": "<id>"}]` (`encodeAccessoryList`) but handled in memory as `List<String>`.
 
-### Inventory / accessories (skins)
-- `inventory` is the list of owned accessories. `unlockedInventory` (despite the name) is the list of accessories **not yet owned**, from which the gacha draws.
-- **Adding a new accessory** requires all of the following:
-  1. Add `{'name': '<id>'}` to `unlockedInventory` in `global_vars.dart`.
-  2. **Increment `inventoryVersion`.** On startup, `applyInventoryVerionUpdate` (`functions/prefs_version_manager.dart`) merges new app items into the user's saved not-owned list only when the version changed, and then plays the "updated" animation.
-  3. Add `assets/images/accessories/<id>.png` (rendered as `assets/images/accessories/${accessoryName}.png`).
-  4. Add the display name to both `assets/language/items_name_en.json` and `items_name_es.json`.
-
-### i18n
-`LanguageDataManager` loads `assets/language/labels_<lang>.json` and `items_name_<lang>.json` (`en`/`es`, picked from the device locale in `main()`). UI text uses `languageDataManager.getLabel('key')`, which falls back to the key itself. Any new label needs both language files.
-
-### Achievements: two parallel systems
-`functions/achievements_manager.dart`:
-- **Android**: Google Play Games Services (`games_services`), with achievements referenced by Play Console IDs like `"CgkI8NLzkooQEAIQBg"` through `unlockAchievementById` and `incrementAchievementsStepType`. These functions return early on non-Android platforms.
-- **Other platforms**: the local `fifty_achievement_engine`. Definitions live in `lib/data/game_achievements.dart`, and the `achievementController` is driven by `incrementStat('level_up', 1)` / `forceUnlock('<local_id>')`. Progress is exported to SharedPreferences (`achievement_progress_engine_data`) and shows a popup through the global `appContext`.
-
-Call sites usually do both: `if (!Platform.isAndroid) achievementController.forceUnlock('local_id');` followed by `unlockAchievementById("<play id>");`. A new achievement needs an entry in each system.
-
-### Redeem codes
-Codes are AES-encrypted JSON (`{'id': ...}`) decrypted with `SECRET_KEY` in `functions/redeem_codes_functions.dart`. Valid codes and their effects are whitelisted in `redeemableCodes` in `global_vars.dart` (typed by the `RedeemableCodeType` enum, stored as `.name`). Redeeming requires a Google Play Games sign-in, and redeemed IDs are tracked in the cloud slot `redeemed_codes`.
-
-### Other
-- `functions/encryption_functions.dart`: AES helpers (`encryptData`/`decryptData`) plus isolate-based file encryption of the app's `FILES_TO_ENCRYPT` → `ENCRYPTED_FILES` / `DECRYPTED_FILES` folders (`AppFolders`, under external storage on Android). The UI for file encryption and clipboard backup is currently commented out in `game_data_screen.dart`.
-- `gacha_functions.dart` uses `Random.secure()` for draws and accessory unlocks.
-- Assets must be declared in `pubspec.yaml`. The accessory, audio and language folders are declared as directories, but top-level images are listed individually.
+### Adding things
+- **Accessory**:
+  1. Add its id to `unlockableAccessories` in `data/accessories_catalog.dart` and **increment `inventoryVersion`**. On startup, a changed version merges new catalog items into the user's locked list and plays the "updated" animation.
+  2. Add `assets/images/accessories/<id>.png`.
+  3. Add its name to `assets/language/items_name_en.json` and `items_name_es.json`.
+- **Event achievement**: add a value to the `GameAchievement` enum (local id + Play Console id), add a matching `fifty.Achievement` to `localAchievements`, and call `AchievementsService.instance.unlock(...)`. The service picks Play Games on Android and the local `fifty_achievement_engine` elsewhere.
+- **Redeem code**: add it to `redeemableCodes` (`data/redeemable_codes.dart`). The user-facing code is `encryptData('{"id":"<id>"}', SECRET_KEY)` from `services/crypto.dart`. Redeeming requires a Play Games sign-in.
+- **UI text**: add the key to both `assets/language/labels_en.json` and `labels_es.json`. `tr()` falls back to the key itself.
+- Assets must be declared in `pubspec.yaml`. Paths are centralized in `core/app_assets.dart`, and colors in `core/app_colors.dart`.
