@@ -41,7 +41,7 @@ const List<fifty.Achievement> localAchievements = [
     id: 'love_is_in_the_air',
     name: 'Love is in the air',
     description: 'Love is in the air',
-    condition: fifty.ThresholdCondition(levelUpStat, target: 2, operator: fifty.ThresholdOperator.greaterOrEqual),
+    condition: fifty.ThresholdCondition(levelUpStat, target: 50, operator: fifty.ThresholdOperator.greaterOrEqual),
     rarity: fifty.AchievementRarity.uncommon,
     points: 100,
   ),
